@@ -16,7 +16,7 @@ import VueUeditorWrap from 'vue-ueditor-wrap'
 
 // 菜单和路由设置
 import router from './router'
-import menus from '@/menu/index'
+import { menus } from '@/menu/index'
 import { frameInRoutes } from '@/router/routes'
 
 // 核心插件
@@ -55,14 +55,14 @@ new Vue({
   i18n,
   render: h => h(App),
   created () {
-    // 处理路由 得到每一级的路由设置
-    this.$store.commit('d2admin/page/init', frameInRoutes)
-    // 设置顶栏菜单
-    // this.$store.commit('d2admin/menu/headerSet', menus)
-    // 设置侧边栏菜单
-    this.$store.commit('d2admin/menu/asideSet', menus)
-    // 初始化菜单搜索功能
-    this.$store.commit('d2admin/search/init', menus)
+     // 处理路由 得到每一级的路由设置
+     this.$store.commit('d2admin/page/init', frameInRoutes)
+     // 设置顶栏菜单
+     // this.$store.commit('d2admin/menu/headerSet', menus)
+     // 设置侧边栏菜单
+     this.$store.commit('d2admin/menu/asideSet', menus)
+     // 初始化菜单搜索功能
+     this.$store.commit('d2admin/search/init', menus)
   },
   mounted () {
     // 展示系统信息

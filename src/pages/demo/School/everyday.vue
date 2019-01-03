@@ -3,69 +3,86 @@
       <template slot="header">
          <div class="flex between">
             <div class="title">每日实拍</div>
-            <el-button type="primary" icon="el-icon-circle-plus-outline" @click="$router.push({name: 'demo-School-addCombo'})">添加</el-button>
+            <el-button type="primary" icon="el-icon-circle-plus-outline" @click="$router.push({name: 'demo-School-addEveryday'})">添加</el-button>
          </div>
       </template>
       <template>
          <el-table :data="Data" border style="width: 100%">
             <el-table-column prop="id" label="id" width="120" align="center"></el-table-column>
-            <el-table-column prop="sid" label="学校名称" align="center"></el-table-column>
-            <el-table-column prop="title" label="标题" align="center"></el-table-column>
-            <el-table-column prop="startat" label="开始时间" width="160" align="center"></el-table-column>
-            <el-table-column prop="endat" label="结束时间" width="160" align="center"></el-table-column>
-            <el-table-column prop="holidays" label="假期天数" width="140" align="center"></el-table-column>
+            <el-table-column prop="cname" label="套餐名" min-width="140" align="center"></el-table-column>
+            <el-table-column label="实拍图" align="center" min-width="300">
+               <template slot-scope="scope">
+                  <img :src="scope.row.image" width="80" height="80" style="object-fit:cover">
+               </template>
+            </el-table-column>
+            <el-table-column prop="dates" label="上传时间" min-width="140" align="center"></el-table-column>
+            <el-table-column prop="addtime" label="时间" min-width="140" align="center"></el-table-column>
+            <el-table-column label="操作" width="180" align="center">
+               <template slot-scope="scope">
+                  <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-School-assEverydey', query: {id: scope.row.id}})">编辑</el-button>
+                  <el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.id)">删除</el-button>
+               </template>
+            </el-table-column>
          </el-table>
-      </template>
-      <template>
-         <div class="flex br everyday">
-            <div class="month" v-for="(v, k) in blocklist" :key="k">
-               <div class="flex center title">{{monthes[k]}}</div>
-               <div class="flex week">
-                  <div v-for="(v, k) in weeks" :key="k" class="flexitem center item">{{v}}</div>
-               </div>
-               <div class="flex rows" v-for="(i, s) in v" :key="s">
-                  <div v-for="(t, z) in i" :key="z" :class="['flexitemv','item', (t.keys == 0 || t.keys < today || t.holiday > -1) ? 'disable' : '']" :style="{background: t.keys > today && t.holiday == -1 ? `url(${t.url}) 0 0 / cover` : '#ebeef5'}">
-                     <div class="flex head">
-                        <div class="flex holiday">{{t.holiday > -1 ? '假日' : ''}}</div>
-                        <div class="flex endh today">{{t.keys == today ? '今天' : ''}}</div>
-                     </div>
-                     <div class="flex center days">{{t.day}}</div>
-                     <div class="flex center upload" v-if="t.keys > today && t.holiday == -1"><span>点击上传每日实拍</span><input type="file" accept="image/*" @change="everyUpload(k, s, z, $event)"></div>
-                  </div>
-               </div>
-            </div>
-         </div>
       </template>
    </d2-container>
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpAddUm, httpEditUm } from '@api/http'
+import { httpGet, httpAdd, httpEdit, httpTrash, httpAddUm, httpEditUm } from '@api/http'
+import dayjs from 'dayjs'
 
 export default {
    name: 'everyday',
    data() {
       return {
-         filename: __filename, Id: 0, sid: 0, Data: [], today: '', weeks: [], monthes: [], blocklist: []
+         filename: __filename,
+         dayjs,
+         Id: 0,
+         combos: [],
+         Data: []
       }
    },
    async created() {
       this.Id = Number(this.$route.query.id)
-      let begin = 0, end = 0, holidays = [], shoot = []
-      await httpGet('shootOpt', {id: this.Id}).then(res => {
-         this.sid = res.data.sid, begin = res.data.startat, end = res.data.endat, holidays = JSON.parse(res.data.holiday), shoot = res.shoot
-         let json = {}
-         json.id = res.data.id
-         json.startat = this.formatDate(begin, 'y-M-d')
-         json.endat = this.formatDate(end, 'y-M-d')
-         json.sid = res.school.cname
-         json.title = res.data.title
-         json.holidays = holidays.length
-         this.Data.push(json)
+      await httpGet('dayshoot', {id: this.Id}).then(res => {
+         for(let [k, v] of Object.entries(res.taocan)){
+            this.combos.push({id: v, cname: k})
+         }
+         this.Data = res.lists.map( item => {
+            let json = item
+            json.dates = `${item.dates.toString().substr(0, 4)}-${item.dates.toString().substr(4, 2)}-${item.dates.toString().substr(6, 2)}, `
+            json.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
+            json.cname = this.combos.find(val => {return val.id == item.tid}).cname
+            return json
+         })
       })
-      await this.parseDays(begin, end, holidays, shoot)
+      //await this.parseDays(begin, end, holidays, shoot)
    },
    methods: {
+      handleRemove (Id) {
+         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
+            httpTrash('schoolopt', {id: Id}).then(res => {
+               this.Data = this.Data.filter(item => {
+                  return item.id != Id
+               })
+               this.$message.success('删除成功!')
+            })
+         }).catch(() => {
+            this.$message.info('已取消删除')
+         })
+      },
+
+
+
+
+
+
+
+
+
+
+
       // 生成日历
       parseDays(begin, end, holidays, shoot) {
          let daytime = 86400, first = 0, str = [], block = [], blocklist = [], monthes = [], dates = new Date(), total = 0
@@ -99,7 +116,6 @@ export default {
                   str.push({keys: 0, day: '', holiday: -1, url: '' })
                }
             }
-            // shoot = {'20181227':'https'}
             str.push({keys: keys, day: day, holiday: holidays.indexOf(keys), url: shoot[keys] || '' })
             if (week == 6) {
                if (str.length) block.push(str)
@@ -122,7 +138,6 @@ export default {
          this.blocklist = blocklist,
          this.today = today
       },
-
       // 每日实拍
       everyUpload(bkey, rkey, dkey, $el) {
          if($el.target.files[0]){

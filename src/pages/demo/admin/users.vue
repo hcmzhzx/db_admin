@@ -27,27 +27,11 @@
                   <el-input v-model="form.name" autocomplete="off"></el-input>
                </el-form-item>
                <template>
-                  <el-collapse v-model="active">
-                     <el-collapse-item title="系统管理员" v-if="admin.length" name="admin">
-                        <el-form-item>
-                           <el-checkbox-group v-model="form.admin">
-                              <el-checkbox v-for="(v, k) in admin" :key="k" :label="v.title"></el-checkbox>
-                           </el-checkbox-group>
-                        </el-form-item>
-                     </el-collapse-item>
-                     <el-collapse-item title="学校管理系统" v-if="school.length" name="school">
-                        <el-form-item>
-                           <el-checkbox-group v-model="form.school">
-                              <el-checkbox v-for="(v, k) in school" :key="k" :label="v.title"></el-checkbox>
-                           </el-checkbox-group>
-                        </el-form-item>
-                     </el-collapse-item>
-                     <el-collapse-item title="用户管理" v-if="users.length" name="users">
-                        <el-form-item>
-                           <el-checkbox-group v-model="form.users">
-                              <el-checkbox v-for="(v, k) in users" :key="k" :label="v.title"></el-checkbox>
-                           </el-checkbox-group>
-                        </el-form-item>
+                  <el-collapse>
+                     <el-collapse-item v-for="(item, index) in collapse" :title="item.title" :name="item.title" :key="index">
+                        <el-checkbox-group v-model="form.admin">
+                           <el-checkbox v-for="(v, k) in item.children" :key="k" :label="v.title"></el-checkbox>
+                        </el-checkbox-group>
                      </el-collapse-item>
                   </el-collapse>
                </template>
@@ -72,17 +56,14 @@ export default {
          Data: [],
          Id : 0,
          dialogForm: false,
-         parseAccess: [],
+
          active: [],
-         admin: [],
-         school: [],
-         users: [],
+         collapse: [],
          form: {
             name: '',
-            admin: [],
-            school: [],
-            users: []
+            admin: []
          },
+
          rules: {
             name: [{required: true, message: '角色名不能为空', trigger: 'blur'}]
          }
@@ -94,7 +75,7 @@ export default {
    methods: {
       loadata() {
          httpGet('adminGroup').then(res => {
-            this.mapCheckbox(res.access, '')
+            this.collapse = this.parseAccess(res.access, 0)
             this.Data = res.lists.map(item => {
                let json = item
                json.addtime = this.formatDate(item.addtime, 'y-M-d')
@@ -102,79 +83,47 @@ export default {
             })
          })
       },
-      mapData (lists, belong) {
-         return lists.map(item => {
-            let json = {}
-            if(item.pid){
-               lists.forEach(val => {
-                  item.belong = belong
-                  json = item
-               })
-            } else {
-               item.belong = belong = item.title
-               json = item
-            }
-            return json
-         })
-      },
-      mapCheckbox(list) {
-         let mapdata = this.parseAccess = this.mapData(list, ''), name = ''
-         this.admin = [], this.school = [], this.users = []
-         mapdata.forEach(item => {
-            if(item.pid){
-               if(name == item.belong){
-                  if(name == '系统管理员'){
-                     this.admin.push(item)
-                  } else if(name == '学校管理系统'){
-                     this.school.push(item)
-                  } else if(name == '用户管理'){
-                     this.users.push(item)
-                  }
-               }
-            } else {
-               name = item.belong
+      parseAccess (lists, pid) { // 菜单重组
+         let access = []
+         lists.forEach(item => {
+            if (item.pid == pid ) {
+               let children = this.parseAccess(lists, item.id)
+               if (children.length) item.children = children
+               access.push(item)
             }
          })
+         return access
       },
       dialogSubmit(form) {
          this.$refs[form].validate((valid) => {
             if(valid) {
-               let admin = []
-               if (this.form.admin.length) {
-                  admin.push(this.admin[0].pid)
-                  this.form.admin.forEach(item => {
-                     let id = this.admin.find(val => {return item == val.title}).id
-                     admin.push(id)
+               var access = Object.assign([], this.form.admin), menus = Object.assign([], this.collapse), mids = []
+               menus.forEach(item => {
+                  item.children.forEach(v => {
+                     if (access.indexOf(v.title) > -1) {
+                        if (mids.indexOf(item.id) < 0) mids.push(item.id)
+                        mids.push(v.id)
+                     }
                   })
-               }
-               if (this.form.school.length) {
-                  admin.push(this.school[0].pid)
-                  this.form.school.forEach(item => {
-                     let id = this.school.find(val => {return item == val.title}).id
-                     admin.push(id)
-                  })
-               }
-               if (this.form.users.length) {
-                  admin.push(this.users[0].pid)
-                  this.form.users.forEach(item => {
-                     let id = this.users.find(val => {return item == val.title}).id
-                     admin.push(id)
-                  })
-               }
-               if (this.Id) {
-                  let posts = {id: this.Id, cname: this.form.name, menus: admin.join(',')}
-                  httpEdit('adminGroupopt', posts).then(res => {
-                     this.dialogForm = false
-                     this.$message({message: '修改成功', type: 'success'})
-                     this.loadata()
-                  })
+               })
+               if (mids.length == 0) {
+                  this.$message.warning('至少有一个权限')
                } else {
-                  let posts = {cname: this.form.name, menus: admin.join(',')}
-                  httpAdd('adminGroupopt', posts).then(res => {
-                     this.dialogForm = false
-                     this.$message({message: '添加成功', type: 'success'})
-                     this.loadata()
-                  })
+                  if (this.Id) {
+                     let posts = {id: this.Id, cname: this.form.name, menus: mids.join(',')}
+                     httpEdit('adminGroupopt', posts).then(res => {
+                        this.dialogForm = false
+                        this.$message({message: '修改成功', type: 'success'})
+                        this.loadata()
+                     })
+                  } else {
+                     let posts = {cname: this.form.name, menus: mids.join(',')}
+                     httpAdd('adminGroupopt', posts).then(res => {
+                        this.dialogForm = false
+                        this.$message({message: '添加成功', type: 'success'})
+                        this.loadata()
+                     })
+                  }
                }
             }
          })
@@ -182,32 +131,29 @@ export default {
       handleAdd() {
          this.Id = 0
          this.form.name = ''
-         this.active = [], this.form.admin = [], this.form.school = [], this.form.users = []
+         this.active = [], this.form.admin = []
          this.dialogForm = true
       },
       handleEdit(id, cname, menus) {
          this.Id = Number(id)
-         let list = menus.split(',')
+         let mids = menus.split(',')
+         let access = []
+         let menuItems = Object.assign([], this.collapse)
          this.form.name = cname
-         this.active = [], this.form.admin = [], this.form.school = [], this.form.users = []
-         list.map(val => {
-            this.parseAccess.forEach(item => {
-               if(item.id == val && item.belong == '系统管理员' && item.pid != 0){
-                  this.form.admin.push(item.title)
-                  this.active.push('admin')
-               }
-               if(item.id == val && item.belong == '学校管理系统' && item.pid != 0){
-                  this.form.school.push(item.title)
-                  this.active.push('school')
-               }
-               if(item.id == val && item.belong == '用户管理' && item.pid != 0){
-                  this.form.users.push(item.title)
-                  this.active.push('users')
-               }
+         this.active = [], this.form.admin = []
+         menuItems.forEach(item => {
+            if (mids.indexOf(String(item.id)) > -1) access.push(item.title)
+            item.children.forEach(v => {
+               if (mids.indexOf(String(v.id)) > -1) access.push(v.title)
             })
          })
+         this.form.admin = access
          this.dialogForm = true
       },
+
+
+
+
       handleRemove(id) {
          this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
             httpTrash('adminGroupopt', {id}).then(res => {

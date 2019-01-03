@@ -16,12 +16,6 @@
             <el-table-column prop="unit" label="餐标" width="80" align="center"></el-table-column>
             <el-table-column prop="total" label="总共餐次" width="100" align="center"></el-table-column>
             <el-table-column prop="addtime" label="添加时间" width="140" align="center"></el-table-column>
-
-            <el-table-column label="每日实拍" width="140" align="center">
-               <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-upload2" size="small" @click="$router.push({name: 'demo-School-everyday', query: {id: scope.row.id}})">上传</el-button>
-               </template>
-            </el-table-column>
             <el-table-column label="操作" width="180" align="center">
                <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-School-addSemester', query: {id: scope.row.id}})">编辑</el-button>

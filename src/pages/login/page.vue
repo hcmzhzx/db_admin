@@ -56,9 +56,13 @@
   </div>
 </template>
 
+<!--{code:0,msg:'',token:'',access:[{id: 1,pid:0,title:'',icon: '', path:'', url: ''}]}-->
+
 <script>
 import dayjs from 'dayjs'
 import { mapActions } from 'vuex'
+import { login } from '@/menu'
+
 export default {
   data () {
     return {
@@ -68,8 +72,8 @@ export default {
       dialogVisible: false,
       // 表单
       formLogin: {
-        account: 'admin',
-        pwd: 'admin'
+        account: '',
+        pwd: ''
       },
       // 校验
       rules: {
@@ -91,9 +95,9 @@ export default {
     clearInterval(this.timeInterval)
   },
   methods: {
-    ...mapActions('d2admin/account', [
-      'login'
-    ]),
+    // ...mapActions('d2admin/account', [
+    //   'login'
+    // ]),
     refreshTime () {
       this.time = dayjs().format('HH:mm:ss')
     },
@@ -116,10 +120,15 @@ export default {
           // 登录
           // 注意 这里的演示没有传验证码
           // 具体需要传递的数据请自行修改代码
-          this.login({vm: this, account: this.formLogin.account, pwd: this.formLogin.pwd}).then(() => {
+           login(this, this.formLogin.account, this.formLogin.pwd).then(() => {
+              // 重定向对象不存在则返回顶层路径
+              //this.$router.replace(this.$route.query.redirect || '/')
+              location.href = this.$route.query.redirect || '/'
+           })
+          /*this.login({account: this.formLogin.account, pwd: this.formLogin.pwd}).then(() => {
             // 重定向对象不存在则返回顶层路径
             this.$router.replace(this.$route.query.redirect || '/')
-          })
+          })*/
         } else {
           // 登录表单校验失败
           this.$message.error('表单校验失败')

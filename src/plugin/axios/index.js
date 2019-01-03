@@ -2,6 +2,8 @@ import store from '@/store'
 import axios from 'axios'
 import { Message } from 'element-ui'
 import util from '@/libs/util'
+import Vue from 'vue'
+import router from '@/router'
 
 // 创建一个错误
 function errorCreat (msg) {
@@ -56,7 +58,7 @@ service.interceptors.response.use(
     const dataAxios = response.data
     // 这个状态码是和后端约定的
     const { code } = dataAxios
-    // 根据 code 进行判断
+     // 根据 code 进行判断
     if (code === undefined) {
       // 如果没有 code 代表这不是项目后端开发的接口 比如可能是 D2Admin 请求最新版本
       return dataAxios
@@ -66,9 +68,18 @@ service.interceptors.response.use(
         case 0:
           // [ 示例 ] code === 0 代表没有错误
           return dataAxios
-        case 'xxx':
+        case 1:
           // [ 示例 ] 其它和后台约定的 code
-          errorCreat(`[ code: xxx ] ${dataAxios.msg}: ${response.config.url}`)
+          errorCreat(`${dataAxios.msg}: ${response.config.url}`)
+          break
+        case 403:
+          Message.warning('没有权限, 请重新登录')
+          util.cookies.remove('token')
+          util.cookies.remove('uuid')
+          // 删除菜单
+          sessionStorage.removeItem('menus')
+          // 跳转路由
+          router.push({name: 'login'})
           break
         default:
           // 不是正确的 code

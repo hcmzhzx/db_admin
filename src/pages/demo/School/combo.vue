@@ -17,6 +17,11 @@
             </el-table-column>
             <el-table-column prop="school" label="学校名称" align="center"></el-table-column>
             <el-table-column prop="addtime" label="时间" width="140" align="center"></el-table-column>
+            <el-table-column label="每日实拍" width="140" align="center">
+               <template slot-scope="scope">
+                  <el-button type="primary" icon="el-icon-upload2" size="small" @click="$router.push({name: 'demo-School-everyday', query: {id: scope.row.id}})">上传</el-button>
+               </template>
+            </el-table-column>
             <el-table-column label="操作" width="180" align="center">
                <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-School-addCombo', query: {id: scope.row.id}})">编辑</el-button>

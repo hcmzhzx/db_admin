@@ -8,21 +8,21 @@
       </template>
       <template>
          <el-table :data="Data" border style="width: 100%">
-            <el-table-column prop="id" label="id" width="100" align="center"></el-table-column>
-            <el-table-column prop="account" label="账号" width="200" align="center"></el-table-column>
+            <el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>
+            <el-table-column prop="account" label="账号" min-width="200" align="center"></el-table-column>
             <el-table-column label="头像" align="center">
                <template slot-scope="scope">
                   <img :src="scope.row.head" width="60" height="60" style="object-fit:cover">
                </template>
             </el-table-column>
-            <el-table-column prop="groups" label="所属用户组" width="200" align="center"></el-table-column>
-            <el-table-column label="状态" width="90" align="center">
+            <el-table-column prop="groups" label="所属用户组" min-width="200" align="center"></el-table-column>
+            <el-table-column label="状态" width="100" align="center">
                <template slot-scope="scope">
-                  <el-tag :type="scope.row.state ? 'info' : 'danger'">{{scope.row.state ? '正常' : '禁用'}}</el-tag>
+                  <el-tag :type="scope.row.state ? 'success' : 'danger'">{{scope.row.state ? '正常' : '禁用'}}</el-tag>
                </template>
             </el-table-column>
-            <el-table-column prop="addtime" label="添加时间" width="140" align="center"></el-table-column>
-            <el-table-column prop="logintime" label="最后登录时间" width="140" align="center"></el-table-column>
+            <el-table-column prop="addtime" label="添加时间" min-width="140" align="center"></el-table-column>
+            <el-table-column prop="logintime" label="最后登录时间" min-width="140" align="center"></el-table-column>
             <el-table-column label="操作" width="200" align="center">
                <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-admin-addUsers', query: {id: scope.row.id}})">编辑</el-button>
@@ -55,9 +55,10 @@ export default {
          this.Data = res.lists.map(item => {
             let json = item, arr = []
             json.addtime = this.formatDate(item.addtime, 'y-M-d')
-            json.logintime = item.logintime ? his.formatDate(item.logintime, 'y-M-d') : ''
+            json.logintime = item.logintime ? this.formatDate(item.logintime, 'y-M-d') : ''
             item.groups.split(',').forEach(item => {
-               arr.push(this.groups.find(val => {return item == val.id}).label)
+               var result = this.groups.find(val => { return item == val.id })
+               arr.push(result ? result.label : '')
             })
             json.groups = arr.join(',')
             return json

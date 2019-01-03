@@ -33,7 +33,7 @@ export default {
          columns: [
             // {title: 'id', key: 'id', align: 'center', width: '120px'},
             // {title: 'pid', key: 'pid', align: 'center', width: '120px'},
-            {title: '权限所属', key: 'belong', align: 'center'},
+            {title: '权限所属', key: 'name', align: 'center'},
             {title: '权限名称', key: 'title', align: 'center'},
             {title: '图标', key: 'icon', align: 'center'},
             {title: '前端路由', key: 'path', align: 'center'},
@@ -68,13 +68,12 @@ export default {
          formOptions: {labelWidth: '120px', labelPosition: 'left', saveLoading: false}
       }
    },
-   created() {
-      httpGet('adminaccess').then(res => {
-         this.Data = this.mapData(res.lists, '')
+   async created() {
+      await httpGet('adminaccess').then(res => {
+         this.Data = this.accessParse(res.lists, 0)
          this.pidOptions(res.lists)
+         // console.log(this.parseAccess(res.lists, 0));
       })
-      // console.log(this.accessParse(res.lists, 0, '系统管理员'))
-      // console.log(this.parseAccess(res.lists, 0))
    },
    methods: {
       pidOptions (arr) {
@@ -98,7 +97,8 @@ export default {
          httpAdd('adminaccessopt', row).then(res => {
             this.formTemplate.pid.component.options.push({label: row.title, value: res.id})
             this.$message({message: '保存成功', type: 'success'})
-            done({ id: res.id })
+            let name = row.pid ? this.formTemplate.pid.component.options.find(val => {return val.value == row.pid}).label : row.title
+            done({ name })
             this.formOptions.saveLoading = false
          })
       },
@@ -132,7 +132,19 @@ export default {
          this.$message({message: '取消保存', type: 'warning'})
          done()
       },
-      parseAccess (lists, pid) {
+      accessParse (lists, pid, name) {
+         let access = []
+         lists.forEach(item => {
+            if (item.pid == pid) {
+               item.name = name ? name : item.title
+               access.push(item)
+               let items = this.accessParse(lists, item.id, item.title)
+               access.push(...items)
+            }
+         })
+         return access
+      },
+      parseAccess (lists, pid) { // 菜单重组
          let access = []
          lists.forEach(item => {
             if (item.pid == pid && item.ifshow) {
@@ -142,33 +154,6 @@ export default {
             }
          })
          return access
-      },
-      /*accessParse (lists, pid, name) {
-         let access = []
-         lists.forEach(item => {
-            if (item.pid == pid) {
-               item.name = name
-               access.push(item)
-               let items = this.accessParse(lists, item.id, item.title)
-               access.push(...items)
-            }
-         })
-         return access
-      },*/
-      mapData (lists, belong) {
-         return lists.map(item => {
-            let json = {}
-            if(item.pid){
-               lists.forEach(val => {
-                  item.belong = belong
-                  json = item
-               })
-            } else {
-               item.belong = belong = item.title
-               json = item
-            }
-            return json
-         })
       }
    }
 }

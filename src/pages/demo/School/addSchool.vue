@@ -27,6 +27,9 @@
                   <img width="100%" :src="imageUrl" alt="预览图片">
                </el-dialog>
             </el-form-item>
+            <el-form-item label="联系方式" label-width="120px" prop="contact">
+               <el-input v-model="form.contact" maxlength="11" autocomplete="off" placeholder="请填写联系方式"></el-input>
+            </el-form-item>
             <el-form-item label="一年级" label-width="120px">
                <el-input v-model="form.grade1" autocomplete="off" placeholder="请填写班级"></el-input>
             </el-form-item>
@@ -72,10 +75,13 @@ export default {
          filename: __filename,
          Id: 0,
          district: [],
-         form: {cname: '', did: '', grade1: '', grade2: '', grade3: '', grade4: '', grade5: '', grade6: '', grade7: '', grade8: '', grade9: ''},
+         form: {cname: '', did: '', contact: '', grade1: '', grade2: '', grade3: '', grade4: '', grade5: '', grade6: '', grade7: '', grade8: '', grade9: ''},
          rules: {
             cname: [{ required: true, message: '请输入学校名称', trigger: 'blur' }],
-            did: [{ required: true, message: '请选择地区', trigger: 'change' }]
+            did: [{ required: true, message: '请选择地区', trigger: 'change' }],
+            contact: [{ required: true, message: '请输入联系方式', trigger: 'blur' },
+               { min: 11, max: 11, message: '请输入11位联系方式', trigger: 'blur' }
+            ]
          },
          IsUpload: false,
          UploadFile: null,
@@ -97,6 +103,7 @@ export default {
          httpGet('schoolopt', {id: this.Id}).then(res => {
             this.form.cname = res.data.cname
             this.form.did = res.data.did
+            this.fileList = [{name: '', url: res.data.contract}]
             let arr = JSON.parse(res.data.grade)
             for(let v of arr) {
                if(v.name == '一年级'){
@@ -153,7 +160,7 @@ export default {
             return
          }
          this.$refs[form].validate((valid) => {
-            if(valid){
+               if(valid){
                let Form = new FormData(), grades = [], cnum = 0
                for(let [k, v] of Object.entries(this.form)){
                   let json = {}
@@ -201,6 +208,7 @@ export default {
                   Form.append('id', this.Id)
                   Form.append('did', this.form.did)
                   Form.append('cname', this.form.cname)
+                  Form.append('contact', this.form.contact)
                   if(this.UploadFile) Form.append('file', this.UploadFile)
                   Form.append('grade', JSON.stringify(grades))
                   Form.append('gnum', grades.length)
@@ -213,6 +221,7 @@ export default {
                   Form.append('method', 'add')
                   Form.append('did', this.form.did)
                   Form.append('cname', this.form.cname)
+                  Form.append('contact', this.form.contact)
                   Form.append('file', this.UploadFile)
                   Form.append('grade', JSON.stringify(grades))
                   Form.append('gnum', grades.length)

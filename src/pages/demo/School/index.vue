@@ -16,6 +16,7 @@
                   <img :src="scope.row.contract" width="100" height="120" style="object-fit:cover">
                </template>
             </el-table-column>
+            <el-table-column prop="contact" label="联系方式" width="160" align="center"></el-table-column>
             <el-table-column prop="addtime" label="时间" width="160" align="center"></el-table-column>
             <el-table-column label="操作" width="180" align="center">
                <template slot-scope="scope">
@@ -30,12 +31,14 @@
 
 <script>
 import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import dayjs from 'dayjs'
 
 export default {
-   name: 'school',
+   name: 'demo-School-school',
    data() {
       return {
          filename: __filename,
+         dayjs,
          Data: [],
          district: [] // 地区
       }
@@ -47,7 +50,7 @@ export default {
          }
          this.Data = res.lists.map( item => {
             let json = item
-            json.addtime = this.formatDate(item.addtime, 'y-M-d')
+            item.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
             json.did = item.did ? this.district.find(val => {return val.id == item.did}).cname : ''
             return json
          })

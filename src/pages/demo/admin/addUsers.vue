@@ -131,7 +131,7 @@ export default {
                   form.append('account', this.form.account)
                   if(this.initialPwd != this.form.pwd) {form.append('pwd', this.form.pwd)}
                   if(this.UploadFile) {form.append('file', this.UploadFile)}
-                  form.append('state', this.form.state)
+                  form.append('state', this.form.state ? 1 : 0)
                   form.append('groups', groups.join(','))
                   httpEditUm('adminopt', form).then(res => {
                      this.$message.success('修改成功')
@@ -141,7 +141,7 @@ export default {
                   form.append('method', 'add')
                   form.append('account', this.form.account)
                   form.append('pwd', this.form.pwd)
-                  form.append('state', this.form.state)
+                  form.append('state', this.form.state ? 1 : 0)
                   form.append('file', this.UploadFile)
                   form.append('groups', groups.join(','))
                   httpAddUm('adminopt', form).then(res => {
