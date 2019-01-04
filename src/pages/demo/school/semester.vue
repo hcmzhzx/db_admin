@@ -3,7 +3,7 @@
       <template slot="header">
          <div class="flex between">
             <div class="title">学期管理</div>
-            <el-button type="primary" icon="el-icon-circle-plus-outline" @click="$router.push({name: 'demo-School-addSemester'})">添加</el-button>
+            <el-button type="primary" icon="el-icon-circle-plus-outline" @click="$router.push({name: 'demo-school-addSemester'})">添加</el-button>
          </div>
       </template>
       <template>
@@ -18,7 +18,7 @@
             <el-table-column prop="addtime" label="添加时间" width="140" align="center"></el-table-column>
             <el-table-column label="操作" width="180" align="center">
                <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-School-addSemester', query: {id: scope.row.id}})">编辑</el-button>
+                  <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-school-addSemester', query: {id: scope.row.id}})">编辑</el-button>
                   <el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.id)">删除</el-button>
                </template>
             </el-table-column>

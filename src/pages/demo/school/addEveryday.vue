@@ -39,7 +39,7 @@
 import { httpGet, httpAddUm, httpEditUm } from '@api/http'
 
 export default {
-   name: 'addSchool',
+   name: 'addEveryday',
    data() {
       return {
          filename: __filename,

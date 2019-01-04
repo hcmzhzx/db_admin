@@ -3,7 +3,7 @@
       <template slot="header">
          <div class="flex between">
             <div class="title">学校管理</div>
-            <el-button type="primary" icon="el-icon-circle-plus-outline" @click="$router.push({name: 'demo-School-addSchool'})">添加</el-button>
+            <el-button type="primary" icon="el-icon-circle-plus-outline" @click="$router.push({name: 'demo-school-addSchool'})">添加</el-button>
          </div>
       </template>
       <template>
@@ -20,7 +20,7 @@
             <el-table-column prop="addtime" label="时间" width="160" align="center"></el-table-column>
             <el-table-column label="操作" width="180" align="center">
                <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-School-addSchool', query: {id: scope.row.id}})">编辑</el-button>
+                  <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-school-addSchool', query: {id: scope.row.id}})">编辑</el-button>
                   <el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.id)">删除</el-button>
                </template>
             </el-table-column>
@@ -34,7 +34,7 @@ import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
-   name: 'demo-School-school',
+   name: 'demo-school-school',
    data() {
       return {
          filename: __filename,

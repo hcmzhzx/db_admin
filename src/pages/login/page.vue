@@ -5,23 +5,13 @@
         <li v-for="n in 10" :key="n"></li>
       </ul>
     </div>
-    <div
-      class="page-login--layer page-login--layer-time"
-      flex="main:center cross:center">
-      {{time}}
-    </div>
+    <div class="page-login--layer page-login--layer-time" flex="main:center cross:center">{{time}}</div>
     <div class="page-login--layer">
-      <div
-        class="page-login--content"
-        flex="dir:top main:justify cross:center box:justify">
+      <div class="page-login--content" flex="dir:top main:justify cross:center box:justify">
         <div class="page-login--content-header">
-          <p class="page-login--content-header-motto">
-            时间是一切财富中最宝贵的财富。 <span>—— 德奥弗拉斯多</span>
-          </p>
+          <p class="page-login--content-header-motto">时间是一切财富中最宝贵的财富。 <span>—— 德奥弗拉斯多</span></p>
         </div>
-        <div
-          class="page-login--content-main"
-          flex="dir:top main:center cross:center">
+        <div class="page-login--content-main" flex="dir:top main:center cross:center">
           <!-- logo -->
           <img class="page-login--logo" src="./image/logo@2x.png">
           <!-- 表单 -->

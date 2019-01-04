@@ -77,7 +77,7 @@ export default {
 
       if(this.$route.query.id){
          this.Id = Number(this.$route.query.id)
-         this.$route.meta.title = '修改用户'
+         this.$route.meta.title = '修改管理员'
          httpGet('adminopt', {id: this.Id}).then(res => {
             this.form.account = res.data.account
             this.form.pwd = this.initialPwd = res.data.pwd
@@ -89,7 +89,7 @@ export default {
             this.IsUpload = true
          })
       } else {
-         this.$route.meta.title = '添加用户'
+         this.$route.meta.title = '添加管理员'
       }
    },
    methods: {

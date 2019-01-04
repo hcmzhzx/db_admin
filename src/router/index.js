@@ -6,7 +6,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import store from '@/store/index'
 import util from '@/libs/util.js'
-import { menus } from '@/menu/index'
+import { menu } from '@/menu/index'
 
 // 路由数据
 import routes from './routes'
@@ -29,12 +29,14 @@ router.beforeEach((to, from, next) => {
    store.commit('d2admin/search/set', false)
 
    const token = util.cookies.get('token')
-   if (to.name != 'login' && !token) {
+   if (to.name != 'login' && (!token || menu.indexOf(to.path) == -1)) {
       next({ name: 'login', query: { redirect: document.URL } })
       NProgress.done()
+      util.cookies.remove('token')
+      util.cookies.remove('uuid')
+      // 删除菜单
+      sessionStorage.removeItem('menus')
    } else {
-      //console.log(to.path, menus)
-      //menus.findIndex()
       next()
    }
 })

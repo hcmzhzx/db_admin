@@ -1,7 +1,7 @@
 import demo from './modules/admin'
-import School from './modules/School'
+import school from './modules/school'
 import users from './modules/users'
-import diningReport from './modules/diningReport'
+import report from './modules/report'
 import message from './modules/message'
 import orders from './modules/orders'
 
@@ -52,9 +52,9 @@ const frameIn = [
       ]
    },
    demo,
-   School,
+   school,
    users,
-   diningReport,
+   report,
    message,
    orders
 ]

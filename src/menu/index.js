@@ -17,13 +17,13 @@ import { AccountLogin } from '@api/http'
    {
       title: '学校管理系统',
       icon: 'folder-o',
-      path: '/demo/School',
+      path: '/demo/school',
       children: [
-         {path: '/demo/School/region', title: '地区管理'},
-         {path: '/demo/School/index', title: '学校管理'},
-         {path: '/demo/School/semester', title: '学期管理'},
-         {path: '/demo/School/combo', title: '套餐管理'},
-         {path: '/demo/School/everyday', title: '每日实拍'}
+         {path: '/demo/school/region', title: '地区管理'},
+         {path: '/demo/school/index', title: '学校管理'},
+         {path: '/demo/school/semester', title: '学期管理'},
+         {path: '/demo/school/combo', title: '套餐管理'},
+         {path: '/demo/school/everyday', title: '每日实拍'}
       ]
    },
    {
@@ -48,9 +48,9 @@ import { AccountLogin } from '@api/http'
    {
       title: '数据报表',
       icon: 'folder-o',
-      path: '/demo/diningReport',
+      path: '/demo/report',
       children: [
-         {path: '/demo/diningReport/index', title: '用餐报表'}
+         {path: '/demo/report/index', title: '用餐报表'}
       ]
    },
    {
@@ -67,6 +67,7 @@ import { AccountLogin } from '@api/http'
 ]*/
 
 let menus = JSON.parse(sessionStorage.getItem('menus')) || []
+let menu = JSON.parse(sessionStorage.getItem('menu')) || []
 
 const login = (vm, account, pwd) => {
    return new Promise((resolve, reject) => {
@@ -83,25 +84,30 @@ const login = (vm, account, pwd) => {
             name: account
          }, {root: true})
          // 用户登录后从持久化数据加载一系列的设置
-         await vm.$store.dispatch('load')
+         // await vm.$store.dispatch('load')
          // 生成菜单
+         menu = ['/index']
          let parseAccess = (lists, pid) => {
             let access = []
             lists.forEach(item => {
+               if (menu.indexOf(item.path) == -1) menu.push(item.path)
                if (item.pid == pid) {
                   let children = parseAccess(lists, item.id)
                   if (children.length) item.children = children
-                  access.push(item)
+                  if (item.ifshow) access.push(item)
                }
             })
             return access
          }
-         sessionStorage.setItem('menus', JSON.stringify(parseAccess(res.access, 0)))
+
+         menus = await parseAccess(res.access, 0)
+         sessionStorage.setItem('menus', JSON.stringify(menus))
+         sessionStorage.setItem('menu', JSON.stringify(menu))
 
          // 设置侧边栏菜单
-         vm.$store.commit('d2admin/menu/asideSet', parseAccess(res.access, 0))
+         vm.$store.commit('d2admin/menu/asideSet', menus)
          // 初始化菜单搜索功能
-         vm.$store.commit('d2admin/search/init', parseAccess(res.access, 0))
+         vm.$store.commit('d2admin/search/init', menus)
          // 结束
          resolve()
       }).catch(err => {
@@ -113,5 +119,6 @@ const login = (vm, account, pwd) => {
 
 export {
    menus,
+   menu,
    login
 }

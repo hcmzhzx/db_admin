@@ -73,14 +73,14 @@ service.interceptors.response.use(
           errorCreat(`${dataAxios.msg}: ${response.config.url}`)
           break
         case 403:
-          Message.warning('没有权限, 请重新登录')
-          util.cookies.remove('token')
-          util.cookies.remove('uuid')
-          // 删除菜单
-          sessionStorage.removeItem('menus')
-          // 跳转路由
-          router.push({name: 'login'})
-          break
+            Message.warning('没有权限, 请重新登录')
+            util.cookies.remove('token')
+            util.cookies.remove('uuid')
+            // 删除菜单
+            sessionStorage.removeItem('menus')
+            // 跳转路由
+            router.push({name: 'login'})
+           break
         default:
           // 不是正确的 code
           errorCreat(`${dataAxios.msg}: ${response.config.url}`)

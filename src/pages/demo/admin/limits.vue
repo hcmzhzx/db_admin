@@ -89,14 +89,14 @@ export default {
          this.formOptions.saveLoading = true
          for(let [k, v] of Object.entries(row)){
             if(k != 'icon' && k != 'ifshow' && v === '' && v !== 0){
-               this.$message({message: '值不能为空', type: 'warning'})
+               this.$message.warning('值不能为空')
                this.formOptions.saveLoading = false
                return
             }
          }
          httpAdd('adminaccessopt', row).then(res => {
             this.formTemplate.pid.component.options.push({label: row.title, value: res.id})
-            this.$message({message: '保存成功', type: 'success'})
+            this.$message.success('保存成功')
             let name = row.pid ? this.formTemplate.pid.component.options.find(val => {return val.value == row.pid}).label : row.title
             done({ name })
             this.formOptions.saveLoading = false
@@ -106,7 +106,7 @@ export default {
          this.formOptions.saveLoading = true
          for(let [k, v] of Object.entries(row)){
             if(k != 'icon' && k != 'ifshow' && v === '' && v !== 0){
-               this.$message({message: '值不能为空', type: 'warning'})
+               this.$message.warning('值不能为空')
                this.formOptions.saveLoading = false
                return
             }
@@ -115,7 +115,7 @@ export default {
             let option = this.formTemplate.pid.component.options.filter(item => {return item.value != row.id})
             option.push({label: row.title, value: row.id})
             this.formTemplate.pid.component.options = option
-            this.$message({message: '修改成功', type: 'success'})
+            this.$message.success('修改成功')
             done()
             this.formOptions.saveLoading = false
          })
@@ -124,12 +124,12 @@ export default {
          let Id = row.id
          httpTrash('adminaccessopt', {id: Id}).then(res => {
             this.formTemplate.pid.component.options = this.formTemplate.pid.component.options.filter(item => {return item.value != Id})
-            this.$message({message: '删除成功', type: 'success'})
+            this.$message.success('删除成功')
             done()
          })
       },
       handleDialogCancel (done) {
-         this.$message({message: '取消保存', type: 'warning'})
+         this.$message.warning('取消保存')
          done()
       },
       accessParse (lists, pid, name) {

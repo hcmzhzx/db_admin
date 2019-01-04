@@ -54,7 +54,7 @@ export default {
             json.label = item.cname
             return json
          })
-         this.form.did = this.form.district[0].value
+         this.form.did = this.form.district.length ? this.form.district[0].value : ''
 
          this.headSelect(this.form.sid, res.school, this.form.pid, res.product)
       })
