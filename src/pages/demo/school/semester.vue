@@ -7,7 +7,7 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" width="120" align="center"></el-table-column>
             <el-table-column prop="sid" label="学校名称" align="center"></el-table-column>
             <el-table-column prop="title" label="标题" align="center"></el-table-column>
@@ -37,6 +37,7 @@ export default {
          filename: __filename,
          school: [],
          Data: [],
+         loading: true
       }
    },
    async created() {
@@ -56,6 +57,7 @@ export default {
             json.unit = item.unit
             return json
          })
+         this.loading = false
       })
    },
    methods: {

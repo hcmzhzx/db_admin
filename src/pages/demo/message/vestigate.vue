@@ -42,6 +42,7 @@ export default {
       }
    },
    created () {
+      this.$loading({fullscreen: true})
       httpGet('investigate').then(res => {
          res.data.forEach(item => {
             let Json = {}
@@ -55,6 +56,7 @@ export default {
             Json.max = item.max
             this.vestigateList.push(Json)
          })
+         this.$loading().close()
       })
    },
    methods: {
@@ -74,9 +76,10 @@ export default {
             Json.max = item.max
             data.push(Json);
          })
+         this.$loading({fullscreen: true})
          httpAdd('investigate', { data: JSON.stringify(data) }).then(res => {
             this.$message.success(`${res.msg}`)
-            console.log(res);
+            this.$loading().close()
          })
       }
    }

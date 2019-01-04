@@ -11,6 +11,7 @@
             :add-button="addButton"
             :form-template="formTemplate"
             :form-options="formOptions"
+            :loading="loading"
             @row-add="handleRowAdd"
             @row-edit="handleRowEdit"
             @row-remove="handleRowRemove"
@@ -42,6 +43,7 @@ export default {
             {title: '排序', key: 'sortid', align: 'center', width: '120px'}
          ],
          options: {border: true},
+         loading: true,
          Data: [],
          rowHandle: {
             columnHeader: '编辑权限',
@@ -72,6 +74,7 @@ export default {
       await httpGet('adminaccess').then(res => {
          this.Data = this.accessParse(res.lists, 0)
          this.pidOptions(res.lists)
+         this.loading = false
          // console.log(this.parseAccess(res.lists, 0));
       })
    },
@@ -94,12 +97,14 @@ export default {
                return
             }
          }
+         this.loading = true
          httpAdd('adminaccessopt', row).then(res => {
             this.formTemplate.pid.component.options.push({label: row.title, value: res.id})
             this.$message.success('保存成功')
             let name = row.pid ? this.formTemplate.pid.component.options.find(val => {return val.value == row.pid}).label : row.title
             done({ name })
             this.formOptions.saveLoading = false
+            this.loading = false
          })
       },
       handleRowEdit ({index, row}, done) {
@@ -111,6 +116,7 @@ export default {
                return
             }
          }
+         this.loading = true
          httpEdit('adminaccessopt', row).then(res => {
             let option = this.formTemplate.pid.component.options.filter(item => {return item.value != row.id})
             option.push({label: row.title, value: row.id})
@@ -118,14 +124,17 @@ export default {
             this.$message.success('修改成功')
             done()
             this.formOptions.saveLoading = false
+            this.loading = false
          })
       },
       handleRowRemove ({index, row}, done) {
          let Id = row.id
+         this.loading = true
          httpTrash('adminaccessopt', {id: Id}).then(res => {
             this.formTemplate.pid.component.options = this.formTemplate.pid.component.options.filter(item => {return item.value != Id})
             this.$message.success('删除成功')
             done()
+            this.loading = false
          })
       },
       handleDialogCancel (done) {

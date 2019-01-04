@@ -60,9 +60,11 @@ export default {
    },
    created () {
       this.Id = Number(this.$route.query.id)
+      this.$loading({fullscreen: true})
       httpGet('dayshoot').then(res => {
          for(let [k, v] of Object.entries(res.taocan)){
             this.combo.push({id: v, cname: k})
+            this.$loading().close()
          }
       })
    },
@@ -94,6 +96,7 @@ export default {
          }
          this.$refs[form].validate((valid) => {
             if (valid) {
+               this.$loading({fullscreen: true})
                let Form = new FormData()
                if(this.Id){
                   Form.append('method', 'edit')
@@ -103,6 +106,7 @@ export default {
                   Form.append('file', this.UploadFile)
                   httpAddUm('dayshootopt', Form).then(res => {
                      this.$message.success(res.msg)
+                     this.$loading().close()
                      this.$router.go(-1)
                   })
                } else {
@@ -112,6 +116,7 @@ export default {
                   Form.append('file', this.UploadFile)
                   httpAddUm('dayshootopt', Form).then(res => {
                      this.$message.success(res.msg)
+                     this.$loading().close()
                      this.$router.go(-1)
                   })
                }

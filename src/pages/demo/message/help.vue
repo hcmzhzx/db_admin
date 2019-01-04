@@ -7,7 +7,7 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>
             <el-table-column prop="title" label="标题" min-width="110" align="center"></el-table-column>
             <el-table-column prop="description" label="描述" min-width="110" align="center"></el-table-column>
@@ -33,7 +33,8 @@ export default {
       return {
          filename: __filename,
          dayjs,
-         Data: []
+         Data: [],
+         loading: true
       }
    },
    async created () {
@@ -47,26 +48,7 @@ export default {
                json.addtime = dayjs(item.addtime * 1000).format('YYYY-M-D')
                return json
             })
-         })
-      },
-      handleAdd () {
-         if(!this.form.title){
-            this.$message.warning(`请输入标题!`)
-            return
-         }
-         if(!this.form.description){
-            this.$message.warning(`请输入副标题!`)
-            return
-         }
-         if(!this.form.content){
-            this.$message.warning(`请输入内容!`)
-            return
-         }
-         let posts = {title: this.form.title, description: this.form.description, content: this.form.content}
-         httpAdd('helpopt', posts).then(res => {
-            this.$message.success(`${res.msg}`)
-            this.dialog = false
-            this.loadData()
+            this.loading = false
          })
       },
       handleRemove (id) {

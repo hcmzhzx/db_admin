@@ -75,6 +75,7 @@ export default {
       }
    },
    async created() {
+      this.$loading({fullscreen: true})
       await httpGet('term').then(res => {
          for(let [k, v] of Object.entries(res.school)){
             this.school.push({id: Number(v), cname: k})
@@ -93,9 +94,11 @@ export default {
             this.form.total = res.data.total
             this.holidays = JSON.parse(res.data.holiday)
             this.parseDays(res.data.startat, res.data.endat, res.data.holiday)
+            this.$loading().close()
          })
       } else {
          this.$route.meta.title = '添加学期'
+         this.$loading().close()
       }
    },
    methods: {
@@ -104,6 +107,7 @@ export default {
          if(this.form.startat && this.form.endat){
             this.form.startat = this.form.startat, this.form.endat = this.form.endat
             if(this.form.startat < this.form.endat){
+               this.holidays = []
                this.parseDays(this.form.startat / 1000, this.form.endat / 1000, this.holidays)
             } else {
                this.$message({message: '时间格式不对', type: 'warning'})
@@ -115,6 +119,7 @@ export default {
          if(this.form.startat && this.form.endat){
             this.form.startat = this.form.startat, this.form.endat = this.form.endat
             if(this.form.startat < this.form.endat){
+               this.holidays = []
                this.parseDays(this.form.startat / 1000, this.form.endat / 1000, this.holidays)
             } else {
                this.$message({message: '时间格式不对', type: 'warning'})
@@ -183,7 +188,7 @@ export default {
          if (days.keys < this.today) return
          if (days.holiday > -1) {
             this.blocklist[bkey][rkey][dkey].holiday = -1
-            this.holidays = this.holidays.filter( item => {
+            this.holidays = this.holidays.filter(item => {
                return item != days.keys
             })
          } else {
@@ -195,17 +200,20 @@ export default {
       handleAdd(form) {
          this.$refs[form].validate((valid) => {
             if(valid){
+               this.$loading({fullscreen: true})
                if(this.Id){
                   let posts = {id: this.Id, sid: this.form.sid, title: this.form.title, startat: this.form.startat / 1000, endat: this.form.endat / 1000, unit: Number(this.form.unit), total: this.form.total - this.holidays.length, holiday: JSON.stringify(this.holidays) }
                   httpEdit('termopt', posts).then(res => {
                      this.$message({message: '修改成功', type: 'success'})
-                     this.$router.go(-1);
+                     this.$loading().close()
+                     this.$router.go(-1)
                   })
                } else {
                   let posts = {sid: this.form.sid, title: this.form.title, startat: this.form.startat / 1000, endat: this.form.endat / 1000, unit: Number(this.form.unit), total: this.form.total - this.holidays.length, holiday: JSON.stringify(this.holidays) }
                   httpAdd('termopt', posts).then(res => {
                      this.$message({message: '添加成功', type: 'success'})
-                     this.$router.go(-1);
+                     this.$loading().close()
+                     this.$router.go(-1)
                   })
                }
             }

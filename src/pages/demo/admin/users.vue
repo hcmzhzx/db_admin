@@ -56,7 +56,6 @@ export default {
          Data: [],
          Id : 0,
          dialogForm: false,
-
          active: [],
          collapse: [],
          form: {
@@ -74,6 +73,7 @@ export default {
    },
    methods: {
       loadata() {
+         this.$loading({fullscreen: true})
          httpGet('adminGroup').then(res => {
             this.collapse = this.parseAccess(res.access, 0)
             this.Data = res.lists.map(item => {
@@ -81,6 +81,7 @@ export default {
                json.addtime = this.formatDate(item.addtime, 'y-M-d')
                return json
             })
+            this.$loading().close()
          })
       },
       parseAccess (lists, pid) { // 菜单重组
@@ -109,6 +110,7 @@ export default {
                if (mids.length == 0) {
                   this.$message.warning('至少有一个权限')
                } else {
+                  this.$loading({fullscreen: true})
                   if (this.Id) {
                      let posts = {id: this.Id, cname: this.form.name, menus: mids.join(',')}
                      httpEdit('adminGroupopt', posts).then(res => {

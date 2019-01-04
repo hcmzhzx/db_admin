@@ -7,7 +7,7 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" width="120" align="center"></el-table-column>
             <el-table-column prop="cname" label="套餐名" min-width="140" align="center"></el-table-column>
             <el-table-column label="实拍图" align="center" min-width="300">
@@ -40,11 +40,12 @@ export default {
          dayjs,
          Id: 0,
          combos: [],
-         Data: []
+         Data: [],
+         loading: true
       }
    },
    async created() {
-      this.Id = Number(this.$route.query.id)
+      this.Id = Number(this.$route.query.id) || 0
       await httpGet('dayshoot', {id: this.Id}).then(res => {
          for(let [k, v] of Object.entries(res.taocan)){
             this.combos.push({id: v, cname: k})
@@ -56,6 +57,7 @@ export default {
             json.cname = this.combos.find(val => {return val.id == item.tid}).cname
             return json
          })
+         this.loading = false
       })
       //await this.parseDays(begin, end, holidays, shoot)
    },
@@ -72,17 +74,6 @@ export default {
             this.$message.info('已取消删除')
          })
       },
-
-
-
-
-
-
-
-
-
-
-
       // 生成日历
       parseDays(begin, end, holidays, shoot) {
          let daytime = 86400, first = 0, str = [], block = [], blocklist = [], monthes = [], dates = new Date(), total = 0

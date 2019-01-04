@@ -4,7 +4,7 @@
          <div class="title">用户列表</div>
       </template>
       <template>
-         <el-table :data="Data" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="姓名" min-width="110" align="center"></el-table-column>
             <el-table-column label="性别" min-width="90" align="center">
@@ -37,22 +37,30 @@ export default {
       return {
          filename: __filename,
          Data: [],
-         total: 0
+         total: 0,
+         loading: true
       }
    },
    created () {
       httpGet('user').then(res => {
-         this.Data = res.lists.map(item => {
-            let json = item
-            item.addtime = this.formatDate(item.addtime, 'y-M-d')
-            return json
-         })
+         this.mapData(res.lists)
          this.total = res.total
       })
    },
    methods: {
+      mapData (list) {
+         this.Data = list.map(item => {
+            let json = item
+            item.addtime = this.formatDate(item.addtime, 'y-M-d')
+            return json
+         })
+         this.loading = false
+      },
       handleCurrent (num) {
-
+         this.loading = true
+         httpGet(`user?page=${num}`).then(res => {
+            this.mapData(res.lists)
+         })
       }
    }
 }

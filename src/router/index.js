@@ -29,7 +29,7 @@ router.beforeEach((to, from, next) => {
    store.commit('d2admin/search/set', false)
 
    const token = util.cookies.get('token')
-   if (to.name != 'login' && (!token || menu.indexOf(to.path) == -1)) {
+   if (to.name != 'login' && to.name != 'refresh' && (!token || menu.indexOf(to.path) == -1)) {
       next({ name: 'login', query: { redirect: document.URL } })
       NProgress.done()
       util.cookies.remove('token')

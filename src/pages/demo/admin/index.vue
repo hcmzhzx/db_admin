@@ -7,7 +7,7 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>
             <el-table-column prop="account" label="账号" min-width="200" align="center"></el-table-column>
             <el-table-column label="头像" align="center">
@@ -31,7 +31,6 @@
             </el-table-column>
          </el-table>
       </template>
-
    </d2-container>
 </template>
 
@@ -44,7 +43,8 @@ export default {
       return {
          filename: __filename,
          Data: [],
-         groups: []
+         groups: [],
+         loading: true
       }
    },
    created() {
@@ -63,6 +63,7 @@ export default {
             json.groups = arr.join(',')
             return json
          })
+         this.loading = false
       })
    },
    methods: {

@@ -59,11 +59,13 @@ export default {
       }
    },
    created() {
+      this.$loading({fullscreen: true})
       httpGet('homepage').then(res => {
          this.banners = res.data.banner
          let {title, content} = res.data.notice
          this.title = title
          this.content = content
+         this.$loading().close()
       })
    },
    methods: {
@@ -79,6 +81,7 @@ export default {
          } else if(items.url == ''){
             this.$message.warning(`请填写跳转链接!`)
          } else {
+            this.$loading({fullscreen: true})
             let posts = new FormData()
             items.file ? posts.append('file', items.file) : posts.append('image', items.image)
             posts.append('opentype', items.opentype)
@@ -86,6 +89,7 @@ export default {
             posts.append('keys', k)
             httpPost('homepage', posts).then(res => {
                this.$message.success(`${res.msg}`)
+               this.$loading().close()
             })
          }
       },
@@ -110,8 +114,10 @@ export default {
             this.$message.warning(`请输入内容!`)
             return
          }
+         this.$loading({fullscreen: true})
          httpPost('homepage', posts).then(res => {
             this.$message.success(`${res.msg}`)
+            this.$loading().close()
          })
       }
    }

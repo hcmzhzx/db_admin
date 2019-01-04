@@ -12,6 +12,7 @@
                :add-button="addButton"
                :form-template="formTemplate"
                :form-options="formOptions"
+               :loading="loading"
                @row-add="handleRowAdd"
                @row-edit="handleRowEdit"
                @row-remove="handleRowRemove"
@@ -35,6 +36,7 @@ export default {
             {title: '排序', key: 'sortid', align: 'center', width: '120px'}
          ],
          options: {border: true},
+         loading: true,
          Data: [],
          rowHandle: {
             columnHeader: '编辑表格',
@@ -54,6 +56,7 @@ export default {
    created() {
       httpGet('district').then(res => {
          this.Data = res.lists
+         this.loading = false
       })
    },
    methods: {
@@ -66,10 +69,12 @@ export default {
                return
             }
          }
+         this.loading = true
          httpAdd('districtopt', row).then(res => {
             this.$message({message: '保存成功', type: 'success'})
             done({ id: res.id })
             this.formOptions.saveLoading = false
+            this.loading = false
          })
       },
       handleRowEdit ({index, row}, done) {
@@ -80,16 +85,20 @@ export default {
                return
             }
          }
+         this.loading = true
          httpEdit('districtopt', row).then(res => {
             this.$message({message: '编辑成功', type: 'success'})
             done()
             this.formOptions.saveLoading = false
+            this.loading = false
          })
       },
       handleRowRemove ({index, row}, done) {
          let Id = row.id
+         this.loading = true
          httpTrash('districtopt', {id: Id}).then(res => {
             this.$message({message: '删除成功', type: 'success'})
+            this.loading = false
             done()
          })
       },

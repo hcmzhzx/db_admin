@@ -69,6 +69,7 @@ export default {
       }
    },
    async created() {
+      this.$loading({fullscreen: true})
       await httpGet('admin').then(res => {
          for(let [v, k] of Object.entries(res.groups)){
             this.usersGroups.push({id: v, label: k})
@@ -87,10 +88,13 @@ export default {
             })
             this.fileList = [{name: '', url: res.data.head}]
             this.IsUpload = true
+            this.$loading().close()
          })
       } else {
+         this.$loading().close()
          this.$route.meta.title = '添加管理员'
       }
+
    },
    methods: {
       // 超出限制
@@ -125,6 +129,7 @@ export default {
                this.form.groups.find(v => {
                   groups.push(this.usersGroups.find(i => {return i.label == v}).id)
                })
+               this.$loading({fullscreen: true})
                if(this.Id){
                   form.append('method', 'edit')
                   form.append('id', this.Id)
@@ -135,6 +140,7 @@ export default {
                   form.append('groups', groups.join(','))
                   httpEditUm('adminopt', form).then(res => {
                      this.$message.success('修改成功')
+                     this.$loading().close()
                      this.$router.go(-1);
                   })
                } else {
@@ -146,6 +152,7 @@ export default {
                   form.append('groups', groups.join(','))
                   httpAddUm('adminopt', form).then(res => {
                      this.$message.success('添加成功')
+                     this.$loading().close()
                      this.$router.go(-1);
                   })
                }

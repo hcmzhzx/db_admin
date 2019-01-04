@@ -7,7 +7,7 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" width="120" align="center"></el-table-column>
             <el-table-column prop="title" label="标题" width="140" align="center"></el-table-column>
             <el-table-column label="套餐" align="center" width="300">
@@ -41,7 +41,8 @@ export default {
    data() {
       return {
          filename: __filename,
-         Data: []
+         Data: [],
+         loading: true
       }
    },
    async created() {
@@ -61,6 +62,7 @@ export default {
             json.image = item.image
             return json
          })
+         this.loading = false
       })
    },
    methods: {

@@ -4,7 +4,7 @@
          <div class="title">余额管理</div>
       </template>
       <template>
-         <el-table :data="Data" max-height="700" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" max-height="700" border style="width: 100%">
             <el-table-column prop="id" label="id" min-width="80" align="center"></el-table-column>
             <el-table-column prop="cname" label="姓名" min-width="110" align="center"></el-table-column>
             <el-table-column prop="fee" label="退款金额" min-width="120" align="center"></el-table-column>
@@ -39,7 +39,8 @@ export default {
          filename: __filename,
          dayjs,
          Data: [],
-         total: 0
+         total: 0,
+         loading: true
       }
    },
    created () {
@@ -55,9 +56,11 @@ export default {
                item.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
                return json
             })
+            this.loading = false
          })
       },
       handleCurrent (num) {
+         this.loading = true
          httpGet(`balance?page=${num}`).then(res => {
             this.mapData(res.lists)
          })

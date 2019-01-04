@@ -52,19 +52,23 @@ export default {
       }
    },
    created() {
+      this.$loading({fullscreen: true})
       httpGet('investigatelist').then(res => {
          this.Data = res.lists.map(item => {
             let json = item
             json.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
             return json
          })
+         this.$loading().close()
       })
    },
    methods: {
       handleCheck(Id) {
+         this.$loading({fullscreen: true})
          httpGet('investigateopt', {id: Id}).then(res => {
             this.result = JSON.parse(res.data.result)
             this.dialog = true
+            this.$loading().close()
          })
       },
       handleRemove(Id) {

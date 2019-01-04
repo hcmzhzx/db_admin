@@ -39,14 +39,17 @@ export default {
    },
    created () {
       this.Id = Number(this.$route.query.id)
+      this.$loading({fullscreen: true})
       if(this.Id){
          this.$route.meta.title = '编辑操作指南'
          httpGet('helpopt', {id: this.Id}).then(res => {
             this.dialog = true
             let {title, description, content} = res.data
             this.form = {title, description, content}
+            this.$loading().close()
          })
       } else {
+         this.$loading().close()
          this.$route.meta.title = '添加操作指南'
       }
    },
@@ -64,16 +67,19 @@ export default {
             this.$message.warning(`请输入内容!`)
             return
          }
+         this.$loading({fullscreen: true})
          if(this.Id){
             let posts = {id: this.Id, title: this.form.title, description: this.form.description, content: this.form.content}
             httpEdit('helpopt', posts).then(res => {
                this.$message.success(`${res.msg}`)
+               this.$loading().close()
                this.$router.go(-1);
             })
          } else {
             let posts = {title: this.form.title, description: this.form.description, content: this.form.content}
             httpAdd('helpopt', posts).then(res => {
                this.$message.success(`${res.msg}`)
+               this.$loading().close()
                this.$router.go(-1);
             })
          }

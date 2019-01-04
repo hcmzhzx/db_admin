@@ -4,7 +4,7 @@
          <div class="title">学生管理</div>
       </template>
       <template>
-         <el-table :data="Data" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="学生姓名" min-width="110" align="center"></el-table-column>
             <el-table-column prop="school" label="学校" min-width="200" align="center"></el-table-column>
@@ -41,7 +41,8 @@ export default {
          filename: __filename,
          Data: [],
          school: [],
-         total: 0
+         total: 0,
+         loading: true
       }
    },
    created() {
@@ -67,8 +68,10 @@ export default {
             json.addtime = this.formatDate(item.addtime, 'y-M-d')
             return json
          })
+         this.loading = false
       },
       handleCurrent (num) {
+         this.loading = true
          httpGet(`student?page${num}`).then(res => {
             this.mapData(res.lists)
          })

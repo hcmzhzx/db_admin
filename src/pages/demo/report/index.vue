@@ -61,9 +61,11 @@ export default {
    },
    methods: {
       selectChange(did, sid, pid) {
+         this.$loading({fullscreen: true})
          did = did ? did : 0; sid = sid ? sid : 0; pid = pid ? pid : 0
          httpGet('meals', {did, sid, pid}).then(res => {
             this.headSelect(sid, res.school, pid, res.product)
+            this.$loading().close()
          })
       },
 
@@ -109,8 +111,10 @@ export default {
          if(did != '' && sid != '' && pid != ''){
             if(this.form.Time.length == 2){
                if(this.form.Time[0]/1000 >= this.startat && this.form.Time[1]/1000 <= this.endat){
+                  this.$loading({fullscreen: true})
                   httpPost('meals',{did, sid, pid}).then(res => {
                      this.parseData(this.form.Time[0] / 1000, this.form.Time[1] / 1000, this.grade, this.holiday, res.leave, res.order)
+                     this.$loading().close()
                   })
                } else {
                   this.$message.warning(`超出该学期时间段了!`)

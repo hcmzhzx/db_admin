@@ -61,6 +61,7 @@ export default {
       }
    },
    async created() {
+      this.$loading({fullscreen: true})
       await httpGet('school').then(res => {
          this.school = res.lists
       })
@@ -75,8 +76,10 @@ export default {
             this.form.title = res.data.title
             this.fileList = [{name: '', url: res.data.image}]
             this.IsUpload = true
+            this.$loading().close()
          })
       } else {
+         this.$loading().close()
          this.$route.meta.title = '添加套餐'
       }
    },

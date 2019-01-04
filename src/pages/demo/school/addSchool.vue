@@ -91,6 +91,7 @@ export default {
       }
    },
    async created() {
+      this.$loading({fullscreen: true})
       await httpGet('school').then(res => {
          for(let [k, v] of Object.entries(res.district)){
             this.district.push({id: Number(k), cname: v})
@@ -127,9 +128,11 @@ export default {
                }
             }
             this.IsUpload = true
+            this.$loading().close()
          })
       } else {
          this.$route.meta.title = '添加学校'
+         this.$loading().close()
       }
    },
    methods: {
@@ -160,7 +163,8 @@ export default {
             return
          }
          this.$refs[form].validate((valid) => {
-               if(valid){
+            if(valid){
+               this.$loading({fullscreen: true})
                let Form = new FormData(), grades = [], cnum = 0
                for(let [k, v] of Object.entries(this.form)){
                   let json = {}
@@ -215,7 +219,8 @@ export default {
                   Form.append('cnum', cnum)
                   httpEditUm('schoolopt', Form).then(res => {
                      this.$message({message: '修改成功', type: 'success'})
-                     this.$router.go(-1);
+                     this.$loading().close()
+                     this.$router.go(-1)
                   })
                } else {
                   Form.append('method', 'add')
@@ -228,7 +233,8 @@ export default {
                   Form.append('cnum', cnum)
                   httpAddUm('schoolopt', Form).then(res => {
                      this.$message({message: '添加成功', type: 'success'})
-                     this.$router.go(-1);
+                     this.$loading().close()
+                     this.$router.go(-1)
                   })
                }
             }
