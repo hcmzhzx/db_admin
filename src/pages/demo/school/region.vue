@@ -64,14 +64,14 @@ export default {
          this.formOptions.saveLoading = true
          for(let v of Object.values(row)){
             if(v == ''){
-               this.$message({message: '值不能为空', type: 'warning'})
+               this.$message.warning('值不能为空')
                this.formOptions.saveLoading = false
                return
             }
          }
          this.loading = true
          httpAdd('districtopt', row).then(res => {
-            this.$message({message: '保存成功', type: 'success'})
+            this.$message.success('保存成功')
             done({ id: res.id })
             this.formOptions.saveLoading = false
             this.loading = false
@@ -81,13 +81,13 @@ export default {
          this.formOptions.saveLoading = true
          for(let v of Object.values(row)){
             if(v == ''){
-               this.$message({message: '值不能为空', type: 'warning'})
+               this.$message.warning('值不能为空')
                return
             }
          }
          this.loading = true
          httpEdit('districtopt', row).then(res => {
-            this.$message({message: '编辑成功', type: 'success'})
+            this.$message.success('编辑成功')
             done()
             this.formOptions.saveLoading = false
             this.loading = false
@@ -97,13 +97,13 @@ export default {
          let Id = row.id
          this.loading = true
          httpTrash('districtopt', {id: Id}).then(res => {
-            this.$message({message: '删除成功', type: 'success'})
+            this.$message.success('删除成功')
             this.loading = false
             done()
          })
       },
       handleDialogCancel(done) {
-         this.$message({message: '取消保存', type: 'warning'})
+         this.$message.warning('取消保存')
          done()
       }
    }

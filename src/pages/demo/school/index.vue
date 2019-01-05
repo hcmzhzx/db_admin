@@ -61,14 +61,14 @@ export default {
    methods: {
       handleRemove (Id) {
          this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
+            this.loading = true
             httpTrash('schoolopt', {id: Id}).then(res => {
-               this.Data = this.Data.filter(item => {
-                  return item.id != Id
-               })
-               this.$message({type: 'success', message: '删除成功!'})
+               this.Data = this.Data.filter(item => { return item.id != Id })
+               this.$message.success('删除成功!')
+               this.loading = false
             })
          }).catch(() => {
-            this.$message({type: 'info', message: '已取消删除'})
+            this.$message.info('已取消删除')
          })
       }
    }

@@ -1,7 +1,29 @@
 <template>
    <d2-container :filename="filename">
-      <template slot="header" class="flex between">
-         <div class="title">学生管理</div>
+      <template slot="header">
+         <div class="flex between">
+            <div class="title">学生管理</div>
+            <el-form :inline="true" :model="Search" class="demo-form-inline">
+               <el-form-item>
+                  <el-select v-model="Search.sid" placeholder="学校">
+                     <el-option v-for="(v, k) in school" :key="k" :label="v.cname" :value="v.id"></el-option>
+                  </el-select>
+               </el-form-item>
+               <el-form-item>
+                  <el-select v-model="Search.type" placeholder="类型">
+                     <el-option label="姓名" value="cname"></el-option>
+                     <el-option label="手机号" value="phone"></el-option>
+                  </el-select>
+               </el-form-item>
+               <el-form-item>
+                  <el-input v-model="Search.word" placeholder="请输入内容"></el-input>
+               </el-form-item>
+               <el-form-item>
+                  <el-button type="primary" @click="onSearch">查询</el-button>
+                  <el-button type="primary" @click="loadData">重置</el-button>
+               </el-form-item>
+            </el-form>
+         </div>
       </template>
       <template>
          <el-table :data="Data" v-loading="loading" border style="width: 100%">
@@ -11,7 +33,7 @@
             <el-table-column prop="gradeClasses" label="学生班级" min-width="120" align="center"></el-table-column>
             <el-table-column label="学生性别" min-width="90" align="center">
                <template slot-scope="scope">
-                  <el-tag :type="scope.row.gender != 0 ? (scope.row.gender == 1 ? '' : 'success') : 'info'">{{scope.row.gender != 0 ? (scope.row.gender == 1 ? '男' : '女') : '未知'}}</el-tag>
+                  <el-tag :type="gender[scope.row.gender].type">{{gender[scope.row.gender].text}}</el-tag>
                </template>
             </el-table-column>
             <el-table-column prop="parents" label="家长姓名" min-width="110" align="center"></el-table-column>
@@ -26,7 +48,7 @@
          </el-table>
       </template>
       <template slot="footer">
-         <el-pagination @current-change="handleCurrent" background layout="prev, pager, next" :total="total"></el-pagination>
+         <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" layout="prev, pager, next" :total="total" background></el-pagination>
       </template>
    </d2-container>
 </template>
@@ -42,29 +64,36 @@ export default {
          Data: [],
          school: [],
          total: 0,
+         gender: [
+            { text: '未知', type: 'info' },
+            { text: '男', type: '' },
+            { text: '女', type: 'success' }
+         ],
+         Search: {},
+         isSearch: false,
+         pageNo: 1,
          loading: true
       }
    },
-   created() {
-      httpGet('student').then(res => {
-         for(let [v, k] of Object.entries(res.schools)){
-            this.school.push({id: v, cname: k})
-         }
-         this.total = res.total
-         this.mapData(res.lists)
-      })
+   async created() {
+      await this.loadData()
    },
    methods: {
+      loadData () {
+         httpGet('student').then(res => {
+            for(let [v, k] of Object.entries(res.schools)){
+               this.school.push({id: v, cname: k})
+            }
+            this.mapData(res.lists)
+            this.total = res.total
+            this.pageNo = 1
+         })
+      },
       mapData (list) {
          this.Data = list.map(item => {
-            let json = {}
-            json.id = item.id
+            let json = item
             json.school = this.school.find(val => {return val.id == item.sid}).cname
-            json.cname = item.cname
             json.gradeClasses = `${item.grade}${item.classes}`
-            json.gender = item.gender
-            json.parents = item.parents
-            json.phone = item.phone
             json.addtime = this.formatDate(item.addtime, 'y-M-d')
             return json
          })
@@ -72,8 +101,18 @@ export default {
       },
       handleCurrent (num) {
          this.loading = true
-         httpGet(`student?page${num}`).then(res => {
+         let url = this.isSearch ? `student?sid${this.Search.sid}&type${this.Search.type}&word=${this.Search.word}&page=${num}` : `user?page=${num}`
+         httpGet(url).then(res => {
             this.mapData(res.lists)
+         })
+      },
+      onSearch () {
+         this.loading = true
+         httpGet(`student`, this.Search).then(res => {
+            this.mapData(res.lists)
+            this.total = res.total
+            this.isSearch = true
+            this.pageNo = 1
          })
       }
    }

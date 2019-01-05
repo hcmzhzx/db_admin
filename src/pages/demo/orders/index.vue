@@ -67,6 +67,7 @@ export default {
          this.loading = false
       },
       handleCurrent (num) {
+         this.loading = true
          httpGet(`order?page=${num}`).then(res => {
             this.mapData(res.lists)
          })

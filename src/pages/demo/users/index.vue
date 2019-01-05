@@ -1,11 +1,28 @@
 <template>
    <d2-container :filename="filename">
-      <template slot="header" class="flex between">
-         <div class="title">用户列表</div>
+      <template slot="header">
+         <div class="flex between">
+            <div class="title">用户列表</div>
+            <el-form :inline="true" :model="Search" class="demo-form-inline">
+               <el-form-item>
+                  <el-select v-model="Search.type" placeholder="类型">
+                     <el-option label="姓名" value="cname"></el-option>
+                     <el-option label="手机号" value="phone"></el-option>
+                  </el-select>
+               </el-form-item>
+               <el-form-item>
+                  <el-input v-model="Search.word" placeholder="请输入内容"></el-input>
+               </el-form-item>
+               <el-form-item>
+                  <el-button type="primary" @click="onSearch">查询</el-button>
+                  <el-button type="primary" @click="loadData">重置</el-button>
+               </el-form-item>
+            </el-form>
+         </div>
       </template>
       <template>
          <el-table :data="Data" v-loading="loading" border style="width: 100%">
-            <el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>
+            <el-table-column prop="id" label="id" width="120" align="center"></el-table-column>
             <el-table-column prop="cname" label="姓名" min-width="110" align="center"></el-table-column>
             <el-table-column label="性别" min-width="90" align="center">
                <template slot-scope="scope">
@@ -23,7 +40,7 @@
          </el-table>
       </template>
       <template slot="footer">
-         <el-pagination @current-change="handleCurrent" background layout="prev, pager, next" :total="total"></el-pagination>
+         <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" layout="prev, pager, next" :total="total" background></el-pagination>
       </template>
    </d2-container>
 </template>
@@ -38,16 +55,24 @@ export default {
          filename: __filename,
          Data: [],
          total: 0,
+         Search: {},
+         isSearch: false,
+         pageNo: 1,
          loading: true
       }
    },
-   created () {
-      httpGet('user').then(res => {
-         this.mapData(res.lists)
-         this.total = res.total
-      })
+   async created () {
+      await this.loadData()
    },
    methods: {
+      loadData () {
+         httpGet('user').then(res => {
+            this.mapData(res.lists)
+            this.total = res.total
+            this.isSearch = false
+            this.pageNo = 1
+         })
+      },
       mapData (list) {
          this.Data = list.map(item => {
             let json = item
@@ -58,8 +83,18 @@ export default {
       },
       handleCurrent (num) {
          this.loading = true
-         httpGet(`user?page=${num}`).then(res => {
+         let url = this.isSearch ? `user?type${this.Search.type}&word=${this.Search.word}&page=${num}` : `user?page=${num}`
+         httpGet(url).then(res => {
             this.mapData(res.lists)
+         })
+      },
+      onSearch () {
+         this.loading = true
+         httpGet(`user`, this.Search).then(res => {
+            this.mapData(res.lists)
+            this.total = res.total
+            this.isSearch = true
+            this.pageNo = 1
          })
       }
    }

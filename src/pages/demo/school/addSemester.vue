@@ -110,7 +110,7 @@ export default {
                this.holidays = []
                this.parseDays(this.form.startat / 1000, this.form.endat / 1000, this.holidays)
             } else {
-               this.$message({message: '时间格式不对', type: 'warning'})
+               this.$message.warning('时间格式不对')
             }
          }
       },
@@ -122,7 +122,7 @@ export default {
                this.holidays = []
                this.parseDays(this.form.startat / 1000, this.form.endat / 1000, this.holidays)
             } else {
-               this.$message({message: '时间格式不对', type: 'warning'})
+               this.$message.warning('时间格式不对')
             }
          }
       },
@@ -204,14 +204,14 @@ export default {
                if(this.Id){
                   let posts = {id: this.Id, sid: this.form.sid, title: this.form.title, startat: this.form.startat / 1000, endat: this.form.endat / 1000, unit: Number(this.form.unit), total: this.form.total - this.holidays.length, holiday: JSON.stringify(this.holidays) }
                   httpEdit('termopt', posts).then(res => {
-                     this.$message({message: '修改成功', type: 'success'})
+                     this.$message.success('修改成功')
                      this.$loading().close()
                      this.$router.go(-1)
                   })
                } else {
                   let posts = {sid: this.form.sid, title: this.form.title, startat: this.form.startat / 1000, endat: this.form.endat / 1000, unit: Number(this.form.unit), total: this.form.total - this.holidays.length, holiday: JSON.stringify(this.holidays) }
                   httpAdd('termopt', posts).then(res => {
-                     this.$message({message: '添加成功', type: 'success'})
+                     this.$message.success('添加成功')
                      this.$loading().close()
                      this.$router.go(-1)
                   })

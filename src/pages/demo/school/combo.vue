@@ -72,10 +72,10 @@ export default {
                this.Data = this.Data.filter(item => {
                   return item.id != Id
                })
-               this.$message({type: 'success', message: '删除成功!'})
+               this.$message.success('删除成功!')
             })
          }).catch(() => {
-            this.$message({type: 'info', message: '已取消删除'})
+            this.$message.info('已取消删除')
          })
       }
    }

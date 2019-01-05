@@ -218,7 +218,7 @@ export default {
                   Form.append('gnum', grades.length)
                   Form.append('cnum', cnum)
                   httpEditUm('schoolopt', Form).then(res => {
-                     this.$message({message: '修改成功', type: 'success'})
+                     this.$message.success('修改成功')
                      this.$loading().close()
                      this.$router.go(-1)
                   })
@@ -232,7 +232,7 @@ export default {
                   Form.append('gnum', grades.length)
                   Form.append('cnum', cnum)
                   httpAddUm('schoolopt', Form).then(res => {
-                     this.$message({message: '添加成功', type: 'success'})
+                     this.$message.success('添加成功')
                      this.$loading().close()
                      this.$router.go(-1)
                   })
