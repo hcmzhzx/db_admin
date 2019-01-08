@@ -47,12 +47,14 @@
 
 <script>
 import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import dayjs from 'dayjs'
 
 export default {
    name: 'demo-users',
    data () {
       return {
          filename: __filename,
+         dayjs,
          Data: [],
          total: 0,
          Search: {},
@@ -76,7 +78,7 @@ export default {
       mapData (list) {
          this.Data = list.map(item => {
             let json = item
-            item.addtime = this.formatDate(item.addtime, 'y-M-d')
+            item.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
             return json
          })
          this.loading = false

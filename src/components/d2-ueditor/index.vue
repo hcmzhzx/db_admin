@@ -1,10 +1,5 @@
 <template>
-  <vue-ueditor-wrap
-    ref="ueditor"
-    v-model="currentValue"
-    :config="config"
-    :destroy="true"
-    :init="init"/>
+  <vue-ueditor-wrap ref="ueditor" v-model="currentValue" :config="config" :destroy="true" :init="init"/>
 </template>
 
 <script>

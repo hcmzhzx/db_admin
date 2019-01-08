@@ -1,48 +1,85 @@
 <template>
    <d2-container :filename="filename">
       <template slot="header" class="flex">
-         <el-form :inline="true" :model="form" class="flex">
-            <el-select v-model="form.did" placeholder="地区" @change="selectChange(form.did, '', '')" style="margin-right:10px">
-               <el-option v-for="item in form.district" :key="item.value" :label="item.label" :value="item.value"></el-option>
-            </el-select>
-            <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid)" style="margin-right:10px">
-               <el-option v-for="item in form.school" :key="item.value" :label="item.label" :value="item.value"></el-option>
-            </el-select>
-            <el-select v-model="form.pid" placeholder="学期" style="margin-right:10px">
-               <el-option v-for="item in form.product" :key="item.value" :label="item.label" :value="item.value"></el-option>
-            </el-select>
-            <el-date-picker v-model="form.Time" type="daterange" value-format="timestamp" start-placeholder="开始日期" range-separator="至" end-placeholder="结束日期" style="margin-right:10px"></el-date-picker>
-
-            <el-form-item style="min-width:206px">
-               <el-button type="primary" @click="create">生成</el-button>
-               <el-button type="primary" @click="exportExcel"><d2-icon name="download"/> 导出 Excel</el-button>
+         <el-form :inline="true" :model="form" class="br">
+            <el-form-item>
+               <el-select v-model="form.did" placeholder="地区" @change="selectChange(form.did, '', '')">
+                  <el-option v-for="item in form.district" :key="item.value" :label="item.label" :value="item.value"></el-option>
+               </el-select>
+            </el-form-item>
+            <el-form-item>
+               <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid)">
+                  <el-option v-for="item in form.school" :key="item.value" :label="item.label" :value="item.value"></el-option>
+               </el-select>
+            </el-form-item>
+            <el-form-item>
+               <el-select v-model="form.pid" placeholder="学期">
+                  <el-option v-for="item in form.product" :key="item.value" :label="item.label" :value="item.value"></el-option>
+               </el-select>
+            </el-form-item>
+            <el-form-item>
+               <el-date-picker v-model="form.Time" type="daterange" value-format="timestamp" start-placeholder="开始日期" range-separator="至" end-placeholder="结束日期"></el-date-picker>
+            </el-form-item>
+            <el-form-item>
+               <div class="flex">
+                  <el-button type="primary" @click="create">生成</el-button>
+                  <el-button type="primary" @click="exportExcel"><d2-icon name="download"/> 导出 Excel</el-button>
+               </div>
             </el-form-item>
          </el-form>
       </template>
       <template>
-         <el-table v-bind="table" max-height="700" style="width: 100%">
+         <el-table v-bind="table" :span-method="SpanMethod" max-height="700" style="width:100%">
             <el-table-column fixed v-for="(item, index) in table.columns" :key="index" :prop="item.prop" :label="item.label" v-if="index == 0" align="center" min-width="110px"></el-table-column>
             <el-table-column v-for="(item, index) in table.columns" :key="item.prop" :prop="item.prop" :label="item.label" v-if="index > 0" align="center" min-width="110px"></el-table-column>
          </el-table>
+         <div class="flex between" style="margin-top:20px;width:100%;">
+            <div>
+               <el-table :data="leaves" border style="width:100%">
+                  <el-table-column prop="grade" min-width="110px"></el-table-column>
+                  <el-table-column prop="classes" min-width="110px"></el-table-column>
+                  <el-table-column prop="cname" min-width="110px"></el-table-column>
+               </el-table>
+            </div>
+            <div>
+               <el-table :data="quit" border style="width:100%">
+                  <el-table-column prop="grade" min-width="110px"></el-table-column>
+                  <el-table-column prop="classes" min-width="110px"></el-table-column>
+                  <el-table-column prop="cname" min-width="110px"></el-table-column>
+               </el-table>
+            </div>
+         </div>
       </template>
    </d2-container>
 </template>
 
 <script>
 import { httpGet, httpPost } from '@api/http'
+import dayjs from 'dayjs'
 
 export default {
    name: 'admin',
    data() {
       return {
          filename: __filename,
+         dayjs,
          form: { district: [], did: '', school: [], sid: '', product: [], pid: '', Time: [] },
          grade: [],
          startat: 0,
          endat: 0,
-         leaves: '',
+
          orders: '',
-         table: { columns: [], data: [], stripe: true, border: true }
+         table: { columns: [
+            {label: '学校', prop: 'school'},
+            {label: '年级', prop: 'grade'},
+            {label: '班级', prop: 'classes'},
+            {label: '用餐人数', prop: 'total'},
+            {label: '请假人数', prop: 'leave'},
+            {label: '退餐人数', prop: 'quit'}
+         ], data: [], stripe: true, border: true },
+         leaves: [],
+         quit: []
+
       }
    },
    created() {
@@ -95,7 +132,7 @@ export default {
             if(productList){
                this.startat = productList.startat
                this.endat = productList.endat
-               this.form.Time = [productList.startat*1000, (productList.startat+(86400*7))*1000]
+               this.form.Time = [ productList.startat * 1000, productList.startat * 1000 ]
                this.holiday = productList.holiday
             }
          } else {
@@ -112,8 +149,9 @@ export default {
             if(this.form.Time.length == 2){
                if(this.form.Time[0]/1000 >= this.startat && this.form.Time[1]/1000 <= this.endat){
                   this.$loading({fullscreen: true})
+                  let school = this.form.school.find(val => { return val.value == sid}).label
                   httpPost('meals',{did, sid, pid}).then(res => {
-                     this.parseData(this.form.Time[0] / 1000, this.form.Time[1] / 1000, this.grade, this.holiday, res.leave, res.order)
+                     this.parseData(this.form.Time[0] / 1000, this.form.Time[1] / 1000, school, this.grade, this.holiday, res.leave, res.order)
                      this.$loading().close()
                   })
                } else {
@@ -127,8 +165,92 @@ export default {
          }
       },
 
+      parseData (startat, endat, school, grade, holiday, leaves, orders) {
+         let holidays = JSON.parse(holiday), grades = []
+         orders.forEach(item => {
+            item.leave = []
+            leaves.forEach(val => { if(item.uid == val.uid) item.leave = item.leave.concat(JSON.parse(val.holiday)) })
+         })
+         JSON.parse(grade).forEach((item, keys) => {
+            item.classes.forEach((v, k) => {
+               let items = { school: school, grade: item.name, classes: v, total: { num: 0, users: [] }, leave: { num: 0, users: [] }, quit: { num: 0, users: [] } }
+               orders.forEach(val => {
+                  if (val.grade == items.grade && val.classes == items.classes) {
+                     for (let i = startat; i <= endat; i += 86400) {
+                        if (val.startat >= i || val.endat <= i) {
+                           let day = parseInt(dayjs(i * 1000).format('YYYYMMDD'))
+                           if (holidays.indexOf(day) == -1) {
+                              if (val.quittime == 0 || val.quittime > i) {
+                                 if (val.leave.indexOf(day) > -1) {
+                                    items.leave.num ++
+                                    items.leave.users.push(val.cname)
+                                 } else {
+                                    items.total.num ++
+                                    items.total.users.push(val.cname)
+                                 }
+                              } else {
+                                 if (val.quittime == i) {
+                                    items.quit.num ++
+                                    items.quit.users.push(val.cname)
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               })
+               grades.push(items)
+            })
+         })
+         // 内容
+         this.table.data = grades.map(item => {
+            let json = Object.assign({}, item)
+            json.total = item.total.num
+            json.leave = item.leave.num
+            json.quit = item.quit.num
+            return json
+         })
+         // 请假
+         let leaveSum = new Set()
+         grades.forEach(item => {
+            if(item.leave.users.length){
+               let json = Object.assign({}, item)
+               json.grade = item.grade
+               json.classes = item.classes
+               json.cname = [...new Set(item.leave.users)].join(',')
+               item.leave.users.forEach(v => {{ leaveSum.add(v) }})
+               if(json) this.leaves.push(json)
+            }
+         })
+         this.leaves.unshift({grade: `请假: ${[...leaveSum].length}人`, classes: '', cname: ''})
+
+         // 退餐
+         let quitSum = new Set()
+         grades.forEach(item => {
+            if(item.quit.users.length){
+               let json = Object.assign({}, item)
+               json.grade = item.grade
+               json.classes = item.classes
+               json.cname = [...new Set(item.quit.users)].join(',')
+               item.quit.users.forEach(v => {{ quitSum.add(v) }})
+               if(json) this.quit.push(json)
+            }
+         })
+         this.quit.unshift({grade: `退餐: ${[...quitSum].length}人`, classes: '', cname: ''})
+
+      },
+      SpanMethod ({ row, column, rowIndex, columnIndex }) {
+         if (columnIndex === 0) {
+            if (rowIndex  === 0) {
+               return { rowspan: this.table.data.length, colspan: 1 }
+            } else {
+               return { rowspan: 0, colspan: 0 }
+            }
+         }
+      },
+
       // 开始时间 结束时间 班级 假日
-      parseData (startat, endat, grade, holiday, leaves, orders) {
+      /*parseData (startat, endat, grade, holiday, leaves, orders) {
          let holidays = JSON.parse(holiday), grades = [], dates = []
          JSON.parse(grade).forEach((item, keys) => {
             item.classes.forEach((v, k) => {
@@ -180,7 +302,7 @@ export default {
             }
          })
          return nums
-      },
+      },*/
 
       // 导出 Excel
       exportExcel() {
@@ -193,12 +315,12 @@ export default {
                columns: this.table.columns,
                data: this.table.data,
                header: '用餐详情',
-               merges: merges.split(',')
-            }).then(() => {
-               this.$message('导出表格成功')
-            })
+               merges: [merges.split(','), `A2, A${this.table.data.length+2}`.split(',')]
+            }).then(() => { this.$message.success('导出表格成功') })
+         } else {
+            this.$message.warning(`请先生成数据再导出!`)
          }
-         this.$message.warning(`请先生成数据再导出!`)
+
       }
    }
 }

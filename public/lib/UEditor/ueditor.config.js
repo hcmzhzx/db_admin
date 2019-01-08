@@ -29,22 +29,22 @@
         //为编辑器实例添加一个路径，这个不能被注释
         UEDITOR_HOME_URL: URL
 
-        // 服务器统一请求接口路径
-        , serverUrl: URL + "jsp/controller.jsp"
+       // 服务器统一请求接口路径
+       , serverUrl: URL + "jsp/controller.jsp"
 
-        //工具栏上的所有的功能按钮和下拉框，可以在new编辑器的实例时选择自己需要的重新定义
-        , toolbars: [[
-            'source', '|', 'undo', 'redo', '|',
-            'bold', 'italic', 'underline', 'fontborder', 'strikethrough', '|',
-            'superscript', 'subscript', 'removeformat', 'formatmatch', 'pasteplain', '|',
-            'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', '|',
-            'rowspacingtop', 'rowspacingbottom', 'lineheight', '|',
-            'paragraph', 'fontfamily', 'fontsize', '|',
-            'indent', '|',
-            'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|',
-            'simpleupload', '|',
-            'horizontal', 'date', 'time', '|', 'preview',
-        ]]
+       //工具栏上的所有的功能按钮和下拉框，可以在new编辑器的实例时选择自己需要的重新定义
+       , toolbars: [[
+          'source', '|', 'undo', 'redo', '|',
+          'bold', 'italic', 'underline', 'fontborder', 'strikethrough', '|',
+          'superscript', 'subscript', 'removeformat', 'formatmatch', 'pasteplain', '|',
+          'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'cleardoc', '|',
+          'rowspacingtop', 'rowspacingbottom', 'lineheight', '|',
+          'paragraph', 'fontfamily', 'fontsize', '|',
+          'indent', '|',
+          'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', '|', 'touppercase', 'tolowercase', '|',
+          'simpleupload', '|',
+          'horizontal', 'date', 'time', '|', 'preview',
+       ]]
         //当鼠标放在工具栏上时显示的tooltip提示,留空支持自动多语言配置，否则以配置值为准
         //,labelMap:{
         //    'anchor':'', 'undo':''

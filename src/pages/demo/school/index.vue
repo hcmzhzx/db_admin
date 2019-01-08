@@ -51,7 +51,7 @@ export default {
          }
          this.Data = res.lists.map( item => {
             let json = item
-            item.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
+            item.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
             json.did = item.did ? this.district.find(val => {return val.id == item.did}).cname : ''
             return json
          })
