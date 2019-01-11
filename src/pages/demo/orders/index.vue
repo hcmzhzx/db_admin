@@ -179,7 +179,8 @@ export default {
       },
       handleSize (pagesize) {
          this.loading = true
-         httpGet(`order`, {pagesize: pagesize}).then(res => {
+         let url = this.isSearch ? `order?sid=${this.Search.sid}&grade=${this.Search.grade}&classes=${this.Search.classes}&state=${this.Search.state}&beginat=${this.Search.beginat / 1000}&overat=${this.Search.overat / 1000}&startat=${this.Search.startat / 1000}&endat=${this.Search.endat / 1000}&type=${this.Search.type}&word=${this.Search.word}&pagesize=${pagesize}` : `order?pagesize=${pagesize}`
+         httpGet(url).then(res => {
             this.pagesize = pagesize
             this.today = this.today
             this.school = res.schools
@@ -215,6 +216,7 @@ export default {
             this.mapData(res.schools, res.lists, res.leaves, res.today)
             this.total = res.total
             this.isSearch = true
+            this.pagesize = 10
             this.pageNo = 1
          })
       },

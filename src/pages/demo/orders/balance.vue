@@ -186,7 +186,8 @@ export default {
       },
       handleSize (pagesize) {
          this.loading = true
-         httpGet(`balance`, {pagesize: pagesize}).then(res => {
+         let url = this.isSearch ? `balance?sid=${this.Search.sid}&grade=${this.Search.grade}&classes=${this.Search.classes}&types=${this.Search.types}&beginat=${this.Search.Time[0] / 1000 || ''}&overat=${this.Search.Time[1] / 1000 || ''}&type=${this.Search.type}&word=${this.Search.word}&pagesize=${pagesize}` : `balance?pagesize=${pagesize}`
+         httpGet(url).then(res => {
             this.pagesize = pagesize
             this.mapData(res.lists, res.schools)
          })
@@ -212,6 +213,7 @@ export default {
             this.mapData(res.lists, res.schools)
             this.total = res.total
             this.isSearch = true
+            this.pagesize = 10
             this.pageNo = 1
          })
       },
