@@ -34,40 +34,40 @@ export default {
          columns: [
             // {title: 'id', key: 'id', align: 'center', width: '120px'},
             // {title: 'pid', key: 'pid', align: 'center', width: '120px'},
-            {title: '权限所属', key: 'name', align: 'center'},
-            {title: '权限名称', key: 'title', align: 'center'},
-            {title: '图标', key: 'icon', align: 'center'},
-            {title: '前端路由', key: 'path', align: 'center'},
-            {title: '服务器请求地址', key: 'url', align: 'center'},
-            {title: '权限说明', key: 'ifshow', align: 'center', component:{name: myTag}},
-            {title: '排序', key: 'sortid', align: 'center', width: '120px'}
+            { title: '权限所属', key: 'name', align: 'center' },
+            { title: '权限名称', key: 'title', align: 'center' },
+            { title: '图标', key: 'icon', align: 'center', width: '120px' },
+            { title: '前端路由', key: 'path', align: 'center' },
+            { title: '服务器请求地址', key: 'url', align: 'center' },
+            { title: '权限说明', key: 'ifshow', align: 'center', width: '100px', component:{name: myTag} },
+            { title: '排序', key: 'sortid', align: 'center', width: '120px'}
          ],
-         options: {border: true},
+         options: { border: true },
          loading: true,
          Data: [],
          rowHandle: {
             columnHeader: '编辑权限',
             width: '200px',
             align: "center",
-            edit: {icon: 'el-icon-edit', text: '编辑', size: 'small'},
-            remove: {icon: 'el-icon-delete', size: 'small', fixed: 'right', confirm: true}
+            edit: { icon: 'el-icon-edit', text: '编辑', size: 'small' },
+            remove: { icon: 'el-icon-delete', size: 'small', fixed: 'right', confirm: true }
          },
-         addButton: {icon: 'el-icon-plus', size: 'small'},
+         addButton: { icon: 'el-icon-plus', size: 'small' },
          formTemplate: {
-            pid: {title: 'pid', value: '', component: {
+            pid: { title: 'pid', value: '', component: {
                name: 'el-select',
                options: [
-                  {label: '一级菜单', value: 0}
+                  { label: '一级菜单', value: 0 }
                ]
             }},
-            title: {title: '权限名称', value: ''},
-            icon: {title: '图标', value: '', component: {placeholder: '选 填 '}},
-            path: {title: '前端路由', value: ''},
-            url: {title: '服务器请求地址', value: ''},
-            ifshow: {title: '权限说明', value: 0, component: {name: mySwitch}},
-            sortid: {title: '排序', value: '100'}
+            title: { title: '权限名称', value: '' },
+            icon: { title: '图标', value: '', component: { placeholder: '选 填 ' } },
+            path: { title: '前端路由', value: '' },
+            url: { title: '服务器请求地址', value: '' },
+            ifshow: { title: '权限说明', value: 0, component: {name: mySwitch} },
+            sortid: { title: '排序', value: '100' }
          },
-         formOptions: {labelWidth: '120px', labelPosition: 'left', saveLoading: false}
+         formOptions: { labelWidth: '120px', labelPosition: 'left', saveLoading: false }
       }
    },
    async created() {
@@ -99,15 +99,15 @@ export default {
          }
          this.loading = true
          httpAdd('adminaccessopt', row).then(res => {
-            this.formTemplate.pid.component.options.push({label: row.title, value: res.id})
+            this.formTemplate.pid.component.options.push({ label: row.title, value: res.id })
             this.$message.success('保存成功')
-            let name = row.pid ? this.formTemplate.pid.component.options.find(val => {return val.value == row.pid}).label : row.title
+            let name = row.pid ? this.formTemplate.pid.component.options.find(val => { return val.value == row.pid }).label : row.title
             done({ name })
             this.formOptions.saveLoading = false
             this.loading = false
          })
       },
-      handleRowEdit ({index, row}, done) {
+      handleRowEdit ({ index, row }, done) {
          this.formOptions.saveLoading = true
          for(let [k, v] of Object.entries(row)){
             if(k != 'icon' && k != 'ifshow' && v === '' && v !== 0){
@@ -118,8 +118,8 @@ export default {
          }
          this.loading = true
          httpEdit('adminaccessopt', row).then(res => {
-            let option = this.formTemplate.pid.component.options.filter(item => {return item.value != row.id})
-            option.push({label: row.title, value: row.id})
+            let option = this.formTemplate.pid.component.options.filter(item => { return item.value != row.id })
+            option.push({ label: row.title, value: row.id })
             this.formTemplate.pid.component.options = option
             this.$message.success('修改成功')
             done()
@@ -127,11 +127,11 @@ export default {
             this.loading = false
          })
       },
-      handleRowRemove ({index, row}, done) {
+      handleRowRemove ({ index, row }, done) {
          let Id = row.id
          this.loading = true
-         httpTrash('adminaccessopt', {id: Id}).then(res => {
-            this.formTemplate.pid.component.options = this.formTemplate.pid.component.options.filter(item => {return item.value != Id})
+         httpTrash('adminaccessopt', { id: Id }).then(res => {
+            this.formTemplate.pid.component.options = this.formTemplate.pid.component.options.filter(item => { return item.value != Id })
             this.$message.success('删除成功')
             done()
             this.loading = false

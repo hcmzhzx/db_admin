@@ -35,14 +35,14 @@
          </el-table>
          <div class="flex between" style="margin-top:20px;width:100%;">
             <div>
-               <el-table :data="leaves" border style="width:100%">
+               <el-table :data="leaves" empty-text="暂无请假数据" :show-header="false" border style="width:100%">
                   <el-table-column prop="grade" min-width="110px"></el-table-column>
                   <el-table-column prop="classes" min-width="110px"></el-table-column>
                   <el-table-column prop="cname" min-width="110px"></el-table-column>
                </el-table>
             </div>
             <div>
-               <el-table :data="quit" border style="width:100%">
+               <el-table :data="quit" empty-text="暂无退餐数据" :show-header="false" border style="width:100%">
                   <el-table-column prop="grade" min-width="110px"></el-table-column>
                   <el-table-column prop="classes" min-width="110px"></el-table-column>
                   <el-table-column prop="cname" min-width="110px"></el-table-column>
@@ -211,12 +211,13 @@ export default {
             return json
          })
          // 请假
+         this.leaves = []
          let leaveSum = new Set()
          grades.forEach(item => {
             if(item.leave.users.length){
                let json = Object.assign({}, item)
                json.grade = item.grade
-               json.classes = item.classes
+               json.classes = `${item.classes}班`
                json.cname = [...new Set(item.leave.users)].join(',')
                item.leave.users.forEach(v => {{ leaveSum.add(v) }})
                if(json) this.leaves.push(json)
@@ -225,12 +226,13 @@ export default {
          this.leaves.unshift({grade: `请假: ${[...leaveSum].length}人`, classes: '', cname: ''})
 
          // 退餐
+         this.quit = []
          let quitSum = new Set()
          grades.forEach(item => {
             if(item.quit.users.length){
                let json = Object.assign({}, item)
                json.grade = item.grade
-               json.classes = item.classes
+               json.classes = `${item.classes}班`
                json.cname = [...new Set(item.quit.users)].join(',')
                item.quit.users.forEach(v => {{ quitSum.add(v) }})
                if(json) this.quit.push(json)

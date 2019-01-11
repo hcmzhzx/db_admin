@@ -9,6 +9,7 @@ export default {
    redirect: { name: 'demo-report' },
    component: layoutHeaderAside,
    children: (pre => [
-      { path: 'index', name: `${pre}`, component: () => import('@/pages/demo/report/index'), meta: { meta, title: '用餐报表' } }
+      { path: 'index', name: `${pre}`, component: () => import('@/pages/demo/report/index'), meta: { meta, title: '用餐报表' } },
+      { path: 'catering', name: `${pre}-catering`, component: () => import('@/pages/demo/report/catering'), meta: { meta, title: '配餐收入' } }
    ])('demo-report')
 }

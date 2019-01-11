@@ -62,7 +62,7 @@
             <el-table-column prop="grade" label="年级" min-width="100" align="center"></el-table-column>
             <el-table-column prop="classes" label="班级" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="学生姓名" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="phone" label="手机号" min-width="100" align="center"></el-table-column>
+            <el-table-column prop="phone" label="手机号" min-width="110" align="center"></el-table-column>
             <el-table-column prop="paytime" label="下单时间" min-width="120" align="center"></el-table-column>
             <el-table-column prop="startat" label="用餐起始时间" min-width="120" align="center"></el-table-column>
             <el-table-column prop="unit" label="餐标" min-width="80" align="center"></el-table-column>
@@ -73,7 +73,7 @@
                   <el-tag :type="scope.row.state.type">{{scope.row.state.text}}</el-tag>
                </template>
             </el-table-column>
-            <el-table-column prop="used" label="已消费餐次" min-width="90" align="center"></el-table-column>
+            <el-table-column prop="used" label="已消费餐次" min-width="100" align="center"></el-table-column>
             <el-table-column prop="leave" label="请假餐次" min-width="80" align="center"></el-table-column>
             <!--<el-table-column prop="addtime" label="添加时间" min-width="120" align="center"></el-table-column>
             <el-table-column label="操作" width="200" align="center">

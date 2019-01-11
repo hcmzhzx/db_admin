@@ -50,7 +50,8 @@ import { AccountLogin } from '@api/http'
       icon: 'folder-o',
       path: '/demo/report',
       children: [
-         {path: '/demo/report/index', title: '用餐报表'}
+         {path: '/demo/report/index', title: '用餐报表'},
+         {path: '/demo/report/catering', title: '配餐收入'}
       ]
    },
    {
