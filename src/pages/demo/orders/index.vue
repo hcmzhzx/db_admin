@@ -86,7 +86,7 @@
       </template>
       <template slot="footer">
          <div class="flex between">
-            <el-pagination @size-change="handleSize" @current-change="handleCurrent" :current-page.sync="pageNo" :page-size="pagesize" :page-sizes="[10, 20, 30, 40]" layout="sizes, prev, pager, next" :total="total" background></el-pagination>
+            <el-pagination @size-change="handleSize" @current-change="handleCurrent" :current-page.sync="pageNo" :page-size="pagesize" :page-sizes="[10, 50, 100, 500, 1000, 1500, 2000, 2500]" :total="total" layout="sizes, prev, pager, next" background></el-pagination>
             <el-button type="primary" @click="exportExcel"><d2-icon name="download"/> 导出 Excel</el-button>
          </div>
       </template>
@@ -105,6 +105,7 @@ export default {
          dayjs,
          Data: [],
          school: [],
+         today: '',
          grade: [],
          classes: [],
          state: [
@@ -130,6 +131,7 @@ export default {
             this.mapData(res.schools, res.lists, res.leaves, res.today)
             this.school = res.schools
             this.total = res.total
+            this.today = res.today
             this.isSearch = false
             this.pageNo = 1
             this.Search = { sid: "", grade: "", classes: "", state: "", beginat: "", overat: "", startat: "", endat: "", type: "", word: "" }
@@ -172,14 +174,16 @@ export default {
          this.loading = true
          let url = this.isSearch ? `order?sid=${this.Search.sid}&grade=${this.Search.grade}&classes=${this.Search.classes}&state=${this.Search.state}&beginat=${this.Search.beginat / 1000}&overat=${this.Search.overat / 1000}&startat=${this.Search.startat / 1000}&endat=${this.Search.endat / 1000}&type=${this.Search.type}&word=${this.Search.word}&pagesize=${this.pagesize}&page=${num}` : `order?pagesize=${this.pagesize}&page=${num}`
          httpGet(url).then(res => {
-            this.mapData(res.schools, res.lists, res.leaves, res.today)
+            this.mapData(this.school, res.lists, res.leaves, this.today)
          })
       },
       handleSize (pagesize) {
          this.loading = true
          httpGet(`order`, {pagesize: pagesize}).then(res => {
             this.pagesize = pagesize
-            this.mapData(res.schools, res.lists, res.leaves, res.today)
+            this.today = this.today
+            this.school = res.schools
+            this.mapData(res.schools, res.lists, res.leaves, this.today)
          })
       },
       schoolChange (sid) {

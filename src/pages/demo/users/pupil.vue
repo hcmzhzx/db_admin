@@ -85,6 +85,7 @@ export default {
                this.school.push({id: v, cname: k})
             }
             this.mapData(res.lists)
+            this.isSearch = false
             this.total = res.total
             this.pageNo = 1
          })
@@ -101,7 +102,7 @@ export default {
       },
       handleCurrent (num) {
          this.loading = true
-         let url = this.isSearch ? `student?sid${this.Search.sid}&type${this.Search.type}&word=${this.Search.word}&page=${num}` : `user?page=${num}`
+         let url = this.isSearch ? `student?sid${this.Search.sid}&type${this.Search.type}&word=${this.Search.word}&page=${num}` : `student?page=${num}`
          httpGet(url).then(res => {
             this.mapData(res.lists)
          })
