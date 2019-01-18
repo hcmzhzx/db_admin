@@ -75,12 +75,14 @@ export default {
       loadata() {
          this.$loading({fullscreen: true})
          httpGet('adminGroup').then(res => {
-            this.collapse = this.parseAccess(res.access, 0)
-            this.Data = res.lists.map(item => {
-               let json = item
-               json.addtime = this.formatDate(item.addtime, 'y-M-d')
-               return json
-            })
+            if (res) {
+               this.collapse = this.parseAccess(res.access, 0)
+               this.Data = res.lists.map(item => {
+                  let json = item
+                  json.addtime = this.formatDate(item.addtime, 'y-M-d')
+                  return json
+               })
+            }
             this.$loading().close()
          })
       },
@@ -116,14 +118,14 @@ export default {
                      httpEdit('adminGroupopt', posts).then(res => {
                         this.dialogForm = false
                         this.$message({message: '修改成功', type: 'success'})
-                        this.loadata()
+                        this.$loading().close()
                      })
                   } else {
                      let posts = {cname: this.form.name, menus: mids.join(',')}
                      httpAdd('adminGroupopt', posts).then(res => {
                         this.dialogForm = false
                         this.$message({message: '添加成功', type: 'success'})
-                        this.loadata()
+                        this.$loading().close()
                      })
                   }
                }

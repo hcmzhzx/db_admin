@@ -42,15 +42,15 @@ export default {
             columnHeader: '编辑表格',
             width: '240px',
             align: "center",
-            edit: {icon: 'el-icon-edit', text: '编辑', size: 'small'},
-            remove: {icon: 'el-icon-delete', size: 'small', fixed: 'right', confirm: true}
+            edit: { icon: 'el-icon-edit', text: '编辑', size: 'small'},
+            remove: { confirmText: '地区与学校关联, 确定删除吗?', size: 'small', fixed: 'right', icon: 'el-icon-delete' }
          },
-         addButton: {icon: 'el-icon-plus', size: 'small'},
+         addButton: {icon: 'el-icon-plus', size: 'small' },
          formTemplate: {
-            cname: {title: '地址', value: ''},
-            sortid: {title: '排序', value: '100'}
+            cname: { title: '地址', value: '' },
+            sortid: { title: '排序', value: '100' }
          },
-         formOptions: {labelWidth: '80px', labelPosition: 'left', saveLoading: false}
+         formOptions: { labelWidth: '80px', labelPosition: 'left', saveLoading: false }
       }
    },
    created() {
@@ -71,7 +71,7 @@ export default {
          }
          this.loading = true
          httpAdd('districtopt', row).then(res => {
-            this.$message.success('保存成功')
+            this.$message.success(res.msg)
             done({ id: res.id })
             this.formOptions.saveLoading = false
             this.loading = false
@@ -87,7 +87,7 @@ export default {
          }
          this.loading = true
          httpEdit('districtopt', row).then(res => {
-            this.$message.success('编辑成功')
+            this.$message.success(res.msg)
             done()
             this.formOptions.saveLoading = false
             this.loading = false
@@ -97,7 +97,7 @@ export default {
          let Id = row.id
          this.loading = true
          httpTrash('districtopt', {id: Id}).then(res => {
-            this.$message.success('删除成功')
+            this.$message.success(res.msg)
             this.loading = false
             done()
          })

@@ -30,8 +30,8 @@
       </template>
       <template>
          <el-table v-bind="table" :span-method="SpanMethod" max-height="700" style="width:100%">
-            <el-table-column fixed v-for="(item, index) in table.columns" :key="index" :prop="item.prop" :label="item.label" v-if="index == 0" align="center" min-width="110px"></el-table-column>
-            <el-table-column v-for="(item, index) in table.columns" :key="item.prop" :prop="item.prop" :label="item.label" v-if="index > 0" align="center" min-width="110px"></el-table-column>
+            <el-table-column fixed v-for="(item, index) in table.columns" :key="index" :prop="item.prop" :label="item.label" v-if="index == 0" align="center" min-width="120px"></el-table-column>
+            <el-table-column v-for="(item, index) in table.columns" :key="item.prop" :prop="item.prop" :label="item.label" v-if="index > 0" align="center" min-width="120px"></el-table-column>
          </el-table>
          <div class="flex between" style="margin-top:20px;width:100%;">
             <div>
@@ -116,10 +116,14 @@ export default {
                json.label = item.cname
                return json
             })
-            this.grade = school.find(item => { return item.id == this.form.sid }).grade
+            let grades = school.find(item => { return item.id == this.form.sid })
+            this.grade = grades ? grades.grade : []
+         } else {
+            this.form.school = []
          }
 
          // 学期
+         this.form.pid = product.length ? (pid ? pid : product[0].id ) : ''
          if(product.length>0){
             this.form.product = product.map(item => {
                let json = {}
@@ -136,7 +140,8 @@ export default {
                this.holiday = productList.holiday
             }
          } else {
-            this.form.pid = ''
+            this.form.product = []
+            this.form.Time = []
             this.startat = ''
             this.endat = ''
          }
@@ -149,7 +154,7 @@ export default {
             if(this.form.Time.length == 2){
                if(this.form.Time[0]/1000 >= this.startat && this.form.Time[1]/1000 <= this.endat){
                   this.$loading({fullscreen: true})
-                  let school = this.form.school.find(val => { return val.value == sid}).label
+                  let school = this.form.school.find(val => { return val.value == sid}) ? this.form.school.find(val => { return val.value == sid}).label : '未知'
                   httpPost('meals',{did, sid, pid}).then(res => {
                      this.parseData(this.form.Time[0] / 1000, this.form.Time[1] / 1000, school, this.grade, this.holiday, res.leave, res.order)
                      this.$loading().close()
@@ -322,7 +327,6 @@ export default {
          } else {
             this.$message.warning(`请先生成数据再导出!`)
          }
-
       }
    }
 }

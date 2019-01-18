@@ -70,7 +70,7 @@ service.interceptors.response.use(
           return dataAxios
         case 1:
           // [ 示例 ] 其它和后台约定的 code
-          errorCreat(`${dataAxios.msg}: ${response.config.url}`)
+          return dataAxios
           break
         case 403:
             Message.warning('没有权限, 请重新登录')

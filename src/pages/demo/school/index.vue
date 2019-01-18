@@ -40,19 +40,15 @@ export default {
          filename: __filename,
          dayjs,
          Data: [],
-         district: [], // 地区
          loading: true
       }
    },
    async created() {
       await httpGet('school').then( res => {
-         for(let [k, v] of Object.entries(res.district)){
-            this.district.push({id: Number(k), cname: v})
-         }
          this.Data = res.lists.map( item => {
             let json = item
             item.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
-            json.did = item.did ? this.district.find(val => {return val.id == item.did}).cname : ''
+            json.did = res.district[item.did] ? res.district[item.did] : '未知'
             return json
          })
          this.loading = false

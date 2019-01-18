@@ -78,7 +78,8 @@
             </el-table-column>
             <el-table-column label="操作" width="200" align="center">
                <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-edit" size="small" :disabled="scope.row.state == 0 ? false : true" @click="remittance(scope.row.cname, scope.row.id, scope.row.fee)">打款</el-button>
+                  <el-button v-if="!scope.row.state" type="primary" icon="el-icon-edit" size="small" @click="remittance(scope.row.cname, scope.row.id, Math.abs(scope.row.fee))">打款</el-button>
+                  <el-button type="info" disabled size="small" v-else>已打款</el-button>
                   <el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.id)">删除</el-button>
                </template>
             </el-table-column>
@@ -146,7 +147,12 @@ export default {
          this.loading = false
       },
       remittance (name, Id, fee) {
-         this.$prompt(`确定打款给${name}?`, '提示', { inputType: 'Number', inputPlaceholder: '请输入提现金额' }).then(({ value }) => {
+         this.$prompt(`确定打款给${name}?`, '提示', {
+            inputType: 'Number',
+            inputPlaceholder: '请输入提现金额',
+            inputPattern: /^[1-9]\d{0,9}?$/,
+            inputErrorMessage: '金额格式不对'
+         }).then(({ value }) => {
             value = Number(value)
             if(value){
                if(fee < value){
@@ -154,7 +160,11 @@ export default {
                } else {
                   this.loading = true
                   httpEditUm('balanceopt', { method: "refund", id: Id, fee: value }).then(res => {
-                     this.$message.message(res.msg)
+                     if(res.code == 0){
+                        this.$message.success(res.msg)
+                     } else {
+                        this.$message.error(res.msg)
+                     }
                      this.loading = false
                   })
                }
@@ -179,35 +189,40 @@ export default {
       },
       handleCurrent (num) {
          this.loading = true
-         let url = this.isSearch ? `balance?sid=${this.Search.sid}&grade=${this.Search.grade}&classes=${this.Search.classes}&types=${this.Search.types}&beginat=${this.Search.Time[0] / 1000 || ''}&overat=${this.Search.Time[1] / 1000 || ''}&type=${this.Search.type}&word=${this.Search.word}&pagesize=${this.pagesize}&page=${num}` : `balance?pagesize=${this.pagesize}&page=${num}`
+         let { sid, grade, classes, types, type, word } = this.Search
+         let url = this.isSearch ? `balance?sid=${sid}&grade=${grade}&classes=${classes}&types=${types}&beginat=${this.Search.Time[0] / 1000 || ''}&overat=${this.Search.Time[1] / 1000 || ''}&type=${type}&word=${word}&pagesize=${this.pagesize}&page=${num}` : `balance?pagesize=${this.pagesize}&page=${num}`
          httpGet(url).then(res => {
-            this.mapData(res.lists, res.schools)
+            this.mapData(res.lists, this.school)
          })
       },
       handleSize (pagesize) {
          this.loading = true
-         let url = this.isSearch ? `balance?sid=${this.Search.sid}&grade=${this.Search.grade}&classes=${this.Search.classes}&types=${this.Search.types}&beginat=${this.Search.Time[0] / 1000 || ''}&overat=${this.Search.Time[1] / 1000 || ''}&type=${this.Search.type}&word=${this.Search.word}&pagesize=${pagesize}` : `balance?pagesize=${pagesize}`
+         let { sid, grade, classes, types, type, word } = this.Search
+         let url = this.isSearch ? `balance?sid=${sid}&grade=${grade}&classes=${classes}&types=${types}&beginat=${this.Search.Time[0] / 1000 || ''}&overat=${this.Search.Time[1] / 1000 || ''}&type=${type}&word=${word}&pagesize=${pagesize}` : `balance?pagesize=${pagesize}`
          httpGet(url).then(res => {
             this.pagesize = pagesize
             this.mapData(res.lists, res.schools)
          })
       },
       schoolChange (sid) {
-         this.grade = JSON.parse(this.school.find(val => { return val.id == sid }).grade)
+         this.grade = JSON.parse(this.school.find(val => { return val.id == sid }) ? this.school.find(val => { return val.id == sid }).grade : '[]')
          this.Search.grade = ''
          this.Search.classes = ''
          this.classes = []
       },
       gradeChange (grade) {
          this.Search.classes = ''
-         this.classes = this.grade.find(val => { return val.name == grade}).classes
+         this.classes = this.grade.find(val => { return val.name == grade}) ? this.grade.find(val => { return val.name == grade}).classes : []
       },
       onSearch () {
          if(this.Search.Time[0] / 1000 > this.Search.Time[1] / 1000){
             this.$message.warning('开始时间不能大于结束时间')
             return
          }
-         let posts = { sid: this.Search.sid, grade: this.Search.grade, classes: this.Search.classes, types: this.Search.types, beginat: this.Search.Time[0] / 1000 || '', overat: this.Search.Time[1] / 1000 || '', type: this.Search.type, word: this.Search.word}
+         let { sid, grade, classes, state, types, type, word } = this.Search
+         let posts = { sid, grade, classes, state, types, type, word }
+         posts.beginat = this.Search.Time[0] / 1000 || ''
+         posts.overat = this.Search.Time[1] / 1000 || ''
          this.loading = true
          httpGet(`balance`, posts).then(res => {
             this.mapData(res.lists, res.schools)
@@ -230,16 +245,16 @@ export default {
          })
          if(data.length){
             let columns = [
-               {label: '收款人', prop: 'cname'},
-               {label: '学校', prop: 'school'},
-               {label: '年级', prop: 'grade'},
-               {label: '班级', prop: 'classes'},
-               {label: '学生姓名', prop: 'student'},
-               {label: '类型', prop: 'types'},
-               {label: '金额', prop: 'fee'},
-               {label: '添加时间', prop: 'addtime'},
-               {label: '到账时间', prop: 'updatetime'},
-               {label: '状态', prop: 'state'}
+               { label: '收款人', prop: 'cname' },
+               { label: '学校', prop: 'school' },
+               { label: '年级', prop: 'grade' },
+               { label: '班级', prop: 'classes' },
+               { label: '学生姓名', prop: 'student' },
+               { label: '类型', prop: 'types' },
+               { label: '金额', prop: 'fee' },
+               { label: '添加时间', prop: 'addtime' },
+               { label: '到账时间', prop: 'updatetime' },
+               { label: '状态', prop: 'state' }
             ]
             this.$export.excel({ columns, data }).then(() => {
                this.$message.success('导出表格成功')

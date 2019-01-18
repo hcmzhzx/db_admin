@@ -10,12 +10,12 @@
          <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" width="120" align="center"></el-table-column>
             <el-table-column prop="title" label="标题" width="140" align="center"></el-table-column>
-            <el-table-column label="套餐" align="center" width="300">
+            <el-table-column label="套餐" align="center" min-width="200">
                <template slot-scope="scope">
                   <img :src="scope.row.image" width="180" height="180" style="object-fit:cover">
                </template>
             </el-table-column>
-            <el-table-column prop="school" label="学校名称" align="center"></el-table-column>
+            <el-table-column prop="school" label="学校名称" min-width="200" align="center"></el-table-column>
             <el-table-column prop="addtime" label="时间" width="140" align="center"></el-table-column>
             <el-table-column label="每日实拍" width="140" align="center">
                <template slot-scope="scope">
@@ -35,27 +35,27 @@
 
 <script>
 import { httpGet, httpTrash } from '@api/http'
+import dayjs from 'dayjs'
 
 export default {
    name: 'combo',
    data() {
       return {
          filename: __filename,
+         dayjs,
          Data: [],
+         school: [],
          loading: true
       }
    },
    async created() {
       await httpGet('taocan').then(res => {
-         let schools = []
-         for(let [v, k] of Object.entries(res.school)){
-            schools.push({id: k, cname: v})
-         }
+         this.school = res.school
          this.Data = res.lists.map(item => {
             let json = {school:''}
-            json.addtime = this.formatDate(item.addtime, 'y-M-d')
+            json.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
             JSON.parse(item.schools).find(i => {
-               json.school += `${schools.find(v => {return v.id == i}).cname}, `
+               json.school += `${schools.find(v => {return v.id == i}) ? schools.find(v => {return v.id == i}).cname : '未知'}, `
             })
             json.id = item.id
             json.title = item.title

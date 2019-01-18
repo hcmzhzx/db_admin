@@ -162,7 +162,7 @@ export default {
                   json.used ++
                }
             }
-            json.school = school.find(val => {return val.id == item.sid}).cname
+            json.school = school.find(val => {return val.id == item.sid}) ? school.find(val => {return val.id == item.sid}).cname : '未知'
             json.paytime = item.paytime ? dayjs(item.paytime * 1000).format('YYYY-MM-DD') : ''
             json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
             json.startat = dayjs(item.startat * 1000).format('YYYY-MM-DD')
@@ -179,7 +179,8 @@ export default {
       },
       handleSize (pagesize) {
          this.loading = true
-         let url = this.isSearch ? `order?sid=${this.Search.sid}&grade=${this.Search.grade}&classes=${this.Search.classes}&state=${this.Search.state}&beginat=${this.Search.beginat / 1000}&overat=${this.Search.overat / 1000}&startat=${this.Search.startat / 1000}&endat=${this.Search.endat / 1000}&type=${this.Search.type}&word=${this.Search.word}&pagesize=${pagesize}` : `order?pagesize=${pagesize}`
+         let { sid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
+         let url = this.isSearch ? `order?sid=${sid}&grade=${grade}&classes=${classes}&state=${state}&beginat=${beginat / 1000}&overat=${overat / 1000}&startat=${startat / 1000}&endat=${endat / 1000}&type=${type}&word=${word}&pagesize=${pagesize}` : `order?pagesize=${pagesize}`
          httpGet(url).then(res => {
             this.pagesize = pagesize
             this.today = this.today
@@ -188,14 +189,14 @@ export default {
          })
       },
       schoolChange (sid) {
-         this.grade = JSON.parse(this.school.find(val => { return val.id == sid }).grade)
+         this.grade = JSON.parse(this.school.find(val => { return val.id == sid }) ? this.school.find(val => { return val.id == sid }).grade : '[]')
          this.Search.grade = ''
          this.Search.classes = ''
          this.classes = []
       },
       gradeChange (grade) {
          this.Search.classes = ''
-         this.classes = this.grade.find(val => { return val.name == grade}).classes
+         this.classes = this.grade.find(val => { return val.name == grade}) ? this.grade.find(val => { return val.name == grade}).classes : []
       },
       onSearch () {
          if(this.Search.beginat > this.Search.overat){

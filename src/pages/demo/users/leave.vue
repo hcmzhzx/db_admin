@@ -5,13 +5,13 @@
       </template>
       <template>
          <el-table :data="Data" v-loading="loading" border style="width: 100%">
-            <el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>
+            <el-table-column prop="id" label="id" width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="姓名" min-width="120" align="center"></el-table-column>
             <el-table-column prop="school" label="学校" min-width="160" align="center"></el-table-column>
-            <el-table-column prop="gradeClasses" label="学生班级" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="holiday" label="请假日期" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="total" label="请假天数" min-width="90" align="center"></el-table-column>
-            <el-table-column prop="addtime" label="添加时间" min-width="120" align="center"></el-table-column>
+            <el-table-column prop="gradeClasses" label="学生班级" min-width="100" align="center"></el-table-column>
+            <el-table-column prop="holiday" label="请假日期" min-width="180" align="center"></el-table-column>
+            <el-table-column prop="total" label="请假天数" width="120" align="center"></el-table-column>
+            <el-table-column prop="addtime" label="添加时间" width="120" align="center"></el-table-column>
             <!--<el-table-column label="操作" width="200" align="center">
                <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-admin-addUsers', query: {id: scope.row.id}})">编辑</el-button>
@@ -54,9 +54,7 @@ export default {
          //let reg = /(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})/
          this.Data = list.map(item => {
             let json = item, holiday = JSON.parse(item.holiday)
-            json.school = this.school.find(val => {
-               return val.id == item.sid
-            }).cname
+            json.school = this.school.find(val => {return val.id == item.sid}) ? this.school.find(val => {return val.id == item.sid}).cname : '未知'
             json.gradeClasses = `${item.grade}${item.classes}`
             json.holiday = holiday.length ? holiday.map(val => {
                val = val.toString()

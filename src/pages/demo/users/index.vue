@@ -1,7 +1,7 @@
 <template>
    <d2-container :filename="filename">
       <template slot="header">
-         <div class="flex between">
+         <div class="flex between" style="min-width:680px">
             <div class="title">用户列表</div>
             <el-form :inline="true" :model="Search" class="demo-form-inline">
                <el-form-item>
@@ -56,9 +56,9 @@ export default {
          filename: __filename,
          dayjs,
          Data: [],
-         total: 0,
          Search: {},
          isSearch: false,
+         total: 0,
          pageNo: 1,
          loading: true
       }

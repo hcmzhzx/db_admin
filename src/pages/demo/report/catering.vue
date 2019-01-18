@@ -19,8 +19,8 @@
          </el-form>
       </template>
       <template>
-         <el-table :data="Data" border style="width:100%">
-            <el-table-column prop="school" label="学校" min-width="120" align="center"></el-table-column>
+         <el-table :data="Data" v-loading="loading" border style="width:100%">
+            <el-table-column prop="school" label="学校" min-width="160" align="center"></el-table-column>
             <el-table-column prop="ordernum" label="订单数量" min-width="100" align="center"></el-table-column>
             <el-table-column prop="unit" label="餐标" min-width="100" align="center"></el-table-column>
             <el-table-column prop="quitnum" label="退餐数量" min-width="100" align="center"></el-table-column>
@@ -46,7 +46,8 @@ export default {
          dayjs,
          school: [],
          Search: {},
-         Data: []
+         Data: [],
+         loading: true
       }
    },
    async created () {
@@ -97,14 +98,17 @@ export default {
                schools[item.sid].usenum += items.usenum
                schools[item.sid].usefee += items.usefee
             } else {
-               schools[item.sid] = Object.assign({ school: school.find(val => { return val.id ==item.sid}).cname, unit: item.unit }, items)
+               let School = school.find(val => { return val.id == item.sid })
+               schools[item.sid] = Object.assign({ school: School ? School.cname : '', unit: item.unit }, items)
             }
          })
          this.Data = []
          schools.forEach(v => { this.Data.push(v) })
+         this.loading = false
       },
       create () {
          let posts = { sid: this.Search.sid, startat: this.Search.Time[0] /1000 , endat: this.Search.Time[1] / 1000}
+         this.loading = true
          httpGet('data', posts).then(res => {
             this.mapData(posts.startat, posts.endat, this.school, res.lists, res.leaves)
          })

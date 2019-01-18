@@ -103,7 +103,7 @@ export default {
          this.$route.meta.title = '修改学校'
          httpGet('schoolopt', {id: this.Id}).then(res => {
             this.form.cname = res.data.cname
-            this.form.did = res.data.did
+            this.form.did = this.district.find(item => { return item.id == res.data.did }) ? res.data.did : ''
             this.fileList = [{name: '', url: res.data.contract}]
             let arr = JSON.parse(res.data.grade)
             for(let v of arr) {

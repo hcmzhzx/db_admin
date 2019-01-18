@@ -16,7 +16,7 @@ export default {
       { path: 'addCombo', name: `${pre}-addCombo`, component: () => import('@/pages/demo/school/addCombo'), meta: { meta, title: '添加套餐' } },
       { path: 'everyday', name: `${pre}-everyday`, component: () => import('@/pages/demo/school/everyday'), meta: { meta, title: '每日实拍' } },
       { path: 'addEveryday', name: `${pre}-addEveryday`, component: () => import('@/pages/demo/school/addEveryday'), meta: { meta, title: '添加每日实拍' } },
-      { path: 'semester', name: `${pre}-semester`, component: () => import('@/pages/demo/school/semester'), meta: { meta, title: '学期管理' } },
+      { path: 'semester', name: `${pre}-semester`, component: () => import('@/pages/demo/school/semester'), meta: { meta, title: '学期管理', cache: true } },
       { path: 'addSemester', name: `${pre}-addSemester`, component: () => import('@/pages/demo/school/addSemester'), meta: { meta, title: '添加学期' } }
    ])('demo-school')
 }

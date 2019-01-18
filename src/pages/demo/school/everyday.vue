@@ -54,7 +54,7 @@ export default {
             let json = item
             json.dates = `${item.dates.toString().substr(0, 4)}-${item.dates.toString().substr(4, 2)}-${item.dates.toString().substr(6, 2)}, `
             json.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
-            json.cname = this.combos.find(val => {return val.id == item.tid}).cname
+            json.cname = this.combos.find(val => {return val.id == item.tid}) ? this.combos.find(val => {return val.id == item.tid}).cname : '未知'
             return json
          })
          this.loading = false

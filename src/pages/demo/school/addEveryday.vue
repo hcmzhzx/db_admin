@@ -64,8 +64,8 @@ export default {
       httpGet('dayshoot').then(res => {
          for(let [k, v] of Object.entries(res.taocan)){
             this.combo.push({id: v, cname: k})
-            this.$loading().close()
          }
+         this.$loading().close()
       })
    },
    methods: {

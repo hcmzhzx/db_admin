@@ -77,16 +77,14 @@ export default {
    async created() {
       this.$loading({fullscreen: true})
       await httpGet('term').then(res => {
-         for(let [k, v] of Object.entries(res.school)){
-            this.school.push({id: Number(v), cname: k})
-         }
+         this.school = res.schools
       })
 
       if(this.$route.query.id){
          this.Id = Number(this.$route.query.id)
          this.$route.meta.title = '修改学期'
          httpGet('termopt', {id: this.Id}).then(res => {
-            this.form.sid = res.data.sid
+            this.form.sid = this.school.find(item => { return item.id == res.data.sid}) ? res.data.sid : ''
             this.form.title = res.data.title
             this.form.startat = res.data.startat * 1000
             this.form.endat = res.data.endat * 1000

@@ -24,7 +24,7 @@
                   </el-input>
                 </el-form-item>
                 <el-form-item prop="pwd">
-                  <el-input type="password" v-model="formLogin.pwd" placeholder="密码">
+                  <el-input type="password" v-model="formLogin.pwd" placeholder="密码" @keyup.enter.native="submit">
                     <i slot="prepend" class="fa fa-keyboard-o"></i>
                   </el-input>
                 </el-form-item>
@@ -77,6 +77,7 @@ export default {
     }
   },
   mounted () {
+    this.$loading().close()
     this.timeInterval = setInterval(() => {
       this.refreshTime()
     }, 1000)

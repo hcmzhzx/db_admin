@@ -28,7 +28,6 @@
                      <el-checkbox v-for="item in school" :label="item.cname" name="checkList" border></el-checkbox>
                   </el-checkbox-group>
                </el-form-item>
-
                <el-form-item>
                   <el-button type="primary" @click="handleAdd('form')">{{Id ? '立即修改' : '立即添加'}}</el-button>
                </el-form-item>
@@ -71,7 +70,8 @@ export default {
          this.$route.meta.title = '修改套餐'
          httpGet('taocanopt', {id: this.Id}).then(res => {
             JSON.parse(res.data.schools).find(i => {
-               this.form.checkList.push(this.school.find(v => {return v.id == i}).cname)
+               let school = this.school.find(v => {return v.id == i})
+               this.form.checkList.push(school ? school.cname : '未知')
             })
             this.form.title = res.data.title
             this.fileList = [{name: '', url: res.data.image}]
@@ -123,18 +123,18 @@ export default {
                   form.append('title', this.form.title)
                   form.append('file', this.UploadFile)
                   form.append('school', JSON.stringify(school))
-                  httpEditUm('taocanopt', form).then(res => {
-                     this.$message.success('修改成功')
-                     this.$router.go(-1);
+                  httpEditUm('taocanopt-', form).then(res => {
+                     this.$message.success(res.msg)
+                     this.$router.go(-1)
                   })
                } else {
                   form.append('method', 'add')
                   form.append('title', this.form.title)
                   form.append('file', this.UploadFile)
                   form.append('school', JSON.stringify(school))
-                  httpAddUm('taocanopt', form).then(res => {
-                     this.$message.success('添加成功')
-                     this.$router.go(-1);
+                  httpAddUm('taocanopt-', form).then(res => {
+                     this.$message.success(res.msg)
+                     this.$router.go(-1)
                   })
                }
             }
