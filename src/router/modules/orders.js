@@ -1,5 +1,4 @@
 import layoutHeaderAside from '@/layout/header-aside'
-
 const meta = { requiresAuth: true }
 
 export default {

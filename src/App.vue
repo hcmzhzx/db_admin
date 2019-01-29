@@ -34,5 +34,4 @@ export default {
 .fitimg{width:100%;height:100%;object-fit:cover;}
 .radimg{width:100%;height:100%;border-radius:50%;object-fit:cover;}
 .demo-form-inline .el-form-item{margin:0}
-
 </style>

@@ -73,7 +73,7 @@ export default {
    },
    methods: {
       loadata() {
-         this.$loading({fullscreen: true})
+         this.$loading({ fullscreen: true })
          httpGet('adminGroup').then(res => {
             if (res) {
                this.collapse = this.parseAccess(res.access, 0)
@@ -154,10 +154,6 @@ export default {
          this.form.admin = access
          this.dialogForm = true
       },
-
-
-
-
       handleRemove(id) {
          this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
             httpTrash('adminGroupopt', {id}).then(res => {

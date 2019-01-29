@@ -56,8 +56,8 @@ export default {
          usersGroups: [],
          form: {account: '', pwd: '', state: false, groups: []},
          initialPwd: '',
-         UploadFile: null,
          fileList: [],
+         UploadFile: null,
          IsUpload: false,
          rules: {
             account: [{ required: true, message: '账号不能为空', trigger: 'blur' }],
@@ -75,7 +75,6 @@ export default {
             this.usersGroups.push({id: v, label: k})
          }
       })
-
       if(this.$route.query.id){
          this.Id = Number(this.$route.query.id)
          this.$route.meta.title = '修改管理员'
@@ -91,10 +90,9 @@ export default {
             this.$loading().close()
          })
       } else {
-         this.$loading().close()
          this.$route.meta.title = '添加管理员'
+         this.$loading().close()
       }
-
    },
    methods: {
       // 超出限制
