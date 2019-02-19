@@ -63,19 +63,17 @@
             <el-table-column prop="classes" label="班级" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="学生姓名" min-width="120" align="center"></el-table-column>
             <el-table-column prop="phone" label="手机号" min-width="110" align="center"></el-table-column>
-            <el-table-column prop="paytime" label="下单时间" min-width="120" align="center"></el-table-column>
+            <el-table-column prop="addtime" label="下单时间" min-width="120" align="center"></el-table-column>
             <el-table-column prop="startat" label="用餐起始时间" min-width="120" align="center"></el-table-column>
             <el-table-column prop="unit" label="餐标" min-width="80" align="center"></el-table-column>
             <el-table-column prop="total" label="订餐餐次" min-width="80" align="center"></el-table-column>
             <el-table-column prop="fee" label="总金额" min-width="80" align="center"></el-table-column>
             <el-table-column prop="state" label="订单状态" min-width="100" align="center">
-               <template slot-scope="scope">
-                  <el-tag :type="scope.row.state.type">{{scope.row.state.text}}</el-tag>
-               </template>
+               <template slot-scope="scope"><el-tag :type="scope.row.state.type">{{scope.row.state.text}}</el-tag></template>
             </el-table-column>
             <el-table-column prop="used" label="已消费餐次" min-width="100" align="center"></el-table-column>
             <el-table-column prop="leave" label="请假餐次" min-width="80" align="center"></el-table-column>
-            <!--<el-table-column prop="addtime" label="添加时间" min-width="120" align="center"></el-table-column>
+            <!--<el-table-column prop="paytime" label="支付时间" min-width="120" align="center"></el-table-column>
             <el-table-column label="操作" width="200" align="center">
                <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-admin-addUsers', query: {id: scope.row.id}})">编辑</el-button>
@@ -134,6 +132,7 @@ export default {
             this.today = res.today
             this.isSearch = false
             this.pageNo = 1
+            this.pagesize = 10
             this.Search = { sid: "", grade: "", classes: "", state: "", beginat: "", overat: "", startat: "", endat: "", type: "", word: "" }
          })
       },
@@ -142,7 +141,9 @@ export default {
          this.Data = list.map(item => {
             let leaves = []
             let holidays = JSON.parse(item.holiday)
-            leave.forEach(v => { if (v.pid == item.id) leaves = leaves.concat(JSON.parse(v.holiday)) })
+            // leave.forEach(v => { if (v.pid == item.id) leaves = leaves.concat(JSON.parse(v.holiday)) })
+            console.log(item.id)
+            leave.forEach(v => { if (v.pid == item.id) console.log(JSON.parse(v.holiday)) })
             let json = item
             json.state = this.state[item.state]
             if (item.state == 1) {
@@ -164,7 +165,7 @@ export default {
             }
             json.school = school.find(val => {return val.id == item.sid}) ? school.find(val => {return val.id == item.sid}).cname : '未知'
             json.paytime = item.paytime ? dayjs(item.paytime * 1000).format('YYYY-MM-DD') : ''
-            json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
+            json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD HH:mm')
             json.startat = dayjs(item.startat * 1000).format('YYYY-MM-DD')
             return json
          })

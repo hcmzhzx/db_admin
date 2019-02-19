@@ -123,7 +123,7 @@ export default {
                   form.append('title', this.form.title)
                   form.append('file', this.UploadFile)
                   form.append('school', JSON.stringify(school))
-                  httpEditUm('taocanopt-', form).then(res => {
+                  httpEditUm('taocanopt', form).then(res => {
                      this.$message.success(res.msg)
                      this.$router.go(-1)
                   })
@@ -132,7 +132,7 @@ export default {
                   form.append('title', this.form.title)
                   form.append('file', this.UploadFile)
                   form.append('school', JSON.stringify(school))
-                  httpAddUm('taocanopt-', form).then(res => {
+                  httpAddUm('taocanopt', form).then(res => {
                      this.$message.success(res.msg)
                      this.$router.go(-1)
                   })

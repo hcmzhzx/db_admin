@@ -179,13 +179,13 @@ export default {
          JSON.parse(grade).forEach((item, keys) => {
             item.classes.forEach((v, k) => {
                let items = { school: school, grade: item.name, classes: v, total: { num: 0, users: [] }, leave: { num: 0, users: [] }, quit: { num: 0, users: [] } }
-               orders.forEach(val => {
-                  if (val.grade == items.grade && val.classes == items.classes) {
-                     for (let i = startat; i <= endat; i += 86400) {
-                        if (val.startat >= i || val.endat <= i) {
+               for (let i = startat; i <= endat; i += 86400) {
+                  orders.forEach(val => {
+                     if (val.startat <= i || val.endat <= i) {
+                        if (val.grade == items.grade && val.classes == items.classes) {
                            let day = parseInt(dayjs(i * 1000).format('YYYYMMDD'))
                            if (holidays.indexOf(day) == -1) {
-                              if (val.quittime == 0 || val.quittime > i) {
+                              if (val.quittime == 0 || val.quittime > day) {
                                  if (val.leave.indexOf(day) > -1) {
                                     items.leave.num ++
                                     items.leave.users.push(val.cname)
@@ -194,7 +194,7 @@ export default {
                                     items.total.users.push(val.cname)
                                  }
                               } else {
-                                 if (val.quittime == i) {
+                                 if (val.quittime == day) {
                                     items.quit.num ++
                                     items.quit.users.push(val.cname)
                                  }
@@ -202,8 +202,8 @@ export default {
                            }
                         }
                      }
-                  }
-               })
+                  })
+               }
                grades.push(items)
             })
          })
@@ -222,14 +222,13 @@ export default {
             if(item.leave.users.length){
                let json = Object.assign({}, item)
                json.grade = item.grade
-               json.classes = `${item.classes}班`
+               json.classes = `${item.classes}`
                json.cname = [...new Set(item.leave.users)].join(',')
                item.leave.users.forEach(v => {{ leaveSum.add(v) }})
                if(json) this.leaves.push(json)
             }
          })
          this.leaves.unshift({grade: `请假: ${[...leaveSum].length}人`, classes: '', cname: ''})
-
          // 退餐
          this.quit = []
          let quitSum = new Set()
@@ -237,14 +236,13 @@ export default {
             if(item.quit.users.length){
                let json = Object.assign({}, item)
                json.grade = item.grade
-               json.classes = `${item.classes}班`
+               json.classes = `${item.classes}`
                json.cname = [...new Set(item.quit.users)].join(',')
                item.quit.users.forEach(v => {{ quitSum.add(v) }})
                if(json) this.quit.push(json)
             }
          })
          this.quit.unshift({grade: `退餐: ${[...quitSum].length}人`, classes: '', cname: ''})
-
       },
       SpanMethod ({ row, column, rowIndex, columnIndex }) {
          if (columnIndex === 0) {

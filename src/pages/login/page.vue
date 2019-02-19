@@ -46,8 +46,6 @@
   </div>
 </template>
 
-<!--{code:0,msg:'',token:'',access:[{id: 1,pid:0,title:'',icon: '', path:'', url: ''}]}-->
-
 <script>
 import dayjs from 'dayjs'
 import { mapActions } from 'vuex'

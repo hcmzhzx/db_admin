@@ -29,6 +29,11 @@
             <el-table-column prop="leavefee" label="请假金额" min-width="100" align="center"></el-table-column>
             <el-table-column prop="usenum" label="实际供餐餐次" min-width="120" align="center"></el-table-column>
             <el-table-column prop="usefee" label="配餐收入" min-width="100" align="center"></el-table-column>
+            <el-table-column label="操作" width="120" align="center">
+               <template slot-scope="scope">
+                  <el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.sid)">删除</el-button>
+               </template>
+            </el-table-column>
          </el-table>
       </template>
    </d2-container>
@@ -59,15 +64,17 @@ export default {
          httpGet('data', { startat: startat, endat: endat + 86399 }).then(res => {
             this.school = res.school
             this.Search = { sid: '', Time: [startat * 1000, endat * 1000] }
-            this.mapData(startat, endat, res.school, res.lists, res.leaves)
+            this.mapData(startat, endat, res.school, res.lists, res.leaves, res.product)
          })
       },
-      mapData (startat, endat, school, lists, leaves) {
+      mapData (startat, endat, school, lists, leaves, product) {
          let schools = []
          lists.forEach(item => {
-            item['holiday'] = JSON.parse(item.holiday)
+            item['holiday'] = JSON.parse(product[item.pid])
             item['leave'] = []
-            leaves.forEach(val => { if (val.oid == item.id) item.leave = item.leave.concat(JSON.parse(val.holiday)) })
+            leaves.forEach(val => {
+               if (val.oid == item.id) item.leave = item.leave.concat(JSON.parse(val.holiday))
+            })
             var items = { ordernum: 0, quitnum: 0, quitfee: 0, leavenum: 0, leavefee: 0, usenum: 0, usefee: 0 }
             if (item.addtime >= startat && item.addtime <= endat) items.ordernum = 1
             for (var i = startat; i <= endat; i += 86400) {
@@ -90,6 +97,7 @@ export default {
                }
             }
             if (schools[item.sid]) {
+               schools[item.sid].sid = item.sid
                schools[item.sid].ordernum += items.ordernum
                schools[item.sid].quitnum += items.quitnum
                schools[item.sid].quitfee += items.quitfee
@@ -102,16 +110,20 @@ export default {
                schools[item.sid] = Object.assign({ school: School ? School.cname : '', unit: item.unit }, items)
             }
          })
-         this.Data = []
-         schools.forEach(v => { this.Data.push(v) })
+         schools.forEach(v => {
+            !this.Data.some(i => { return i.sid == v.sid }) && this.Data.push(v)
+         })
          this.loading = false
       },
       create () {
          let posts = { sid: this.Search.sid, startat: this.Search.Time[0] /1000 , endat: this.Search.Time[1] / 1000}
          this.loading = true
          httpGet('data', posts).then(res => {
-            this.mapData(posts.startat, posts.endat, this.school, res.lists, res.leaves)
+            this.mapData(posts.startat, posts.endat, this.school, res.lists, res.leaves, res.product)
          })
+      },
+      handleRemove (sid) {
+         this.Data = this.Data.filter(v => { return v.sid != sid })
       },
       exportExcel () {
          if(this.Data.length){

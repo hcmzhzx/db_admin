@@ -17,15 +17,20 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" v-loading="loading" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width:100%">
             <el-table-column prop="id" label="id" width="120" align="center"></el-table-column>
-            <el-table-column prop="sid" label="学校名称" min-width="160" align="center"></el-table-column>
-            <el-table-column prop="title" label="标题" min-width="160" align="center"></el-table-column>
-            <el-table-column prop="startat" label="开始时间" width="120" align="center"></el-table-column>
-            <el-table-column prop="endat" label="结束时间" width="120" align="center"></el-table-column>
+            <el-table-column prop="sid" label="学校名称" min-width="150" align="center"></el-table-column>
+            <el-table-column prop="title" label="标题" min-width="150" align="center"></el-table-column>
+            <el-table-column prop="startat" label="开始时间" width="130" align="center"></el-table-column>
+            <el-table-column prop="endat" label="结束时间" width="130" align="center"></el-table-column>
             <el-table-column prop="unit" label="餐标" width="80" align="center"></el-table-column>
             <el-table-column prop="total" label="总共餐次" width="100" align="center"></el-table-column>
-            <el-table-column prop="addtime" label="添加时间" width="120" align="center"></el-table-column>
+            <el-table-column prop="addtime" label="添加时间" width="130" align="center"></el-table-column>
+            <el-table-column label="状态" width="100" align="center">
+               <template slot-scope="scope">
+                  <el-tag :type="scope.row.state ? 'success' : 'warning'" @click.native="swiper(scope.row.id, scope.row.state)" style="user-select:none;cursor:pointer">{{scope.row.state ? '启用' : '停用'}}</el-tag>
+               </template>
+            </el-table-column>
             <el-table-column label="操作" width="180" align="center">
                <template slot-scope="scope">
                   <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-school-addSemester', query: {id: scope.row.id}})">编辑</el-button>
@@ -41,7 +46,7 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpAdd, httpEdit, httpTrash, httpPost } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
@@ -74,15 +79,11 @@ export default {
       },
       mapData (list) {
          this.Data = list.map(item => {
-            let json = {}
+            let json = item
             json.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
             json.startat = dayjs(item.startat * 1000).format("YYYY-MM-DD")
             json.endat = dayjs(item.endat * 1000).format("YYYY-MM-DD")
             json.sid = this.school.find(v => {return v.id == item.sid}) ? this.school.find(v => {return v.id == item.sid}).cname : '未知'
-            json.id = item.id
-            json.title = item.title
-            json.total = item.total
-            json.unit = item.unit
             return json
          })
          this.loading = false
@@ -113,6 +114,13 @@ export default {
             })
          }).catch(() => {
             this.$message.info('已取消删除')
+         })
+      },
+      swiper (id, states) {
+         let state = this.Data.find(item => { return item.id == id }).state = states ? 0 : 1
+         let posts = { method: 'status', id, state }
+         httpPost('termopt', posts).then(res => {
+            this.$message.success(res.msg)
          })
       }
    }

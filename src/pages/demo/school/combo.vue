@@ -52,10 +52,10 @@ export default {
       await httpGet('taocan').then(res => {
          this.school = res.school
          this.Data = res.lists.map(item => {
-            let json = {school:''}
+            let json = { school: '' }
             json.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
             JSON.parse(item.schools).find(i => {
-               json.school += `${schools.find(v => {return v.id == i}) ? schools.find(v => {return v.id == i}).cname : '未知'}, `
+               json.school += res.school[i] ? `${res.school[i]},` : '未知,'
             })
             json.id = item.id
             json.title = item.title

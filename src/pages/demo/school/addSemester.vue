@@ -59,7 +59,7 @@ export default {
          filename: __filename,
          Id: 0,
          school: [],
-         form: {sid: '', title: '', startat: '', endat: '', unit: '', total: ''},
+         form: { sid: '', title: '', startat: '', endat: '', unit: '', total: '' },
          rules: {
             sid: [{ required: true, message: '请选择学校名称', trigger: 'change' }],
             title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
@@ -84,7 +84,7 @@ export default {
          this.Id = Number(this.$route.query.id)
          this.$route.meta.title = '修改学期'
          httpGet('termopt', {id: this.Id}).then(res => {
-            this.form.sid = this.school.find(item => { return item.id == res.data.sid}) ? res.data.sid : ''
+            this.form.sid = this.school.find(item => { return item.id == res.data.sid }) ? res.data.sid : ''
             this.form.title = res.data.title
             this.form.startat = res.data.startat * 1000
             this.form.endat = res.data.endat * 1000

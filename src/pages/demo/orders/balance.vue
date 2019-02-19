@@ -34,6 +34,8 @@
                </el-form-item>
                <el-form-item>
                   <el-select v-model="Search.type" placeholder="条件">
+                     <el-option label="uid" value="uid"></el-option>
+                     <el-option label="手机号" value="phone"></el-option>
                      <el-option label="收款人" value="cname"></el-option>
                      <el-option label="学生姓名" value="student"></el-option>
                   </el-select>
@@ -52,7 +54,9 @@
       </template>
       <template>
          <el-table :data="Data" v-loading="loading" max-height="700" border style="width: 100%">
+            <el-table-column prop="uid" label="uid" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="收款人" min-width="110" align="center"></el-table-column>
+            <el-table-column prop="phone" label="手机号" min-width="120" align="center"></el-table-column>
             <el-table-column prop="school" label="学校" min-width="110" align="center"></el-table-column>
             <el-table-column label="年级" min-width="110" align="center">
                <template slot-scope="scope">{{scope.row.grade ? scope.row.grade : '--'}}</template>
@@ -69,8 +73,8 @@
                </template>
             </el-table-column>
             <el-table-column prop="fee" label="金额" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="addtime" label="添加时间" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="updatetime" label="到账时间" min-width="120" align="center"></el-table-column>
+            <el-table-column prop="addtime" label="添加时间" min-width="140" align="center"></el-table-column>
+            <el-table-column prop="updatetime" label="到账时间" min-width="140" align="center"></el-table-column>
             <el-table-column label="状态" min-width="120" align="center">
                <template slot-scope="scope">
                   <el-tag :type="scope.row.state ? 'success' : 'warning'">{{scope.row.state ? '已到账' : '处理中'}}</el-tag>
@@ -133,6 +137,7 @@ export default {
             this.total = res.total
             this.isSearch = false
             this.pageNo = 1
+            this.pagesize = 10
             this.Search = { sid: '', grade: '', classes: '', types: '', Time: [], type: '', word: '' }
          })
       },
@@ -140,8 +145,8 @@ export default {
          this.Data = list.map(item => {
             let json = item
             item.school = item.sid ? school.find(val => { return val.id == item.sid}).cname : '--'
-            item.updatetime = item.updatetime ? dayjs(item.updatetime * 1000).format('YYYY-MM-DD') : '处理中'
-            item.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
+            item.updatetime = item.updatetime ? dayjs(item.updatetime * 1000).format('YYYY-MM-DD HH:mm') : '处理中'
+            item.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD HH:mm")
             return json
          })
          this.loading = false

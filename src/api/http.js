@@ -25,7 +25,7 @@ export function httpPost(url, data = {}) {
 }
 
 export function httpAdd(url, data = {}) {
-  data = Object.assign({method: "add"}, data)
+  data = Object.assign({ method: "add" }, data)
   return request({
     url,
     method: 'post',
@@ -34,7 +34,7 @@ export function httpAdd(url, data = {}) {
 }
 
 export function httpEdit(url, data = {}) {
-  data = Object.assign({method: "edit"}, data)
+  data = Object.assign({ method: "edit" }, data)
   return request({
     url,
     method: 'post',
@@ -43,7 +43,7 @@ export function httpEdit(url, data = {}) {
 }
 
 export function httpTrash(url, data = {}) {
-  data = Object.assign({method: "trash"}, data)
+  data = Object.assign({ method: "trash" }, data)
   return request({
     url,
     method: 'post',
