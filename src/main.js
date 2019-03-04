@@ -24,31 +24,6 @@ Vue.use(d2Admin)
 Vue.use(D2Crud)
 Vue.component('VueUeditorWrap', VueUeditorWrap)
 
-Vue.mixin({
-  methods: {
-    // 时间格式
-    formatDate(date, fmt) {
-      date = date.toString().length == 10 ? new Date(date * 1000) : date
-      let o = {
-        'M+': date.getMonth() + 1,
-        'd+': date.getDate(),
-        'h+': date.getHours(),
-        'm+': date.getMinutes(),
-        's+': date.getSeconds()
-      }
-      if (/(y+)/.test(fmt)) {
-        fmt = fmt.replace(RegExp.$1, (date.getFullYear() + ''))
-      }
-      for (var k of Object.keys(o)) {
-        if (new RegExp(`(${k})`).test(fmt)) {
-          fmt = fmt.replace(RegExp.$1, (RegExp.$1.length != 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)))
-        }
-      }
-      return fmt
-    }
-  }
-})
-
 new Vue({
   router,
   store,

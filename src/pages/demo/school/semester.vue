@@ -69,6 +69,7 @@ export default {
    },
    methods: {
       loadData () {
+         this.loading = true
          httpGet('term').then(res => {
             this.school = res.schools
             this.mapData(res.lists)
@@ -83,7 +84,8 @@ export default {
             json.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
             json.startat = dayjs(item.startat * 1000).format("YYYY-MM-DD")
             json.endat = dayjs(item.endat * 1000).format("YYYY-MM-DD")
-            json.sid = this.school.find(v => {return v.id == item.sid}) ? this.school.find(v => {return v.id == item.sid}).cname : '未知'
+            let scname = this.school.find(v => {return v.id == item.sid})
+            json.sid = scname ? scname.cname : '未知'
             return json
          })
          this.loading = false

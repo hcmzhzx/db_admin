@@ -33,7 +33,6 @@
                      </div>
                   </div>
                </div>
-
                <el-form-item label="餐标" label-width="120px" prop="unit">
                   <el-input type="number" v-model="form.unit" autocomplete="off" placeholder="请填写餐标"></el-input>
                </el-form-item>
@@ -151,7 +150,8 @@ export default {
                str = []
             }
             let keys = parseInt(year + String(month).padStart(2, '0') + String(day).padStart(2, '0'))
-            if(keys >= today) total++
+            //if(keys >= today) total++
+            total++
             if (str.length == 0 && week != 0) {
                for (let j = 0; j < week; j++) {
                   str.push({keys: 0, day: '', holiday: -1})

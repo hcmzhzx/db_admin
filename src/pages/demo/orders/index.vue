@@ -63,8 +63,9 @@
             <el-table-column prop="classes" label="班级" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="学生姓名" min-width="120" align="center"></el-table-column>
             <el-table-column prop="phone" label="手机号" min-width="110" align="center"></el-table-column>
-            <el-table-column prop="addtime" label="下单时间" min-width="120" align="center"></el-table-column>
+            <el-table-column prop="addtime" label="下单时间" min-width="140" align="center"></el-table-column>
             <el-table-column prop="startat" label="用餐起始时间" min-width="120" align="center"></el-table-column>
+            <el-table-column prop="quittime" label="退餐时间" min-width="120" align="center"></el-table-column>
             <el-table-column prop="unit" label="餐标" min-width="80" align="center"></el-table-column>
             <el-table-column prop="total" label="订餐餐次" min-width="80" align="center"></el-table-column>
             <el-table-column prop="fee" label="总金额" min-width="80" align="center"></el-table-column>
@@ -84,7 +85,7 @@
       </template>
       <template slot="footer">
          <div class="flex between">
-            <el-pagination @size-change="handleSize" @current-change="handleCurrent" :current-page.sync="pageNo" :page-size="pagesize" :page-sizes="[10, 50, 100, 500, 1000, 1500, 2000, 2500]" :total="total" layout="sizes, prev, pager, next" background></el-pagination>
+            <el-pagination @size-change="handleSize" @current-change="handleCurrent" :current-page.sync="pageNo" :page-size="pagesize" :page-sizes="[10, 50, 100, 500, 1000, 1500, 2000, 2500]" :total="total" layout="sizes, prev, pager, next, total" background></el-pagination>
             <el-button type="primary" @click="exportExcel"><d2-icon name="download"/> 导出 Excel</el-button>
          </div>
       </template>
@@ -101,9 +102,9 @@ export default {
       return {
          filename: __filename,
          dayjs,
+         today: '',
          Data: [],
          school: [],
-         today: '',
          grade: [],
          classes: [],
          state: [
@@ -125,25 +126,25 @@ export default {
    },
    methods: {
       loadData () {
+         this.loading = true
          httpGet('order').then(res => {
             this.mapData(res.schools, res.lists, res.leaves, res.today)
             this.school = res.schools
             this.total = res.total
             this.today = res.today
-            this.isSearch = false
-            this.pageNo = 1
-            this.pagesize = 10
-            this.Search = { sid: "", grade: "", classes: "", state: "", beginat: "", overat: "", startat: "", endat: "", type: "", word: "" }
          })
+         this.isSearch = false
+         this.pageNo = 1
+         this.pagesize = 10
+         this.Search = { sid: '', grade: '', classes: '', state: '', beginat: '', overat: '', startat: '', endat: '', type: '', word: '' }
       },
       mapData (school, list, leave, today) {
          var dates = parseInt(dayjs(today * 1000).format('YYYYMMDD'))
          this.Data = list.map(item => {
-            let leaves = []
-            let holidays = JSON.parse(item.holiday)
-            // leave.forEach(v => { if (v.pid == item.id) leaves = leaves.concat(JSON.parse(v.holiday)) })
-            console.log(item.id)
-            leave.forEach(v => { if (v.pid == item.id) console.log(JSON.parse(v.holiday)) })
+            let leaves = [], holidays = JSON.parse(item.holiday)
+            leave.forEach(v => {
+               if (v.pid == item.id) leaves = leaves.concat(JSON.parse(v.holiday))
+            })
             let json = item
             json.state = this.state[item.state]
             if (item.state == 1) {
@@ -155,18 +156,23 @@ export default {
                   json.state = { type: '', text: '用餐中' }
                }
             }
-            json.leave = leaves.length
             json.used = 0
-            for (var i = item.startat; i <= today; i += 86400) {
-               var day = parseInt(dayjs(i * 1000).format("YYYYMMDD"))
-               if (leaves.indexOf(day) < 0 && holidays.indexOf(day) < 0) {
-                  json.used ++
+            if (item.state.type != 'danger') {
+               json.leave = leaves.length
+               for (var i = item.startat; i <= today; i += 86400) {
+                  var day = parseInt(dayjs(i * 1000).format("YYYYMMDD"))
+                  if (leaves.indexOf(day) < 0 && holidays.indexOf(day) < 0 && (item.quittime == 0 || item.quittime > day)) {
+                     json.used++
+                  }
                }
             }
-            json.school = school.find(val => {return val.id == item.sid}) ? school.find(val => {return val.id == item.sid}).cname : '未知'
+            let sname = school.find(val => {return val.id == item.sid})
+            json.school = sname ? sname.cname : '未知'
             json.paytime = item.paytime ? dayjs(item.paytime * 1000).format('YYYY-MM-DD') : ''
             json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD HH:mm')
             json.startat = dayjs(item.startat * 1000).format('YYYY-MM-DD')
+            let str = item.quittime.toString()
+            json.quittime = item.quittime ? `${str.substr(0, 4)}-${str.substr(4, 2)}-${str.substr(6, 2)}` : '--'
             return json
          })
          this.loading = false
@@ -190,14 +196,16 @@ export default {
          })
       },
       schoolChange (sid) {
-         this.grade = JSON.parse(this.school.find(val => { return val.id == sid }) ? this.school.find(val => { return val.id == sid }).grade : '[]')
+         let sname = this.school.find(val => { return val.id == sid })
+         this.grade = JSON.parse(sname ? sname.grade : '[]')
          this.Search.grade = ''
          this.Search.classes = ''
          this.classes = []
       },
       gradeChange (grade) {
          this.Search.classes = ''
-         this.classes = this.grade.find(val => { return val.name == grade}) ? this.grade.find(val => { return val.name == grade}).classes : []
+         let classname = this.grade.find(val => { return val.name == grade})
+         this.classes = classname ? classname.classes : []
       },
       onSearch () {
          if(this.Search.beginat > this.Search.overat){

@@ -25,7 +25,7 @@
                </el-form-item>
                <el-form-item label="学校名称" label-width="120px" prop="checkList">
                   <el-checkbox-group v-model="form.checkList">
-                     <el-checkbox v-for="item in school" :label="item.cname" name="checkList" border></el-checkbox>
+                     <el-checkbox v-for="item in school" :label="item.name" name="checkList" border></el-checkbox>
                   </el-checkbox-group>
                </el-form-item>
                <el-form-item>
@@ -41,7 +41,7 @@
 import { httpGet, httpAdd, httpEdit, httpAddUm, httpEditUm } from '@api/http'
 
 export default {
-   name: 'addSchool',
+   name: 'addCombo',
    data() {
       return {
          filename: __filename,
@@ -61,27 +61,30 @@ export default {
    },
    async created() {
       this.$loading({fullscreen: true})
-      await httpGet('school').then(res => {
-         this.school = res.lists
-      })
-
+      let posts = ''
       if(this.$route.query.id){
          this.Id = Number(this.$route.query.id)
          this.$route.meta.title = '修改套餐'
-         httpGet('taocanopt', {id: this.Id}).then(res => {
-            JSON.parse(res.data.schools).find(i => {
-               let school = this.school.find(v => {return v.id == i})
-               this.form.checkList.push(school ? school.cname : '未知')
-            })
-            this.form.title = res.data.title
-            this.fileList = [{name: '', url: res.data.image}]
-            this.IsUpload = true
-            this.$loading().close()
-         })
+         posts = { id: this.Id }
+         this.IsUpload = true
       } else {
          this.$loading().close()
          this.$route.meta.title = '添加套餐'
       }
+      await httpGet('taocanopt', posts).then(res => {
+         for(let [k,v] of Object.entries(res.school)){
+            this.school.push({id: k, name: v})
+         }
+         if (res.data) {
+            JSON.parse(res.data.schools).forEach(i => {
+               let school = this.school.find(v => { return v.id == i })
+               school && this.form.checkList.push(school.name)
+            })
+            this.form.title = res.data.title
+            this.fileList = [{name: '', url: res.data.image}]
+         }
+         this.$loading().close()
+      })
    },
    methods: {
       // 超出限制
@@ -114,7 +117,7 @@ export default {
             if(valid){
                let form = new FormData(), school = []
                this.form.checkList.find(v => {
-                  let Id = this.school.find(i => {return i.cname == v}).id
+                  let Id = this.school.find(i => {return i.name == v}).id
                   school.push(Id)
                })
                if(this.Id){

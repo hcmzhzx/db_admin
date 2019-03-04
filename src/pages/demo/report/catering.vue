@@ -83,10 +83,10 @@ export default {
                   if (item.quittime == 0 || item.quittime > i) {
                      if(item.leave.includes(day)){
                         items.leavenum ++
-                        items.leavefee += item.fee
+                        items.leavefee += item.unit
                      } else {
                         items.usenum ++
-                        items.usefee += item.fee
+                        items.usefee += item.unit
                      }
                   } else {
                      if (item.quittime == i) {

@@ -27,6 +27,7 @@
 <script>
 import D2HelpBtn from './components/d2-help-btn'
 import D2Badge from './components/d2-badge'
+
 export default {
   components: {
     D2HelpBtn,

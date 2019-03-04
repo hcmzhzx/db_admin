@@ -68,12 +68,14 @@ export default {
    },
    methods: {
       loadData () {
+         this.loading = true
          httpGet('user').then(res => {
             this.mapData(res.lists)
             this.total = res.total
-            this.isSearch = false
-            this.pageNo = 1
          })
+         this.Search = {}
+         this.isSearch = false
+         this.pageNo = 1
       },
       mapData (list) {
          this.Data = list.map(item => {
@@ -95,8 +97,8 @@ export default {
          httpGet(`user`, this.Search).then(res => {
             this.mapData(res.lists)
             this.total = res.total
-            this.isSearch = true
             this.pageNo = 1
+            this.isSearch = true
          })
       }
    }

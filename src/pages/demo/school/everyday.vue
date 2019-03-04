@@ -19,7 +19,7 @@
             <el-table-column prop="addtime" label="时间" min-width="140" align="center"></el-table-column>
             <el-table-column label="操作" width="180" align="center">
                <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-school-assEverydey', query: {id: scope.row.id}})">编辑</el-button>
+                  <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-school-addEveryday', query: {id: scope.row.id}})">编辑</el-button>
                   <el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.id)">删除</el-button>
                </template>
             </el-table-column>
@@ -54,7 +54,8 @@ export default {
             let json = item
             json.dates = `${item.dates.toString().substr(0, 4)}-${item.dates.toString().substr(4, 2)}-${item.dates.toString().substr(6, 2)}, `
             json.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
-            json.cname = this.combos.find(val => {return val.id == item.tid}) ? this.combos.find(val => {return val.id == item.tid}).cname : '未知'
+            let tcname = this.combos.find(val => {return val.id == item.tid})
+            json.cname = tcname ? tcname.cname : '未知'
             return json
          })
          this.loading = false

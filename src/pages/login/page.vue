@@ -33,20 +33,14 @@
             </el-card>
           </div>
         </div>
-        <div class="page-login--content-footer">
-          <p class="page-login--content-footer-options">
-            <a href="#"></a>
-            <a href="#"></a>
-            <a href="#"></a>
-          </p>
-          <p class="page-login--content-footer-copyright"><a href="#"></a></p>
-        </div>
+        <div class="page-login--content-footer"></div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import '@/components/d2-icon/font-awesome-4.7.0/css/font-awesome.min.css'
 import dayjs from 'dayjs'
 import { mapActions } from 'vuex'
 import { login } from '@/menu'
@@ -109,10 +103,12 @@ export default {
           // 登录
           // 注意 这里的演示没有传验证码
           // 具体需要传递的数据请自行修改代码
+           this.$loading({ fullscreen: true })
            login(this, this.formLogin.account, this.formLogin.pwd).then(() => {
               // 重定向对象不存在则返回顶层路径
               //this.$router.replace(this.$route.query.redirect || '/')
               location.href = this.$route.query.redirect || '/'
+              this.$loading().close()
            })
           /*this.login({account: this.formLogin.account, pwd: this.formLogin.pwd}).then(() => {
             // 重定向对象不存在则返回顶层路径
@@ -197,66 +193,6 @@ export default {
       margin: 0px -20px;
       border-top-right-radius: 2px;
       border-bottom-right-radius: 2px;
-    }
-    // 登陆选项
-    .page-login--options {
-      margin: 0px;
-      padding: 0px;
-      font-size: 14px;
-      color: $color-primary;
-      margin-bottom: 15px;
-      font-weight: bold;
-    }
-    .page-login--quick {
-      width: 100%;
-    }
-  }
-  // 快速选择用户面板
-  .page-login--quick-user {
-    @extend %flex-center-col;
-    padding: 10px 0px;
-    border-radius: 4px;
-    &:hover {
-      background-color: $color-bg;
-      i {
-        color: $color-text-normal;
-      }
-      span {
-        color: $color-text-normal;
-      }
-    }
-    i {
-      font-size: 36px;
-      color: $color-text-sub;
-    }
-    span {
-      font-size: 12px;
-      margin-top: 10px;
-      color: $color-text-sub;
-    }
-  }
-  // footer
-  .page-login--content-footer {
-    padding: 1em 0;
-    .page-login--content-footer-options {
-      padding: 0px;
-      margin: 0px;
-      margin-bottom: 10px;
-      font-size: 14px;
-      text-align: center;
-      a {
-        color: $color-text-normal;
-        margin: 0 1em;
-      }
-    }
-    .page-login--content-footer-copyright {
-      padding: 0px;
-      margin: 0px;
-      font-size: 12px;
-      color: $color-text-normal;
-      a {
-        color: $color-text-normal;
-      }
     }
   }
   // 背景

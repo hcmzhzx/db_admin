@@ -80,6 +80,7 @@
                   <el-tag :type="scope.row.state ? 'success' : 'warning'">{{scope.row.state ? '已到账' : '处理中'}}</el-tag>
                </template>
             </el-table-column>
+            <el-table-column prop="remark" label="备注" min-width="140" align="center"></el-table-column>
             <el-table-column label="操作" width="200" align="center">
                <template slot-scope="scope">
                   <el-button v-if="!scope.row.state" type="primary" icon="el-icon-edit" size="small" @click="remittance(scope.row.cname, scope.row.id, Math.abs(scope.row.fee))">打款</el-button>
@@ -91,7 +92,7 @@
       </template>
       <template slot="footer">
          <div class="flex between">
-            <el-pagination @size-change="handleSize" @current-change="handleCurrent" :current-page.sync="pageNo" :page-size="pagesize" :page-sizes="[10, 50, 100, 500, 1000, 1500, 2000, 2500]" :total="total" layout="sizes, prev, pager, next" background></el-pagination>
+            <el-pagination @size-change="handleSize" @current-change="handleCurrent" :current-page.sync="pageNo" :page-size="pagesize" :page-sizes="[10, 50, 100, 500, 1000, 1500, 2000, 2500]" :total="total" layout="sizes, prev, pager, next, total" background></el-pagination>
             <el-button type="primary" @click="exportExcel"><d2-icon name="download"/> 导出 Excel</el-button>
          </div>
       </template>
@@ -131,6 +132,7 @@ export default {
    },
    methods: {
       loadData () {
+         this.loading = true
          httpGet('balance').then(res => {
             this.mapData(res.lists, res.schools)
             this.school = res.schools
@@ -144,7 +146,8 @@ export default {
       mapData (list, school) {
          this.Data = list.map(item => {
             let json = item
-            item.school = item.sid ? school.find(val => { return val.id == item.sid}).cname : '--'
+            let sname = school.find(val => { return val.id == item.sid})
+            item.school = sname ? sname.cname : '--'
             item.updatetime = item.updatetime ? dayjs(item.updatetime * 1000).format('YYYY-MM-DD HH:mm') : '处理中'
             item.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD HH:mm")
             return json
@@ -152,7 +155,7 @@ export default {
          this.loading = false
       },
       remittance (name, Id, fee) {
-         this.$prompt(`确定打款给${name}?`, '提示', {
+         this.$prompt(`确定打款给 ${name}?`, '提示', {
             inputType: 'Number',
             inputPlaceholder: '请输入提现金额',
             inputPattern: /^[1-9]\d{0,9}?$/,
@@ -163,9 +166,12 @@ export default {
                if(fee < value){
                   this.$message.warning('不能超过提现金额')
                } else {
+                  let list = this.Data.find(v => {return v.id == Id})
                   this.loading = true
                   httpEditUm('balanceopt', { method: "refund", id: Id, fee: value }).then(res => {
                      if(res.code == 0){
+                        list.updatetime = res.time ? dayjs(res.time * 1000).format('YYYY-MM-DD HH:mm') : dayjs().format('YYYY-MM-DD HH:mm')
+                        list.state = res.state || 1
                         this.$message.success(res.msg)
                      } else {
                         this.$message.error(res.msg)
@@ -210,14 +216,16 @@ export default {
          })
       },
       schoolChange (sid) {
-         this.grade = JSON.parse(this.school.find(val => { return val.id == sid }) ? this.school.find(val => { return val.id == sid }).grade : '[]')
+         let sgrade = this.school.find(val => { return val.id == sid })
+         this.grade = JSON.parse(sgrade ? sgrade.grade : '[]')
          this.Search.grade = ''
          this.Search.classes = ''
          this.classes = []
       },
       gradeChange (grade) {
          this.Search.classes = ''
-         this.classes = this.grade.find(val => { return val.name == grade}) ? this.grade.find(val => { return val.name == grade}).classes : []
+         let classesname =  this.grade.find(val => { return val.name == grade})
+         this.classes = classesname ? classesname.classes : []
       },
       onSearch () {
          if(this.Search.Time[0] / 1000 > this.Search.Time[1] / 1000){

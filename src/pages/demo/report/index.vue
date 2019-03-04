@@ -29,23 +29,23 @@
          </el-form>
       </template>
       <template>
-         <el-table v-bind="table" :span-method="SpanMethod" max-height="700" style="width:100%">
+         <el-table v-bind="table" show-summary :span-method="SpanMethod" max-height="700" style="width:100%">
             <el-table-column fixed v-for="(item, index) in table.columns" :key="index" :prop="item.prop" :label="item.label" v-if="index == 0" align="center" min-width="120px"></el-table-column>
             <el-table-column v-for="(item, index) in table.columns" :key="item.prop" :prop="item.prop" :label="item.label" v-if="index > 0" align="center" min-width="120px"></el-table-column>
          </el-table>
-         <div class="flex between" style="margin-top:20px;width:100%;">
+         <div class="flex between" style="margin-top:20px;width:100%;align-items:start;">
             <div>
                <el-table :data="leaves" empty-text="暂无请假数据" :show-header="false" border style="width:100%">
-                  <el-table-column prop="grade" min-width="110px"></el-table-column>
-                  <el-table-column prop="classes" min-width="110px"></el-table-column>
-                  <el-table-column prop="cname" min-width="110px"></el-table-column>
+                  <el-table-column prop="grade" align="center" min-width="110px"></el-table-column>
+                  <el-table-column prop="classes" align="center" min-width="110px"></el-table-column>
+                  <el-table-column prop="cname" align="center" min-width="400px"></el-table-column>
                </el-table>
             </div>
             <div>
                <el-table :data="quit" empty-text="暂无退餐数据" :show-header="false" border style="width:100%">
-                  <el-table-column prop="grade" min-width="110px"></el-table-column>
-                  <el-table-column prop="classes" min-width="110px"></el-table-column>
-                  <el-table-column prop="cname" min-width="110px"></el-table-column>
+                  <el-table-column prop="grade" align="center" min-width="110px"></el-table-column>
+                  <el-table-column prop="classes" align="center" min-width="110px"></el-table-column>
+                  <el-table-column prop="cname" align="center" min-width="400px"></el-table-column>
                </el-table>
             </div>
          </div>
@@ -67,16 +67,20 @@ export default {
          grade: [],
          startat: 0,
          endat: 0,
-
          orders: '',
-         table: { columns: [
-            {label: '学校', prop: 'school'},
-            {label: '年级', prop: 'grade'},
-            {label: '班级', prop: 'classes'},
-            {label: '用餐人数', prop: 'total'},
-            {label: '请假人数', prop: 'leave'},
-            {label: '退餐人数', prop: 'quit'}
-         ], data: [], stripe: true, border: true },
+         table: {
+            columns: [
+               {label: '学校', prop: 'school'},
+               {label: '年级', prop: 'grade'},
+               {label: '班级', prop: 'classes'},
+               {label: '用餐人数', prop: 'total'},
+               {label: '请假人数', prop: 'leave'},
+               {label: '退餐人数', prop: 'quit'}
+            ],
+            data: [],
+            stripe: true,
+            border: true
+         },
          leaves: [],
          quit: []
 
@@ -154,7 +158,8 @@ export default {
             if(this.form.Time.length == 2){
                if(this.form.Time[0]/1000 >= this.startat && this.form.Time[1]/1000 <= this.endat){
                   this.$loading({fullscreen: true})
-                  let school = this.form.school.find(val => { return val.value == sid}) ? this.form.school.find(val => { return val.value == sid}).label : '未知'
+                  let slabel = this.form.school.find(val => { return val.value == sid})
+                  let school = slabel ? slabel.label : '未知'
                   httpPost('meals',{did, sid, pid}).then(res => {
                      this.parseData(this.form.Time[0] / 1000, this.form.Time[1] / 1000, school, this.grade, this.holiday, res.leave, res.order)
                      this.$loading().close()

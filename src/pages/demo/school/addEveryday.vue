@@ -58,15 +58,32 @@ export default {
          },
       }
    },
-   created () {
-      this.Id = Number(this.$route.query.id)
-      this.$loading({fullscreen: true})
-      httpGet('dayshoot').then(res => {
-         for(let [k, v] of Object.entries(res.taocan)){
-            this.combo.push({id: v, cname: k})
-         }
-         this.$loading().close()
-      })
+  async created () {
+     this.$loading({fullscreen: true})
+     if (this.$route.query.id) {
+        this.Id = Number(this.$route.query.id)
+        this.$route.meta.title = '修改每日实拍'
+        httpGet('dayshoot', {id: this.Id}).then(res => {
+           for (let [k, v] of Object.entries(res.taocan)) {
+              this.combo.push({id: v, cname: k})
+           }
+           if (res.lists) {
+              let data = res.lists.find(item => { return this.Id = item.id })
+              this.form.date = data.addtime * 1000
+              this.form.cname = this.combo.find(item => { return data.tid == item.id }).cname
+              this.fileList = [{name: '', url: data.image}]
+           }
+           this.$loading().close()
+        })
+     } else {
+        this.$route.meta.title = '添加每日实拍'
+        httpGet('dayshoot').then(res => {
+           for (let [k, v] of Object.entries(res.taocan)) {
+              this.combo.push({id: v, cname: k})
+           }
+           this.$loading().close()
+        })
+     }
    },
    methods: {
       // 超出限制

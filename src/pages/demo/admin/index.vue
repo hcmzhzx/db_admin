@@ -36,11 +36,13 @@
 
 <script>
 import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import dayjs from 'dayjs'
 
 export default {
    name: 'users',
    data() {
       return {
+         dayjs,
          filename: __filename,
          Data: [],
          groups: [],
@@ -54,8 +56,8 @@ export default {
          }
          this.Data = res.lists.map(item => {
             let json = item, arr = []
-            json.addtime = this.formatDate(item.addtime, 'y-M-d')
-            json.logintime = item.logintime ? this.formatDate(item.logintime, 'y-M-d') : ''
+            json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
+            json.logintime = item.logintime ? dayjs(item.logintime * 1000).format('YYYY-MM-DD') : ''
             item.groups.split(',').forEach(item => {
                var result = this.groups.find(val => { return item == val.id })
                arr.push(result ? result.label : '')

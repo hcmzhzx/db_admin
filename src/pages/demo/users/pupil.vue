@@ -55,11 +55,13 @@
 
 <script>
 import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import dayjs from 'dayjs'
 
 export default {
    name: 'demo-users-pupil',
    data() {
       return {
+         dayjs,
          filename: __filename,
          Data: [],
          school: [],
@@ -80,22 +82,24 @@ export default {
    },
    methods: {
       loadData () {
+         this.loading = true
          httpGet('student').then(res => {
             for(let [v, k] of Object.entries(res.schools)){
                this.school.push({id: v, cname: k})
             }
             this.mapData(res.lists)
-            this.isSearch = false
             this.total = res.total
-            this.pageNo = 1
          })
+         this.isSearch = false
+         this.pageNo = 1
       },
       mapData (list) {
          this.Data = list.map(item => {
             let json = item
-            json.school = this.school.find(val => {return val.id == item.sid}) ? this.school.find(val => {return val.id == item.sid}).cname : '未知'
+            let scname = this.school.find(val => {return val.id == item.sid})
+            json.school = scname ? scname.cname : '未知'
             json.gradeClasses = `${item.grade}${item.classes}`
-            json.addtime = this.formatDate(item.addtime, 'y-M-d')
+            json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
             return json
          })
          this.loading = false
