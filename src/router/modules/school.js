@@ -9,7 +9,7 @@ export default {
    redirect: { name: 'demo-school' },
    component: layoutHeaderAside,
    children: (pre => [
-      { path: 'index', name: `${pre}`, component: () => import('@/pages/demo/school/index'), meta: { meta, title: '学校管理' } },
+      { path: 'index', name: `${pre}`, component: () => import('@/pages/demo/school/index'), meta: { meta, title: '学校管理', cache: true } },
       { path: 'addSchool', name: `${pre}-addSchool`, component: () => import('@/pages/demo/school/addSchool'), meta: { meta, title: '添加学校' } },
       { path: 'region', name: `${pre}-region`, component: () => import('@/pages/demo/school/region'), meta: { meta, title: '地区管理' } },
       { path: 'combo', name: `${pre}-combo`, component: () => import('@/pages/demo/school/combo'), meta: { meta, title: '套餐管理' } },

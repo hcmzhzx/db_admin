@@ -12,7 +12,7 @@
             <el-table-column prop="cname" label="套餐名" min-width="140" align="center"></el-table-column>
             <el-table-column label="实拍图" align="center" min-width="300">
                <template slot-scope="scope">
-                  <img :src="scope.row.image" width="80" height="80" style="object-fit:cover">
+                  <img :src="scope.row.image" width="140" style="object-fit:cover">
                </template>
             </el-table-column>
             <el-table-column prop="dates" label="上传时间" min-width="140" align="center"></el-table-column>

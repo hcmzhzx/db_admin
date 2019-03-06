@@ -75,28 +75,31 @@ export default {
    },
    async created() {
       this.$loading({fullscreen: true})
-      await httpGet('term').then(res => {
-         this.school = res.schools
-      })
-
-      if(this.$route.query.id){
-         this.Id = Number(this.$route.query.id)
+      let posts = '', Id = Number(this.$route.query.id)
+      if(Id){
+         this.Id = Id
          this.$route.meta.title = '修改学期'
-         httpGet('termopt', {id: this.Id}).then(res => {
-            this.form.sid = this.school.find(item => { return item.id == res.data.sid }) ? res.data.sid : ''
-            this.form.title = res.data.title
-            this.form.startat = res.data.startat * 1000
-            this.form.endat = res.data.endat * 1000
-            this.form.unit = res.data.unit
-            this.form.total = res.data.total
-            this.holidays = JSON.parse(res.data.holiday)
-            this.parseDays(res.data.startat, res.data.endat, res.data.holiday)
-            this.$loading().close()
-         })
+         posts = { id: Id }
       } else {
          this.$route.meta.title = '添加学期'
-         this.$loading().close()
       }
+      await httpGet('termopt', posts).then(res => {
+         for(let [k, v] of Object.entries(res.school)){
+            this.school.push({ id: k, cname: v})
+         }
+         if(res.data){
+            let { sid, title, startat, endat, unit, total, holiday } = res.data
+            this.form.sid = String(sid)
+            this.form.title = title
+            this.form.startat = startat * 1000
+            this.form.endat = endat * 1000
+            this.form.unit = unit
+            this.form.total = total
+            this.holidays = JSON.parse(holiday)
+            this.parseDays(startat, endat, holiday)
+         }
+         this.$loading().close()
+      })
    },
    methods: {
       // 开始时间

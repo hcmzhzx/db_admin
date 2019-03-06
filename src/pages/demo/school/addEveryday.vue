@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { httpGet, httpAddUm, httpEditUm } from '@api/http'
+import {httpGet, httpAddUm, httpEditUm} from '@api/http'
 
 export default {
    name: 'addEveryday',
@@ -45,45 +45,39 @@ export default {
          filename: __filename,
          Id: 0,
          combo: [],
-         form: {
-            date: '',
-            cname: ''
-         },
+         form: { date: '', cname: '' },
          dialog: false,
+         UploadFile: false,
          fileList: [],
          imageUrl: '',
          rules: {
-            date: [{ required: true, message: '请选择日期', trigger: 'change' }],
-            cname: [{ required: true, message: '请选择套餐名', trigger: 'change' }]
+            date: [{required: true, message: '请选择日期', trigger: 'change'}],
+            cname: [{required: true, message: '请选择套餐名', trigger: 'change'}]
          },
       }
    },
-  async created () {
-     this.$loading({fullscreen: true})
-     if (this.$route.query.id) {
-        this.Id = Number(this.$route.query.id)
-        this.$route.meta.title = '修改每日实拍'
-        httpGet('dayshoot', {id: this.Id}).then(res => {
-           for (let [k, v] of Object.entries(res.taocan)) {
-              this.combo.push({id: v, cname: k})
-           }
-           if (res.lists) {
-              let data = res.lists.find(item => { return this.Id = item.id })
-              this.form.date = data.addtime * 1000
-              this.form.cname = this.combo.find(item => { return data.tid == item.id }).cname
-              this.fileList = [{name: '', url: data.image}]
-           }
-           this.$loading().close()
-        })
-     } else {
-        this.$route.meta.title = '添加每日实拍'
-        httpGet('dayshoot').then(res => {
-           for (let [k, v] of Object.entries(res.taocan)) {
-              this.combo.push({id: v, cname: k})
-           }
-           this.$loading().close()
-        })
-     }
+   async created() {
+      this.$loading({fullscreen: true})
+      let posts = '', Id = Number(this.$route.query.id)
+      if(Id){
+         this.Id = Id
+         this.$route.meta.title = '修改每日实拍'
+         posts = { id: Id }
+         this.UploadFile = true
+      } else {
+         this.$route.meta.title = '添加每日实拍'
+      }
+      await httpGet('dayshootopt', posts).then(res => {
+         for (let [k, v] of Object.entries(res.taocan)) {
+            this.combo.push({id: k, cname: v})
+         }
+         if (res.data) {
+            this.form.date = res.data.addtime * 1000
+            this.form.cname = res.taocan[res.data.tid]
+            this.fileList = [{name: '', url: res.data.image}]
+         }
+         this.$loading().close()
+      })
    },
    methods: {
       // 超出限制
@@ -115,7 +109,7 @@ export default {
             if (valid) {
                this.$loading({fullscreen: true})
                let Form = new FormData()
-               if(this.Id){
+               if (this.Id) {
                   Form.append('method', 'edit')
                   Form.append('id', this.Id)
                   Form.append('tid', this.form.cname)

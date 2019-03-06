@@ -92,48 +92,48 @@ export default {
    },
    async created() {
       this.$loading({fullscreen: true})
-      await httpGet('school').then(res => {
+      let posts = '', Id = Number(this.$route.query.id)
+      if(Id){
+         this.Id = Id
+         this.$route.meta.title = '修改学校'
+         posts = { id: Id }
+         this.IsUpload = true
+      } else {
+         this.$route.meta.title = '添加学校'
+      }
+      await httpGet('schoolopt', posts).then(res => {
          for(let [k, v] of Object.entries(res.district)){
             this.district.push({id: Number(k), cname: v})
          }
-      })
-
-      if(this.$route.query.id){
-         this.Id = Number(this.$route.query.id)
-         this.$route.meta.title = '修改学校'
-         httpGet('schoolopt', {id: this.Id}).then(res => {
+         if(res.data){
             this.form.cname = res.data.cname
             this.form.did = this.district.find(item => { return item.id == res.data.did }) ? res.data.did : ''
             this.fileList = [{name: '', url: res.data.contract}]
             let arr = JSON.parse(res.data.grade)
-            for(let v of arr) {
-               if(v.name == '一年级'){
+            for (let v of arr) {
+               if (v.name == '一年级') {
                   this.form.grade1 = v.classes.join(',')
-               } else if(v.name == '二年级'){
+               } else if (v.name == '二年级') {
                   this.form.grade2 = v.classes.join(',')
-               } else if(v.name == '三年级'){
+               } else if (v.name == '三年级') {
                   this.form.grade3 = v.classes.join(',')
-               } else if(v.name == '四年级'){
+               } else if (v.name == '四年级') {
                   this.form.grade4 = v.classes.join(',')
-               } else if(v.name == '五年级'){
+               } else if (v.name == '五年级') {
                   this.form.grade5 = v.classes.join(',')
-               } else if(v.name == '六年级'){
+               } else if (v.name == '六年级') {
                   this.form.grade6 = v.classes.join(',')
-               } else if(v.name == '七年级'){
+               } else if (v.name == '七年级') {
                   this.form.grade7 = v.classes.join(',')
-               } else if(v.name == '八年级'){
+               } else if (v.name == '八年级') {
                   this.form.grade8 = v.classes.join(',')
-               } else if(v.name == '九年级'){
+               } else if (v.name == '九年级') {
                   this.form.grade9 = v.classes.join(',')
                }
             }
-            this.IsUpload = true
-            this.$loading().close()
-         })
-      } else {
-         this.$route.meta.title = '添加学校'
+         }
          this.$loading().close()
-      }
+      })
    },
    methods: {
       // 超出限制

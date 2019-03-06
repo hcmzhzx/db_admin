@@ -12,7 +12,7 @@
             <el-table-column prop="title" label="标题" width="140" align="center"></el-table-column>
             <el-table-column label="套餐" align="center" min-width="200">
                <template slot-scope="scope">
-                  <img :src="scope.row.image" width="180" height="180" style="object-fit:cover">
+                  <img :src="scope.row.image" width="140" style="object-fit:cover">
                </template>
             </el-table-column>
             <el-table-column prop="school" label="学校名称" min-width="200" align="center"></el-table-column>

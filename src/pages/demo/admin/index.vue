@@ -10,9 +10,9 @@
          <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>
             <el-table-column prop="account" label="账号" min-width="200" align="center"></el-table-column>
-            <el-table-column label="头像" align="center">
+            <el-table-column label="头像" align="center" min-width="140">
                <template slot-scope="scope">
-                  <img :src="scope.row.head" width="60" height="60" style="object-fit:cover">
+                  <img :src="scope.row.head" width="120" style="object-fit:cover">
                </template>
             </el-table-column>
             <el-table-column prop="groups" label="所属用户组" min-width="200" align="center"></el-table-column>

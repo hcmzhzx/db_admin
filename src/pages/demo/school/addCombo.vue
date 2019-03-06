@@ -61,14 +61,13 @@ export default {
    },
    async created() {
       this.$loading({fullscreen: true})
-      let posts = ''
-      if(this.$route.query.id){
-         this.Id = Number(this.$route.query.id)
+      let posts = '', Id = Number(this.$route.query.id)
+      if(Id){
+         this.Id = Id
          this.$route.meta.title = '修改套餐'
-         posts = { id: this.Id }
+         posts = { id: Id }
          this.IsUpload = true
       } else {
-         this.$loading().close()
          this.$route.meta.title = '添加套餐'
       }
       await httpGet('taocanopt', posts).then(res => {
