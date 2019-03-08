@@ -85,10 +85,28 @@
                <template slot-scope="scope">
                   <el-button v-if="!scope.row.state" type="primary" icon="el-icon-edit" size="small" @click="remittance(scope.row.cname, scope.row.id, Math.abs(scope.row.fee))">打款</el-button>
                   <el-button type="info" disabled size="small" v-else>已打款</el-button>
-                  <el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.id)">删除</el-button>
+                  <!--<el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.id)">删除</el-button>-->
+                  <el-button type="warning" :disabled="scope.row.types != 'withdraw'" size="small" @click="check(scope.row.id)">打款详情</el-button>
                </template>
             </el-table-column>
          </el-table>
+      </template>
+      <template>
+         <el-dialog title="打款详情" :visible.sync="dialogTableShow" width="60%">
+            <el-table :data="gridData" border>
+               <el-table-column property="trade" label="订单号" min-width="240" align="center"></el-table-column>
+               <el-table-column property="addtime" label="添加时间" min-width="140" align="center"></el-table-column>
+               <el-table-column property="updatetime" label="退款时间" min-width="140" align="center"></el-table-column>
+               <el-table-column property="fee" label="退款金额" min-width="100" align="center"></el-table-column>
+               <el-table-column property="remark" label="备注" min-width="140" align="center"></el-table-column>
+               <el-table-column label="操作" width="140" align="center">
+                  <template slot-scope="scope">
+                     <el-button type="warning" v-if="!scope.row.updatetime" size="small" @click="carryOn(scope.row.id)">继续打款</el-button>
+                     <el-button type="info" disabled size="small" v-else>已到账</el-button>
+                  </template>
+               </el-table-column>
+            </el-table>
+         </el-dialog>
       </template>
       <template slot="footer">
          <div class="flex between">
@@ -124,7 +142,9 @@ export default {
          pagesize: 10,
          page: 0,
          total: 0,
-         loading: true
+         loading: true,
+         dialogTableShow: false,
+         gridData: []
       }
    },
    async created () {
@@ -184,6 +204,39 @@ export default {
             }
          }).catch(() => {
             this.$message.info('取消打款')
+         })
+      },
+      // 打款检测
+      check (id) {
+         this.loading = true
+         httpEditUm('balanceopt', { method: "check", id }).then(res => {
+            if (res.code == 0){
+               this.dialogTableShow = true
+               this.gridData = res.lists.map(item => {
+                  let json = item
+                  json.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD HH:mm")
+                  json.updatetime = item.updatetime ? dayjs(item.updatetime * 1000).format("YYYY-MM-DD HH:mm") : ''
+                  return json
+               })
+            } else {
+              this.$message.info(res.msg)
+            }
+            this.loading = false
+         })
+      },
+      // 继续打款
+      carryOn (id) {
+         this.loading = true
+         httpEditUm('balanceopt', { method: "repay", id }).then(res => {
+            if (res.code == 0){
+               let list = this.gridData.find(val => { return val.id == id })
+               list.remark = res.remark
+               list.updatetime = dayjs(res.updatetime * 1000).format("YYYY-MM-DD HH:mm")
+               this.$message.success(res.msg)
+            } else {
+               this.$message.info(res.msg)
+            }
+            this.loading = false
          })
       },
       handleRemove (Id) {
@@ -259,6 +312,7 @@ export default {
          if(data.length){
             let columns = [
                { label: '收款人', prop: 'cname' },
+               { label: '手机号', prop: 'phone' },
                { label: '学校', prop: 'school' },
                { label: '年级', prop: 'grade' },
                { label: '班级', prop: 'classes' },
@@ -267,7 +321,8 @@ export default {
                { label: '金额', prop: 'fee' },
                { label: '添加时间', prop: 'addtime' },
                { label: '到账时间', prop: 'updatetime' },
-               { label: '状态', prop: 'state' }
+               { label: '状态', prop: 'state' },
+               { label: '备注', prop: 'remark' }
             ]
             this.$export.excel({ columns, data }).then(() => {
                this.$message.success('导出表格成功')
