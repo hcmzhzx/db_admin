@@ -33,7 +33,8 @@ import { AccountLogin } from '@api/http'
       children: [
          {path: '/demo/users/index', title: '用户列表'},
          {path: '/demo/users/pupil', title: '学生管理'},
-         {path: '/demo/users/leave', title: '请假列表'}
+         {path: '/demo/users/leave', title: '请假列表'},
+         {path: '/demo/users/leavecheck', title: '请假退款检查'},
       ]
    },
    {
@@ -85,7 +86,7 @@ const login = (vm, account, pwd) => {
             name: account
          }, {root: true})
          // 用户登录后从持久化数据加载一系列的设置
-         // await vm.$store.dispatch('load')
+         await vm.$store.dispatch('load')
          // 生成菜单
          menu = ['/refresh ','/index']
          let parseAccess = (lists, pid) => {
@@ -105,10 +106,6 @@ const login = (vm, account, pwd) => {
          sessionStorage.setItem('menus', JSON.stringify(menus))
          sessionStorage.setItem('menu', JSON.stringify(menu))
 
-         // 设置侧边栏菜单
-         vm.$store.commit('d2admin/menu/asideSet', menus)
-         // 初始化菜单搜索功能
-         vm.$store.commit('d2admin/search/init', menus)
          // 结束
          resolve()
       }).catch(err => {

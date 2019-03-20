@@ -41,6 +41,7 @@
                   <el-select v-model="Search.type" placeholder="类型">
                      <el-option label="学生姓名" value="cname"></el-option>
                      <el-option label="手机号" value="phone"></el-option>
+                     <el-option label="用户昵称" value="username"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
@@ -56,8 +57,9 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" v-loading="loading" border style="width:100%">
+         <el-table :data="Data" v-loading="loading" max-height="500" border style="width:100%">
             <!--<el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>-->
+            <el-table-column prop="username" label="用户昵称" min-width="100" align="center"></el-table-column>
             <el-table-column prop="school" label="学校" min-width="120" align="center"></el-table-column>
             <el-table-column prop="grade" label="年级" min-width="100" align="center"></el-table-column>
             <el-table-column prop="classes" label="班级" min-width="100" align="center"></el-table-column>
@@ -179,18 +181,37 @@ export default {
       },
       handleCurrent (num) {
          this.loading = true
-         let url = this.isSearch ? `order?sid=${this.Search.sid}&grade=${this.Search.grade}&classes=${this.Search.classes}&state=${this.Search.state}&beginat=${this.Search.beginat / 1000}&overat=${this.Search.overat / 1000}&startat=${this.Search.startat / 1000}&endat=${this.Search.endat / 1000}&type=${this.Search.type}&word=${this.Search.word}&pagesize=${this.pagesize}&page=${num}` : `order?pagesize=${this.pagesize}&page=${num}`
-         httpGet(url).then(res => {
+         let { sid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
+         let posts = {}
+         if (this.isSearch) {
+            posts = { sid, grade, classes, state, type, word }
+            posts.beginat = beginat / 1000
+            posts.overat = overat / 1000
+            posts.startat = startat / 1000
+            posts.endat = endat / 1000
+         }
+         posts.pagesize = this.pagesize
+         posts.page = num
+         httpGet('order', posts).then(res => {
             this.mapData(this.school, res.lists, res.leaves, this.today)
          })
       },
       handleSize (pagesize) {
          this.loading = true
-         let { sid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
-         let url = this.isSearch ? `order?sid=${sid}&grade=${grade}&classes=${classes}&state=${state}&beginat=${beginat / 1000}&overat=${overat / 1000}&startat=${startat / 1000}&endat=${endat / 1000}&type=${type}&word=${word}&pagesize=${pagesize}` : `order?pagesize=${pagesize}`
-         httpGet(url).then(res => {
+        let { sid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
+        let posts = {}
+        if (this.isSearch) {
+          posts = { sid, grade, classes, state, type, word }
+          posts.beginat = beginat / 1000
+          posts.overat = overat / 1000
+          posts.startat = startat / 1000
+          posts.endat = endat / 1000
+        }
+        posts.pagesize = pagesize
+        httpGet('order', posts).then(res => {
             this.pagesize = pagesize
-            this.today = this.today
+            this.pageNo = 1
+            this.today = res.today
             this.school = res.schools
             this.mapData(res.schools, res.lists, res.leaves, this.today)
          })

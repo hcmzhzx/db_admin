@@ -53,7 +53,7 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" v-loading="loading" max-height="700" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" max-height="500" border style="width: 100%">
             <el-table-column prop="uid" label="uid" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="收款人" min-width="110" align="center"></el-table-column>
             <el-table-column prop="phone" label="手机号" min-width="120" align="center"></el-table-column>
@@ -92,7 +92,7 @@
          </el-table>
       </template>
       <template>
-         <el-dialog title="打款详情" :visible.sync="dialogTableShow" width="60%">
+         <el-dialog title="打款详情" :visible.sync="dialogTableShow" width="70%">
             <el-table :data="gridData" border>
                <el-table-column property="trade" label="订单号" min-width="240" align="center"></el-table-column>
                <el-table-column property="addtime" label="添加时间" min-width="140" align="center"></el-table-column>
@@ -160,7 +160,7 @@ export default {
             this.isSearch = false
             this.pageNo = 1
             this.pagesize = 10
-            this.Search = { sid: '', grade: '', classes: '', types: '', Time: [], type: '', word: '' }
+            this.Search = { sid: '', grade: '', classes: '', state: '', types: '', Time: [], type: '', word: '' }
          })
       },
       mapData (list, school) {
@@ -253,18 +253,33 @@ export default {
       },
       handleCurrent (num) {
          this.loading = true
-         let { sid, grade, classes, types, type, word } = this.Search
-         let url = this.isSearch ? `balance?sid=${sid}&grade=${grade}&classes=${classes}&types=${types}&beginat=${this.Search.Time[0] / 1000 || ''}&overat=${this.Search.Time[1] / 1000 || ''}&type=${type}&word=${word}&pagesize=${this.pagesize}&page=${num}` : `balance?pagesize=${this.pagesize}&page=${num}`
-         httpGet(url).then(res => {
+         let { sid, grade, classes, state, types, type, word } = this.Search
+         let posts = {}
+         if(this.isSearch) {
+            posts = { sid, grade, classes, state, types, type, word }
+            posts.beginat = this.Search.Time[0] / 1000 || ''
+            posts.overat = this.Search.Time[1] / 1000 || ''
+         }
+         posts.pagesize = this.pagesize
+         posts.page = num
+         httpGet('balance', posts).then(res => {
             this.mapData(res.lists, this.school)
          })
       },
       handleSize (pagesize) {
          this.loading = true
-         let { sid, grade, classes, types, type, word } = this.Search
-         let url = this.isSearch ? `balance?sid=${sid}&grade=${grade}&classes=${classes}&types=${types}&beginat=${this.Search.Time[0] / 1000 || ''}&overat=${this.Search.Time[1] / 1000 || ''}&type=${type}&word=${word}&pagesize=${pagesize}` : `balance?pagesize=${pagesize}`
-         httpGet(url).then(res => {
+         let { sid, grade, classes, state, types, type, word } = this.Search
+         let posts = {}
+         if(this.isSearch) {
+            posts = { sid, grade, classes, state, types, type, word }
+            posts.beginat = this.Search.Time[0] / 1000 || ''
+            posts.overat = this.Search.Time[1] / 1000 || ''
+         }
+         posts.pagesize = pagesize
+         httpGet('balance', posts).then(res => {
             this.pagesize = pagesize
+            this.pageNo = 1
+            this.today = res.today
             this.mapData(res.lists, res.schools)
          })
       },
