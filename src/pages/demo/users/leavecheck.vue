@@ -4,6 +4,7 @@
          <el-form :inline="true" :model="Search" class="demo-form-inline">
             <el-form-item>
                <el-select v-model="Search.type" placeholder="类型">
+                  <el-option label="学生ID" value="st.id"></el-option>
                   <el-option label="手机号" value="u.phone"></el-option>
                   <el-option label="学生姓名" value="st.cname"></el-option>
                </el-select>
@@ -52,7 +53,7 @@
       return {
         filename: __filename,
         dayjs,
-        Search: { type: '', word: '19806716190' },
+        Search: { type: '', word: '' },
         balance: [],
         leaves:[],
         student: [],
@@ -71,6 +72,7 @@
             })
           })
           this.leaves = leaves
+          if(!res.student) return
           this.student = [res.student].map(item => {
             let json = item
             json.gradeClasses = `${item.grade}${item.classes}`

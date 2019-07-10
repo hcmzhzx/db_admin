@@ -27,6 +27,7 @@ function errorLog (err) {
     type: 'error',
     duration: 5 * 1000
   })
+  Vue.$loading().close()
 }
 
 // 创建一个 axios 实例

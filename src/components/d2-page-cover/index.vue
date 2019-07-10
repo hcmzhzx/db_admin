@@ -4,7 +4,7 @@
       <slot/>
     </div>
     <p class="d2-page-cover__title">D2 Admin {{$version}}</p>
-    <p class="d2-page-cover__sub-title">优雅的中后台集成方案</p>
+    <p class="d2-page-cover__sub-title">优雅的集中后台集成方案</p>
     <p class="d2-page-cover__build-time">{{$buildTime}}</p>
     <slot name="footer"/>
     <!--<a target="blank" href="https://github.com/d2-projects/d2-admin">

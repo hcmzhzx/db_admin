@@ -34,6 +34,7 @@ import { AccountLogin } from '@api/http'
          {path: '/demo/users/index', title: '用户列表'},
          {path: '/demo/users/pupil', title: '学生管理'},
          {path: '/demo/users/leave', title: '请假列表'},
+         {path: '/demo/users/batchLeave', title: '批量请假'},
          {path: '/demo/users/leavecheck', title: '请假退款检查'},
       ]
    },
@@ -68,8 +69,8 @@ import { AccountLogin } from '@api/http'
    }
 ]*/
 
-let menus = JSON.parse(sessionStorage.getItem('menus')) || []
 let menu = JSON.parse(sessionStorage.getItem('menu')) || []
+let menus = JSON.parse(sessionStorage.getItem('menus')) || []
 
 const login = (vm, account, pwd) => {
    return new Promise((resolve, reject) => {
@@ -79,33 +80,38 @@ const login = (vm, account, pwd) => {
          // uuid 是用户身份唯一标识 用户注册的时候确定 并且不可改变 不可重复
          // token 代表用户当前登录状态 建议在网络请求中携带 token
          // 如有必要 token 需要定时更新，默认保存一天
-         util.cookies.set('uuid', res.uuid)
-         util.cookies.set('token', res.token)
-         // 设置 vuex 用户信息
-         await vm.$store.dispatch('d2admin/user/set', {
-            name: account
-         }, {root: true})
-         // 用户登录后从持久化数据加载一系列的设置
-         await vm.$store.dispatch('load')
-         // 生成菜单
-         menu = ['/refresh ','/index']
-         let parseAccess = (lists, pid) => {
-            let access = []
-            lists.forEach(item => {
-               if (menu.indexOf(item.path) == -1) menu.push(item.path)
-               if (item.pid == pid) {
-                  let children = parseAccess(lists, item.id)
-                  if (children.length) item.children = children
-                  if (item.ifshow) access.push(item)
-               }
-            })
-            return access
+         if (res.access) {
+            util.cookies.set('uuid', res.uuid)
+            util.cookies.set('token', res.token)
+            // 设置 vuex 用户信息
+            await vm.$store.dispatch('d2admin/user/set', {
+               name: account
+            }, {root: true})
+            // 生成菜单
+            menu = ['/refresh ','/index']
+            let parseAccess = (lists, pid) => {
+               let access = []
+               lists.forEach(item => {
+                  if (menu.indexOf(item.path) == -1) menu.push(item.path)
+                  if (item.pid == pid) {
+                     let children = parseAccess(lists, item.id)
+                     if (children.length) item.children = children
+                     if (item.ifshow) access.push(item)
+                  }
+               })
+               return access
+            }
+            menus = await parseAccess(res.access, 0)
+            sessionStorage.setItem('menus', JSON.stringify(menus))
+            sessionStorage.setItem('menu', JSON.stringify(menu))
+            // 设置侧边栏菜单
+            vm.$store.commit('d2admin/menu/asideSet', menus)
+            // 初始化菜单搜索功能
+            vm.$store.commit('d2admin/search/init', menus)
+         } else {
+            vm.$loading().close()
+            vm.$message.error(res.msg)
          }
-
-         menus = await parseAccess(res.access, 0)
-         sessionStorage.setItem('menus', JSON.stringify(menus))
-         sessionStorage.setItem('menu', JSON.stringify(menu))
-
          // 结束
          resolve()
       }).catch(err => {

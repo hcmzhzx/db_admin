@@ -73,6 +73,7 @@
                </template>
             </el-table-column>
             <el-table-column prop="fee" label="金额" min-width="100" align="center"></el-table-column>
+            <el-table-column prop="amount" label="实际到账" min-width="100" align="center"></el-table-column>
             <el-table-column prop="addtime" label="添加时间" min-width="140" align="center"></el-table-column>
             <el-table-column prop="updatetime" label="到账时间" min-width="140" align="center"></el-table-column>
             <el-table-column label="状态" min-width="120" align="center">
@@ -98,7 +99,7 @@
                <el-table-column property="addtime" label="添加时间" min-width="140" align="center"></el-table-column>
                <el-table-column property="updatetime" label="退款时间" min-width="140" align="center"></el-table-column>
                <el-table-column property="fee" label="退款金额" min-width="100" align="center"></el-table-column>
-               <el-table-column property="remark" label="备注" min-width="140" align="center"></el-table-column>
+               <el-table-column property="details" label="备注" min-width="140" align="center"></el-table-column>
                <el-table-column label="操作" width="140" align="center">
                   <template slot-scope="scope">
                      <el-button type="warning" v-if="!scope.row.updatetime" size="small" @click="carryOn(scope.row.id)">继续打款</el-button>
@@ -114,6 +115,21 @@
             <el-button type="primary" @click="exportExcel"><d2-icon name="download"/> 导出 Excel</el-button>
          </div>
       </template>
+
+      <el-dialog :title="remitTitle" :visible.sync="dialogVisible" width="350px">
+         <el-form :model="remitForm">
+            <el-form-item>
+               <el-input type="number" v-model="remitForm.fee" placeholder="打款金额"></el-input>
+            </el-form-item>
+            <el-form-item>
+               <el-input type="text" v-model="remitForm.details" placeholder="备注(选填)"></el-input>
+            </el-form-item>
+         </el-form>
+         <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false; $message.info('取消打款')">取 消</el-button>
+            <el-button type="primary" @click="headerRemit">确 定</el-button>
+         </div>
+      </el-dialog>
    </d2-container>
 </template>
 
@@ -144,7 +160,12 @@ export default {
          total: 0,
          loading: true,
          dialogTableShow: false,
-         gridData: []
+         gridData: [],
+         dialogVisible: false,
+         remitTitle: '',
+         remitId: '',
+         remitFee: '',
+         remitForm: {fee: '', details: ''}
       }
    },
    async created () {
@@ -175,36 +196,35 @@ export default {
          this.loading = false
       },
       remittance (name, Id, fee) {
-         this.$prompt(`确定打款给 ${name}?`, '提示', {
-            inputType: 'Number',
-            inputPlaceholder: '请输入提现金额',
-            inputPattern: /^[1-9]\d{0,9}?$/,
-            inputErrorMessage: '金额格式不对'
-         }).then(({ value }) => {
-            value = Number(value)
-            if(value){
-               if(fee < value){
-                  this.$message.warning('不能超过提现金额')
-               } else {
-                  let list = this.Data.find(v => {return v.id == Id})
-                  this.loading = true
-                  httpEditUm('balanceopt', { method: "refund", id: Id, fee: value }).then(res => {
-                     if(res.code == 0){
-                        list.updatetime = res.time ? dayjs(res.time * 1000).format('YYYY-MM-DD HH:mm') : dayjs().format('YYYY-MM-DD HH:mm')
-                        list.state = res.state || 1
-                        this.$message.success(res.msg)
-                     } else {
-                        this.$message.error(res.msg)
-                     }
-                     this.loading = false
-                  })
-               }
-            } else {
-               this.$message.warning('请输入正确格式')
-            }
-         }).catch(() => {
-            this.$message.info('取消打款')
-         })
+        this.remitTitle = `确定打款给 ${name}?`
+        this.dialogVisible = true
+        this.remitId = Id,
+        this.remitFee = fee
+      },
+      headerRemit() {
+        let fee = this.remitFee, val = this.remitForm.fee, Id = this.remitId
+        if (/^[1-9]\d{0,9}?$/.test(val)) {
+          if (fee >= val) {
+            this.$loading({fullscreen: true, text: '提交中...'})
+            let list = this.Data.find(v => {return v.id == Id})
+            httpEditUm('balanceopt', { method: "refund", id: Id, fee: val, details: this.remitForm.details }).then(res => {
+              if(res.code == 0){
+                list.updatetime = res.time ? dayjs(res.time * 1000).format('YYYY-MM-DD HH:mm') : dayjs().format('YYYY-MM-DD HH:mm')
+                list.state = res.state || 1
+                this.$message.success(res.msg)
+                this.remitForm = {fee: '', details: ''} // 打款成功后重置为空
+              } else {
+                this.$message.error(res.msg)
+              }
+              this.$loading().close()
+              this.dialogVisible = false
+            })
+          } else {
+            this.$message.warning('不能超过提现金额')
+          }
+        } else {
+          this.$message.warning('请输入正确格式')
+        }
       },
       // 打款检测
       check (id) {

@@ -53,10 +53,7 @@ export default {
       // 快速选择用户
       dialogVisible: false,
       // 表单
-      formLogin: {
-        account: '',
-        pwd: ''
-      },
+      formLogin: { account: '', pwd: '' },
       // 校验
       rules: {
         account: [
