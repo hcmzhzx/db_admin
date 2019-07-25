@@ -8,7 +8,7 @@
                </el-select>
             </el-form-item>
             <el-form-item>
-               <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid)">
+               <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid, '', '')">
                   <el-option v-for="item in form.school" :key="item.value" :label="item.label" :value="item.value"></el-option>
                </el-select>
             </el-form-item>
@@ -18,8 +18,16 @@
                </el-select>
             </el-form-item>
             <el-form-item>
-               <el-select v-model="form.gid" placeholder="年级">
-                  <el-option v-for="item in form.grade" :key="item.name" :label="item.name" :value="item.name"></el-option>
+               <el-date-picker v-model="form.time" @change="resetDate" align="right" type="date" placeholder="选择日期" :picker-options="pickerOptions"></el-date-picker>
+            </el-form-item>
+            <el-form-item>
+               <el-select v-model="form.grade" placeholder="年级" @change="selectChange(form.did, form.sid, form.pid, form.grade, '')">
+                  <el-option v-for="item in form.grades" :key="item.name" :label="item.name" :value="item.name"></el-option>
+               </el-select>
+            </el-form-item>
+            <el-form-item>
+               <el-select v-model="form.classes" placeholder="班级">
+                  <el-option v-for="item in form.classess" :key="item" :label="item" :value="item"></el-option>
                </el-select>
             </el-form-item>
             <el-form-item>
@@ -44,19 +52,21 @@
             </div>
          </div>
          <el-table ref="multiple" :data="tableData" border tooltip-effect="dark" style="width:100%" @selection-change="selectionChange">
-            <el-table-column type="selection" width="55"></el-table-column>
+            <el-table-column type="selection" width="55" :selectable="selectable"></el-table-column>
             <el-table-column prop="grade" label="年级" align="center" min-width="120"></el-table-column>
             <el-table-column prop="classes" label="班级" align="center" min-width="120"></el-table-column>
             <el-table-column prop="cname" label="学生姓名" align="center" min-width="120"></el-table-column>
             <el-table-column prop="parents" label="家长姓名" align="center" min-width="120"></el-table-column>
-            <el-table-column prop="remark" label="备注" align="center" min-width="120"></el-table-column>
+            <el-table-column prop="remark" label="备注" align="center" min-width="120">
+               <template slot-scope="scope"><!-- 有请假显示请假 请假2 显示退餐, 1 正常 -->
+                  {{scope.row.statetxt}}
+               </template>
+            </el-table-column>
          </el-table>
       </template>
       <template slot="footer">
-         <div style="margin-top:20px">
-            <el-button type="primary" @click="confirm">确定选择</el-button>
-            <el-button type="primary" @click="cancel">取消选择</el-button>
-         </div>
+         <el-button type="primary" @click="confirm">确定选择</el-button>
+         <el-button type="primary" @click="cancel">取消选择</el-button>
       </template>
    </d2-container>
 </template>
@@ -71,9 +81,8 @@ export default {
       return {
          filename: __filename,
          dayjs,
-         form: { district: [], did: '', school: [], sid: '', product: [], pid: '', grade: [], gid: '', Time: [] },
+         form: { district: [], did: '', school: [], sid: '', product: [], pid: '', grades: [], grade: '', classess: [], classes: '', time: '' },
          tableData: [],
-
          holidays: [],
          weeks: [],
          monthes: [],
@@ -84,7 +93,8 @@ export default {
          leaveuid: [],
          leaves: [],
          students: [],
-         loading: true
+         loading: true,
+         pickerOptions: {}
       }
    },
    async created () {
@@ -98,20 +108,42 @@ export default {
          })
          this.form.did = this.form.district.length ? this.form.district[0].value : ''
          this.headSelect(this.form.sid, res.school, this.form.pid, res.product, this.form.gid)
+         let product = res.product.find(item => { return item.id == this.form.pid })
+         this.disabledate(product.startat, product.endat, product.holiday)
       })
    },
    methods: {
+      // 日期改变重置数据
+      resetDate () {
+         this.tableData = [] // 清除数据
+      },
+      // 日期限制
+      disabledate (startat, endat, holidey) {
+         startat = parseInt(dayjs(startat * 1000).format('YYYYMMDD'))
+         endat = parseInt(dayjs(endat * 1000).format('YYYYMMDD'))
+         this.pickerOptions = {
+            disabledDate(time) {
+               time = parseInt(dayjs(time).format('YYYYMMDD'))
+               if (time < startat || time > endat) return true
+               return holidey.includes(time)
+            }
+         }
+      },
       // 选择学校
-      selectChange(did, sid, pid) {
+      selectChange(did, sid, pid, grade, classes) {
          this.$loading({ fullscreen: true })
-         did = did ? did : 0; sid = sid ? sid : 0; pid = pid ? pid : 0
-         httpGet('meals', {did, sid, pid}).then(res => {
-            this.headSelect(sid, res.school, pid, res.product, this.form.gid)
+         did = did ? did : 0
+         sid = sid ? sid : 0
+         pid = pid ? pid : 0
+         grade = grade ? grade : 0
+         classes = classes ? classes : 0
+         httpGet('leavebat', { did, sid, pid, classes, classes }).then(res => {
+            this.headSelect(sid, res.school, pid, res.product, grade, classes)
             this.$loading().close()
          })
       },
       // 根据学校联动
-      headSelect(sid, school, pid, product, gid) {
+      headSelect(sid, school, pid, product, gid, cid) {
          // 学校
          this.form.sid = school.length ? (sid ? sid : school[0].id ) : ''
          if(school.length>0){
@@ -122,9 +154,14 @@ export default {
                return json
             })
             let grades = school.find(item => { return item.id == this.form.sid })
-            this.form.grade = grades ? JSON.parse(grades.grade) : []
+            this.form.grades = grades ? JSON.parse(grades.grade) : []
             // 年级
-            this.form.gid = this.form.grade.length ? (gid ? gid : this.form.grade[0].name) : ''
+            this.form.grade = this.form.grades.length ? (gid ? gid : this.form.grades[0].name) : ''
+            // 班级
+            let classes = this.form.grades.find(val => { return val.name == this.form.grade })
+            this.form.classess = classes ? classes.classes : []
+            // this.form.classes = this.form.classess.length ? (cid ? cid : this.form.classess[0]) : ''
+
          } else {
             this.form.school = []
          }
@@ -145,6 +182,8 @@ export default {
                this.endat = productList.endat
                this.form.Time = [productList.startat * 1000, productList.startat * 1000]
                this.holidays = productList.holiday
+
+               this.disabledate(productList.startat, productList.endat, productList.holiday)
             }
          } else {
             this.form.product = []
@@ -152,25 +191,27 @@ export default {
             this.startat = ''
             this.endat = ''
          }
+         this.tableData = [] // 清除数据
       },
       // 查询
       create () {
-         let { did, sid, pid } = this.form
-         if (did != '' && sid != '' && pid != '') {
+         let { did, sid, pid, grade, classes, time } = this.form
+         if (did != '' && sid != '' && pid != '' && grade != '', time != '' ) {
             this.$loading({ fullscreen: true })
-            httpPost('leavebat', { did, sid, pid }).then(res => {
+            httpPost('leavebat', { did, sid, pid, grade, classes }).then(res => {
                let { leaves, students } = res
                this.leaves = leaves
                this.students = students
 
-               this.parseDays(this.startat, this.endat, this.holidays)  // 生成日历
+               // this.parseDays(this.startat, this.endat, this.holidays)  // 生成日历
+               this.pageDate(leaves, students, classes, time)
                this.$loading().close()
             })
          } else {
-            this.$message.warning(`当前没有学期数据!`)
+            this.$message.warning(`数据不全!`)
          }
       },
-      // 生成日历
+      // 生成日历 (暂废)
       parseDays(begin, end, holidays) {
          let daytime = 86400, first = 0, str = [], block = [], blocklist = [], monthes = [], dates = new Date(), total = 0
          let today = parseInt(dates.getFullYear() + String(dates.getMonth() + 1).padStart(2, '0') + String(dates.getDate()).padStart(2, '0'))
@@ -223,7 +264,7 @@ export default {
          this.today = today
          this.form.total = total
       },
-      // 选择假日
+      // 选择假日 (暂废)
       holiday(bkey, rkey, dkey) {
          let day = Object.assign({}, this.blocklist[bkey][rkey][dkey])
          if (day.keys != 0 && day.holiday == -1) {
@@ -233,26 +274,52 @@ export default {
                let days = JSON.parse(item.holiday)
                if (days.includes(day.keys)) uid.push(item.uid)
             })
-            this.tableData = students.map(val => {
+            // this.tableData = students.map(val => {
+            let data = students.map(val => {
                if (day.unix >= val.startat && day.unix <= val.endat) {
                   if (val.grade == this.form.gid) return val
                }
                return {}
             }).filter(item => { return item.id }).sort(($1, $2) => { return $1.classes.slice(0,1) - $2.classes.slice(0,1) })
+            console.log(data)
          } else {
             this.$message.warning(`日期不对!`)
          }
+      },
+      // 数据整理
+      pageDate (leaves, students, classes, time) {
+         time = parseInt(dayjs(time).format('YYYYMMDD'))
+         let data = []
+         data = students.map(item => {
+            let json = item
+            item['holiday'] = []
+            leaves.forEach(val => {
+               if (item.uid == val.uid) item.holiday = item.holiday.concat(JSON.parse(val.holiday))
+            })
+            item.statetxt = item.holiday.includes(time) ? '请假, ' : ''
+            item.statetxt += item.state == 2 ? '退餐' : '正常'
+            return json
+         })
+         // 没有班级就排序
+         if (!classes) data = data.sort(($1, $2) => { return $1.classes.slice(0,1) - $2.classes.slice(0,1) })
+         this.tableData = data
       },
       // 多选框改变
       selectionChange (val) {
          this.leaveuid = val.map(item => { return item.uid })
       },
+      // 禁用选项
+      selectable (row, index) {
+         if (row.statetxt.includes('请假')) return false
+         return true
+      },
       // 确定选项
       confirm () {
-         let { sid, pid } = this.form, today = this.curtday
+         let { sid, pid, time } = this.form, today = this.curtday
+         time = dayjs(time).unix()
          if (this.leaveuid.length) {
             this.$loading({ fullscreen: true })
-            httpPost('leavebat', { sid, pid, today, uid: this.leaveuid }).then(res => {
+            httpPost('leavebat', { sid, pid, today, time, uid: this.leaveuid }).then(res => {
                this.tableData = this.blocklist = []
                this.curtday = null
                if (res.fail == 0){
@@ -275,7 +342,7 @@ export default {
 </script>
 
 <style>
-.menology .month{margin:0 10px 10px 0;}
+.menology .month{margin:0 10px 10px 0;background:#fff}
 .menology .month .title{height:26px;border:1px solid #ccc;font-size:14px;margin-left:-1px;}
 .menology .month .week,.menology .week .item{height:24px;}
 .menology .item{border:1px solid #ccc;font-size:12px; margin-top:-1px;margin-left:-1px;}

@@ -22,11 +22,7 @@ function errorLog (err) {
     console.log(err)
   }
   // 显示提示
-  Message({
-    message: err.message,
-    type: 'error',
-    duration: 5 * 1000
-  })
+  Message({ message: err.message, type: 'error', duration: 5 * 1000 })
   Vue.$loading().close()
 }
 
@@ -90,6 +86,7 @@ service.interceptors.response.use(
     }
   },
   error => {
+    console.log(error)
     if (error && error.response) {
       switch (error.response.status) {
         case 400: error.message = '请求错误'; break

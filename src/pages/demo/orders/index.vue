@@ -4,8 +4,13 @@
          <div class="flex br">
             <el-form :inline="true" :model="Search">
                <el-form-item>
-                  <el-select v-model="Search.sid" @change="schoolChange(Search.sid, '')" placeholder="学校">
+                  <el-select v-model="Search.sid" @change="schoolChange(Search.sid)" placeholder="学校">
                      <el-option v-for="s in school" :label="s.cname" :value="s.id"></el-option>
+                  </el-select>
+               </el-form-item>
+               <el-form-item>
+                  <el-select v-model="Search.pid" @change="termChange(Search.pid)" placeholder="学期">
+                     <el-option v-for="t in term" :label="t.title" :value="t.id"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
@@ -61,6 +66,7 @@
             <!--<el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>-->
             <el-table-column prop="username" label="用户昵称" min-width="100" align="center"></el-table-column>
             <el-table-column prop="school" label="学校" min-width="120" align="center"></el-table-column>
+            <el-table-column prop="title" label="学期" min-width="120" align="center"></el-table-column>
             <el-table-column prop="grade" label="年级" min-width="100" align="center"></el-table-column>
             <el-table-column prop="classes" label="班级" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="学生姓名" min-width="120" align="center"></el-table-column>
@@ -95,7 +101,7 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpPost } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
@@ -107,13 +113,10 @@ export default {
          today: '',
          Data: [],
          school: [],
+         term: [],
          grade: [],
          classes: [],
-         state: [
-            { type: 'danger', text: '未支付' },
-            { type: 'success', text: '支付成功' },
-            { type: 'warning', text: '退餐' }
-         ],
+         state: [{ type: 'danger', text: '未支付' }, { type: 'success', text: '支付成功' }, { type: 'warning', text: '退餐' }],
          Search: {},
          isSearch: false,
          pageNo: 1,
@@ -138,7 +141,7 @@ export default {
          this.isSearch = false
          this.pageNo = 1
          this.pagesize = 10
-         this.Search = { sid: '', grade: '', classes: '', state: '', beginat: '', overat: '', startat: '', endat: '', type: '', word: '' }
+         this.Search = { sid: '', pid: '', grade: '', classes: '', state: '', beginat: '', overat: '', startat: '', endat: '', type: '', word: '' }
       },
       mapData (school, list, leave, today) {
          var dates = parseInt(dayjs(today * 1000).format('YYYYMMDD'))
@@ -178,7 +181,9 @@ export default {
             return json
          })
          this.loading = false
+         this.$loading().close()
       },
+      // 当前页数
       handleCurrent (num) {
          this.loading = true
          let { sid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
@@ -196,19 +201,20 @@ export default {
             this.mapData(this.school, res.lists, res.leaves, this.today)
          })
       },
+      // 每页显示条数
       handleSize (pagesize) {
          this.loading = true
-        let { sid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
-        let posts = {}
-        if (this.isSearch) {
-          posts = { sid, grade, classes, state, type, word }
-          posts.beginat = beginat / 1000
-          posts.overat = overat / 1000
-          posts.startat = startat / 1000
-          posts.endat = endat / 1000
-        }
-        posts.pagesize = pagesize
-        httpGet('order', posts).then(res => {
+         let {sid, grade, classes, state, beginat, overat, startat, endat, type, word} = this.Search
+         let posts = {}
+         if (this.isSearch) {
+            posts = {sid, grade, classes, state, type, word}
+            posts.beginat = beginat / 1000
+            posts.overat = overat / 1000
+            posts.startat = startat / 1000
+            posts.endat = endat / 1000
+         }
+         posts.pagesize = pagesize
+         httpGet('order', posts).then(res => {
             this.pagesize = pagesize
             this.pageNo = 1
             this.today = res.today
@@ -216,18 +222,30 @@ export default {
             this.mapData(res.schools, res.lists, res.leaves, this.today)
          })
       },
+      // 切换学校
       schoolChange (sid) {
+         this.$loading({fullscreen: true, text: '搜索中...'})
          let sname = this.school.find(val => { return val.id == sid })
          this.grade = JSON.parse(sname ? sname.grade : '[]')
          this.Search.grade = ''
          this.Search.classes = ''
          this.classes = []
+         httpPost('order', {sid}).then(res => {
+            this.term = res.lists
+            this.$loading().close()
+         })
       },
+      // 切换学期
+      termChange (pid) {
+
+      },
+      // 切换年级
       gradeChange (grade) {
          this.Search.classes = ''
          let classname = this.grade.find(val => { return val.name == grade})
          this.classes = classname ? classname.classes : []
       },
+      // 查询
       onSearch () {
          if(this.Search.beginat > this.Search.overat){
             this.$message.warning('开始时间不能大于结束时间')
@@ -237,7 +255,7 @@ export default {
             this.$message.warning('开始时间不能大于结束时间')
             return
          }
-         this.loading = true
+         this.$loading({fullscreen: true, text: '查询中...'})
          let posts = Object.assign({}, this.Search)
          posts.beginat = this.Search.beginat / 1000
          posts.overat = this.Search.overat / 1000
