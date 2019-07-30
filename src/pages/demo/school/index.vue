@@ -77,7 +77,7 @@ export default {
    methods: {
       loadData () {
          this.loading = true
-         httpGet('school').then( res => {
+         httpGet('school').then(res => {
             this.district = res.district
             this.mapData(res.lists, res.district)
             this.total = res.total
@@ -87,9 +87,9 @@ export default {
          this.pageNo = 1
       },
       mapData (list, district) {
-         this.Data = list.map( item => {
+         this.Data = list.map(item => {
             let json = item
-            item.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
+            item.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
             json.did = district[item.did] || '未知'
             return json
          })
@@ -98,7 +98,7 @@ export default {
       onSearch () {
          this.loading = true
          let { did, type, word } = this.Search
-         httpGet('school',{did, type, word}).then( res => {
+         httpGet('school',{did, type, word}).then(res => {
             this.mapData(res.lists, this.district)
             this.total = res.total
             this.pageNo = 1

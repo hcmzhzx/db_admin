@@ -186,10 +186,10 @@ export default {
       // 当前页数
       handleCurrent (num) {
          this.loading = true
-         let { sid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
+         let { sid, pid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
          let posts = {}
          if (this.isSearch) {
-            posts = { sid, grade, classes, state, type, word }
+            posts = { sid, pid, grade, classes, state, type, word }
             posts.beginat = beginat / 1000
             posts.overat = overat / 1000
             posts.startat = startat / 1000
@@ -204,10 +204,10 @@ export default {
       // 每页显示条数
       handleSize (pagesize) {
          this.loading = true
-         let {sid, grade, classes, state, beginat, overat, startat, endat, type, word} = this.Search
+         let {sid, pid, grade, classes, state, beginat, overat, startat, endat, type, word} = this.Search
          let posts = {}
          if (this.isSearch) {
-            posts = {sid, grade, classes, state, type, word}
+            posts = {sid, pid, grade, classes, state, type, word}
             posts.beginat = beginat / 1000
             posts.overat = overat / 1000
             posts.startat = startat / 1000

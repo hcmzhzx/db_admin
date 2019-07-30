@@ -20,12 +20,12 @@
               <el-form ref="loginForm" label-position="top" :rules="rules" :model="formLogin" size="default">
                 <el-form-item prop="account">
                   <el-input type="text" v-model="formLogin.account" placeholder="用户名">
-                    <i slot="prepend" class="fa fa-user-circle-o"></i>
+                    <d2-icon slot="prepend" name="user-circle-o"/>
                   </el-input>
                 </el-form-item>
                 <el-form-item prop="pwd">
                   <el-input type="password" v-model="formLogin.pwd" placeholder="密码" @keyup.enter.native="submit">
-                    <i slot="prepend" class="fa fa-keyboard-o"></i>
+                    <d2-icon slot="prepend" name="keyboard-o"/>
                   </el-input>
                 </el-form-item>
                 <el-button size="default" @click="submit" type="primary" class="button-login">登录</el-button>
@@ -40,7 +40,6 @@
 </template>
 
 <script>
-import '@/components/d2-icon/font-awesome-4.7.0/css/font-awesome.min.css'
 import dayjs from 'dayjs'
 import { mapActions } from 'vuex'
 import { login } from '@/menu'
@@ -80,15 +79,6 @@ export default {
     // ]),
     refreshTime () {
       this.time = dayjs().format('HH:mm:ss')
-    },
-    /**
-     * @description 接收选择一个用户快速登录的事件
-     * @param {Object} user 用户信息
-     */
-    handleUserBtnClick (user) {
-      this.formLogin.account = user.account
-      this.formLogin.pwd = user.pwd
-      this.submit()
     },
     /**
      * @description 提交表单
