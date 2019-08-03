@@ -247,20 +247,21 @@ export default {
       },
       // 查询
       onSearch () {
-         if(this.Search.beginat > this.Search.overat){
-            this.$message.warning('开始时间不能大于结束时间')
+         let { beginat, overat, startat, endat } = this.Search
+         if (beginat > overat) {
+            this.$message.warning('下单开始时间不能大于结束时间')
             return
          }
-         if(this.Search.startat > this.Search.endat){
-            this.$message.warning('开始时间不能大于结束时间')
+         if (startat > endat) {
+            this.$message.warning('用餐开始时间不能大于结束时间')
             return
          }
-         this.$loading({fullscreen: true, text: '查询中...'})
+         this.$loading({ fullscreen: true, text: '查询中...' })
          let posts = Object.assign({}, this.Search)
-         posts.beginat = this.Search.beginat / 1000
-         posts.overat = this.Search.overat / 1000
-         posts.startat = this.Search.startat / 1000
-         posts.endat = this.Search.endat / 1000
+         posts.beginat = beginat / 1000
+         posts.overat = overat / 1000
+         posts.startat = startat / 1000
+         posts.endat = endat / 1000
          httpGet(`order`, posts).then(res => {
             this.mapData(res.schools, res.lists, res.leaves, res.today)
             this.total = res.total

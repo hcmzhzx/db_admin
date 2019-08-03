@@ -3,25 +3,25 @@
       <template slot="header" class="flex">
          <el-form :inline="true" :model="form" class="br">
             <el-form-item>
-               <el-select v-model="form.did" placeholder="地区" @change="selectChange(form.did, '', '')">
-                  <el-option v-for="item in form.district" :key="item.value" :label="item.label" :value="item.value"></el-option>
+               <el-select v-model="form.did" placeholder="地区" @change="selectChange(form.did)">
+                  <el-option v-for="item in form.district" :key="item.id" :label="item.cname" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
             <el-form-item>
-               <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid, '', '')">
-                  <el-option v-for="item in form.school" :key="item.value" :label="item.label" :value="item.value"></el-option>
+               <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid)">
+                  <el-option v-for="item in form.school" :key="item.id" :label="item.cname" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
             <el-form-item>
-               <el-select v-model="form.pid" placeholder="学期">
-                  <el-option v-for="item in form.product" :key="item.value" :label="item.label" :value="item.value"></el-option>
+               <el-select v-model="form.pid" placeholder="学期" @change="changeProduct(form.pid)">
+                  <el-option v-for="item in form.product" :key="item.id" :label="item.title" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
             <el-form-item>
                <el-date-picker v-model="form.time" @change="resetDate" align="right" type="date" placeholder="选择日期" :picker-options="pickerOptions"></el-date-picker>
             </el-form-item>
             <el-form-item>
-               <el-select v-model="form.grade" placeholder="年级" @change="selectChange(form.did, form.sid, form.pid, form.grade, '')">
+               <el-select v-model="form.grade" placeholder="年级" @change="selectChange(form.did, form.sid, form.pid, form.grade)">
                   <el-option v-for="item in form.grades" :key="item.name" :label="item.name" :value="item.name"></el-option>
                </el-select>
             </el-form-item>
@@ -58,9 +58,7 @@
             <el-table-column prop="cname" label="学生姓名" align="center" min-width="120"></el-table-column>
             <el-table-column prop="parents" label="家长姓名" align="center" min-width="120"></el-table-column>
             <el-table-column prop="remark" label="备注" align="center" min-width="120">
-               <template slot-scope="scope"><!-- 有请假显示请假 请假2 显示退餐, 1 正常 -->
-                  {{scope.row.statetxt}}
-               </template>
+               <template slot-scope="scope">{{scope.row.statetxt}}</template>
             </el-table-column>
          </el-table>
       </template>
@@ -100,16 +98,11 @@ export default {
    async created () {
       await httpGet('leavebat').then(res => {
          // 地区
-         this.form.district = res.district.map(item => {
-            let json = {}
-            json.value = item.id
-            json.label = item.cname
-            return json
-         })
-         this.form.did = this.form.district.length ? this.form.district[0].value : ''
+         this.form.district = res.district
+         this.form.did = this.form.district.length ? this.form.district[0].cname : ''
          this.headSelect(this.form.sid, res.school, this.form.pid, res.product, this.form.gid)
-         let product = res.product.find(item => { return item.id == this.form.pid })
-         this.disabledate(product.startat, product.endat, product.holiday)
+         let { startat, endat, holiday} = res.product.find(item => { return item.id == this.form.pid })
+         this.disabledate(startat, endat, holiday)
       })
    },
    methods: {
@@ -118,14 +111,14 @@ export default {
          this.tableData = [] // 清除数据
       },
       // 日期限制
-      disabledate (startat, endat, holidey) {
+      disabledate (startat, endat, holiday) {
          startat = parseInt(dayjs(startat * 1000).format('YYYYMMDD'))
          endat = parseInt(dayjs(endat * 1000).format('YYYYMMDD'))
          this.pickerOptions = {
             disabledDate(time) {
-               time = parseInt(dayjs(time).format('YYYYMMDD'))
+               time = dayjs(time).format('YYYYMMDD')
                if (time < startat || time > endat) return true
-               return holidey.includes(time)
+               return holiday.includes(time)
             }
          }
       },
@@ -147,12 +140,7 @@ export default {
          // 学校
          this.form.sid = school.length ? (sid ? sid : school[0].id ) : ''
          if(school.length>0){
-            this.form.school = school.map(item => {
-               let json = {}
-               json.value = item.id
-               json.label = item.cname
-               return json
-            })
+            this.form.school = school
             let grades = school.find(item => { return item.id == this.form.sid })
             this.form.grades = grades ? JSON.parse(grades.grade) : []
             // 年级
@@ -169,21 +157,16 @@ export default {
          // 学期
          this.form.pid = product.length ? (pid ? pid : product[0].id) : ''
          if (product.length > 0) {
-            this.form.product = product.map(item => {
-               let json = {}
-               json.value = item.id
-               json.label = item.title
-               return json
-            })
+            this.form.product = product
             this.form.pid = product[0].id
             let productList = product.find(item => { return item.id == this.form.pid })
             if (productList) {
-               this.startat = productList.startat
-               this.endat = productList.endat
-               this.form.Time = [productList.startat * 1000, productList.startat * 1000]
-               this.holidays = productList.holiday
-
-               this.disabledate(productList.startat, productList.endat, productList.holiday)
+               let { startat, endat, holiday } = productList
+               this.startat = startat
+               this.endat = endat
+               this.form.Time = [startat * 1000, startat * 1000]
+               this.holidays = holiday
+               this.disabledate(startat, endat, holiday)
             }
          } else {
             this.form.product = []
@@ -192,6 +175,12 @@ export default {
             this.endat = ''
          }
          this.tableData = [] // 清除数据
+      },
+      // 改变学期
+      changeProduct (pid) {
+         let { startat, endat, holiday } = this.form.product.find(item => { return item.id === pid })
+         this.form.time = ''
+         this.disabledate (startat, endat, holiday)
       },
       // 查询
       create () {
@@ -296,8 +285,14 @@ export default {
             leaves.forEach(val => {
                if (item.uid == val.uid) item.holiday = item.holiday.concat(JSON.parse(val.holiday))
             })
-            item.statetxt = item.holiday.includes(time) ? '请假, ' : ''
-            item.statetxt += item.state == 2 ? '退餐' : '正常'
+            // 有请假显示请假 请假2 显示退餐, 1 正常
+            if (item.holiday.includes(time)) {
+               item.statetxt = '请假'
+            } else if (item.state === 2) {
+               item.statetxt = '退餐'
+            } else {
+               item.statetxt = '正常'
+            }
             return json
          })
          // 没有班级就排序
@@ -340,13 +335,3 @@ export default {
    }
 }
 </script>
-
-<style>
-.menology .month{margin:0 10px 10px 0;background:#fff}
-.menology .month .title{height:26px;border:1px solid #ccc;font-size:14px;margin-left:-1px;}
-.menology .month .week,.menology .week .item{height:24px;}
-.menology .item{border:1px solid #ccc;font-size:12px; margin-top:-1px;margin-left:-1px;}
-.menology .rows .item{width:30px;height:30px;cursor:pointer;}
-.menology .rows .item.disable{background:#ebeef5;cursor:not-allowed;}
-.menology .rows .item .days.current{width:20px;height:20px;border:2px solid #f00;border-radius:50%;}
-</style>
