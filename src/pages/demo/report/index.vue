@@ -4,17 +4,17 @@
          <el-form :inline="true" :model="form" class="br">
             <el-form-item>
                <el-select v-model="form.did" placeholder="地区" @change="selectChange(form.did, '', '')">
-                  <el-option v-for="item in form.district" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                  <el-option v-for="item in form.district" :key="item.id" :label="item.cname" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
             <el-form-item>
                <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid)">
-                  <el-option v-for="item in form.school" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                  <el-option v-for="item in form.school" :key="item.id" :label="item.cname" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
             <el-form-item>
-               <el-select v-model="form.pid" placeholder="学期">
-                  <el-option v-for="item in form.product" :key="item.value" :label="item.label" :value="item.value"></el-option>
+               <el-select v-model="form.pid" placeholder="学期" @change="productChange(form.pid)">
+                  <el-option v-for="item in form.product" :key="item.id" :label="item.title" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
             <el-form-item>
@@ -89,13 +89,8 @@ export default {
    created() {
       httpGet('meals').then(res => {
          // 地区
-         this.form.district = res.district.map(item => {
-            let json = {}
-            json.value = item.id
-            json.label = item.cname
-            return json
-         })
-         this.form.did = this.form.district.length ? this.form.district[0].value : ''
+         this.form.district = res.district
+         this.form.did = this.form.district.length ? this.form.district[0].id : ''
 
          this.headSelect(this.form.sid, res.school, this.form.pid, res.product)
       })
@@ -114,12 +109,7 @@ export default {
          // 学校
          this.form.sid = school.length ? (sid ? sid : school[0].id ) : ''
          if(school.length>0){
-            this.form.school = school.map(item => {
-               let json = {}
-               json.value = item.id
-               json.label = item.cname
-               return json
-            })
+            this.form.school = school
             let grades = school.find(item => { return item.id == this.form.sid })
             this.grade = grades ? grades.grade : []
          } else {
@@ -129,12 +119,7 @@ export default {
          // 学期
          this.form.pid = product.length ? (pid ? pid : product[0].id ) : ''
          if(product.length>0){
-            this.form.product = product.map(item => {
-               let json = {}
-               json.value = item.id
-               json.label = item.title
-               return json
-            })
+            this.form.product = product
             this.form.pid = product[0].id
             let productList = product.find(item => {return item.id == this.form.pid})
             if(productList){
@@ -150,16 +135,25 @@ export default {
             this.endat = ''
          }
       },
-
+      // 切换学期
+      productChange (pid) {
+         let productList = this.form.product.find(item => { return item.id == pid })
+         if(productList){
+            this.startat = productList.startat
+            this.endat = productList.endat
+            this.form.Time = [ productList.startat * 1000, productList.startat * 1000 ]
+            this.holiday = productList.holiday
+         }
+      },
       // 生成
       create() {
-         let {did, sid, pid} = this.form
-         if(did != '' && sid != '' && pid != ''){
-            if(this.form.Time.length == 2){
-               if(this.form.Time[0]/1000 >= this.startat && this.form.Time[1]/1000 <= this.endat){
-                  this.$loading({fullscreen: true})
-                  let slabel = this.form.school.find(val => { return val.value == sid})
-                  let school = slabel ? slabel.label : '未知'
+         let { did, sid, pid } = this.form
+         if (did != '' && sid != '' && pid != '') {
+            if (this.form.Time.length == 2) {
+               if (this.form.Time[0] / 1000 >= this.startat && this.form.Time[1] / 1000 <= this.endat) {
+                  this.$loading({ fullscreen: true })
+                  let slabel = this.form.school.find(val => { return val.id == sid })
+                  let school = slabel ? slabel.cname : '未知'
                   httpPost('meals',{did, sid, pid}).then(res => {
                      this.parseData(this.form.Time[0] / 1000, this.form.Time[1] / 1000, school, this.grade, this.holiday, res.leave, res.order)
                      this.$loading().close()
@@ -192,15 +186,15 @@ export default {
                            if (holidays.indexOf(day) == -1) {
                               if (val.quittime == 0 || val.quittime > day) {
                                  if (val.leave.indexOf(day) > -1) {
-                                    items.leave.num ++
+                                    items.leave.num++
                                     items.leave.users.push(val.cname)
                                  } else {
-                                    items.total.num ++
+                                    items.total.num++
                                     items.total.users.push(val.cname)
                                  }
                               } else {
                                  if (val.quittime == day) {
-                                    items.quit.num ++
+                                    items.quit.num++
                                     items.quit.users.push(val.cname)
                                  }
                               }
@@ -223,31 +217,29 @@ export default {
          // 请假
          this.leaves = []
          let leaveSum = new Set()
+         // 退餐
+         this.quit = []
+         let quitSum = new Set()
          grades.forEach(item => {
             if(item.leave.users.length){
                let json = Object.assign({}, item)
                json.grade = item.grade
                json.classes = `${item.classes}`
                json.cname = [...new Set(item.leave.users)].join(',')
-               item.leave.users.forEach(v => {{ leaveSum.add(v) }})
-               if(json) this.leaves.push(json)
+               item.leave.users.forEach(v => { leaveSum.add(v) })
+               if (json) this.leaves.push(json)
             }
-         })
-         this.leaves.unshift({grade: `请假: ${[...leaveSum].length}人`, classes: '', cname: ''})
-         // 退餐
-         this.quit = []
-         let quitSum = new Set()
-         grades.forEach(item => {
             if(item.quit.users.length){
                let json = Object.assign({}, item)
                json.grade = item.grade
                json.classes = `${item.classes}`
                json.cname = [...new Set(item.quit.users)].join(',')
-               item.quit.users.forEach(v => {{ quitSum.add(v) }})
-               if(json) this.quit.push(json)
+               item.quit.users.forEach(v => { quitSum.add(v) })
+               if (json) this.quit.push(json)
             }
          })
-         this.quit.unshift({grade: `退餐: ${[...quitSum].length}人`, classes: '', cname: ''})
+         this.leaves.unshift({grade: `请假: ${[...leaveSum].length}人`, classes: '', cname: ''})
+         this.quit.unshift({ grade: `退餐: ${[...quitSum].length}人`, classes: '', cname: '' })
       },
       SpanMethod ({ row, column, rowIndex, columnIndex }) {
          if (columnIndex === 0) {
