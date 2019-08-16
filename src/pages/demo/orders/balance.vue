@@ -53,7 +53,7 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" v-loading="loading" max-height="500" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" border style="width: 100%">
             <el-table-column prop="uid" label="uid" min-width="100" align="center"></el-table-column>
             <el-table-column prop="cname" label="收款人" min-width="110" align="center"></el-table-column>
             <el-table-column prop="phone" label="手机号" min-width="120" align="center"></el-table-column>

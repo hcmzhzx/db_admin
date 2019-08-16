@@ -62,7 +62,7 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" v-loading="loading" max-height="500" border style="width:100%">
+         <el-table :data="Data" v-loading="loading" border style="width:100%">
             <!--<el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>-->
             <el-table-column prop="username" label="用户昵称" min-width="100" align="center"></el-table-column>
             <el-table-column prop="school" label="学校" min-width="120" align="center"></el-table-column>

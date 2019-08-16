@@ -53,6 +53,7 @@ import { AccountLogin } from '@api/http'
       path: '/demo/report',
       children: [
          {path: '/demo/report/index', title: '用餐报表'},
+         {path: '/demo/report/pride', title: '支付名单'},
          {path: '/demo/report/catering', title: '配餐收入'}
       ]
    },

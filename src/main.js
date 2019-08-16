@@ -5,8 +5,6 @@ import Vue from 'vue'
 import App from './App'
 // store
 import store from '@/store/index'
-// 多国语
-import i18n from './i18n'
 // 核心插件
 import d2Admin from '@/plugin/d2admin'
 // [ 可选插件组件 ]D2-Crud
@@ -27,7 +25,6 @@ Vue.component('VueUeditorWrap', VueUeditorWrap)
 new Vue({
   router,
   store,
-  i18n,
   render: h => h(App),
   created() {
     // 处理路由 得到每一级的路由设置
