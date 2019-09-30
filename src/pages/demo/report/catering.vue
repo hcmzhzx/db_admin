@@ -1,9 +1,9 @@
 <template>
-   <d2-container :filename="filename">
+   <d2-container>
       <template slot="header" class="flex">
          <el-form :inline="true" :model="Search" class="br">
             <el-form-item>
-               <el-select v-model="Search.sid" placeholder="学校">
+               <el-select v-model="Search.sid" placeholder="学校" filterable>
                   <el-option v-for="item in school" :key="item.id" :label="item.cname" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
@@ -19,7 +19,7 @@
          </el-form>
       </template>
       <template>
-         <el-table :data="Data" v-loading="loading" border style="width:100%">
+         <el-table :data="Data" v-loading="loading" element-loading-text="拼命加载中" border style="width:100%">
             <el-table-column prop="school" label="学校" min-width="160" align="center"></el-table-column>
             <el-table-column prop="ordernum" label="订单数量" min-width="100" align="center"></el-table-column>
             <el-table-column prop="unit" label="餐标" min-width="100" align="center"></el-table-column>
@@ -47,7 +47,6 @@ export default {
    name: 'admin',
    data() {
       return {
-         filename: __filename,
          dayjs,
          school: [],
          Search: {},

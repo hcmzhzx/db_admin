@@ -5,7 +5,7 @@
             <el-button type="primary" icon="el-icon-circle-plus-outline" @click="$router.push({name: 'demo-school-addSemester'})">添加</el-button>
             <el-form :inline="true" :model="Search" class="demo-form-inline">
                <el-form-item>
-                  <el-select v-model="Search.sid" placeholder="学校">
+                  <el-select v-model="Search.sid" placeholder="学校" filterable>
                      <el-option v-for="(v, k) in school" :key="k" :label="v.cname" :value="v.id"></el-option>
                   </el-select>
                </el-form-item>
@@ -40,7 +40,7 @@
          </el-table>
       </template>
       <template slot="footer">
-         <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" layout="prev, pager, next" :total="total" background></el-pagination>
+         <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" :total="total" layout="prev, pager, next, total" background></el-pagination>
       </template>
    </d2-container>
 </template>

@@ -5,7 +5,7 @@
             <el-button type="primary" icon="el-icon-circle-plus-outline" @click="$router.push({name: 'demo-school-addSchool'})">添加</el-button>
             <el-form :inline="true" :model="Search" class="demo-form-inline">
                <el-form-item>
-                  <el-select v-model="Search.did" placeholder="地区">
+                  <el-select v-model="Search.did" placeholder="地区" filterable>
                      <el-option v-for="(d, i) in district" :label="d" :value="i" :key="i"></el-option>
                   </el-select>
                </el-form-item>
@@ -15,7 +15,7 @@
                   </el-select>
                </el-form-item>
                <el-form-item>
-                  <el-input v-model="Search.word" placeholder="请输入内容"></el-input>
+                  <el-input v-model="Search.word" placeholder="请输入内容" clearable></el-input>
                </el-form-item>
                <el-form-item>
                   <el-button type="primary" @click="onSearch">查询</el-button>
@@ -46,7 +46,7 @@
       </template>
       <template slot="footer">
          <div class="flex between">
-            <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" layout="prev, pager, next" :total="total" background></el-pagination>
+            <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" :total="total" layout="prev, pager, next, total" background></el-pagination>
          </div>
       </template>
    </d2-container>

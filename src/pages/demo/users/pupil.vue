@@ -5,7 +5,7 @@
             <div class="title">学生管理</div>
             <el-form :inline="true" :model="Search" class="demo-form-inline">
                <el-form-item>
-                  <el-select v-model="Search.sid" placeholder="学校">
+                  <el-select v-model="Search.sid" placeholder="学校" filterable>
                      <el-option v-for="(v, k) in school" :key="k" :label="v.cname" :value="v.id"></el-option>
                   </el-select>
                </el-form-item>
@@ -16,7 +16,7 @@
                   </el-select>
                </el-form-item>
                <el-form-item>
-                  <el-input v-model="Search.word" placeholder="请输入内容"></el-input>
+                  <el-input v-model="Search.word" placeholder="请输入内容" clearable></el-input>
                </el-form-item>
                <el-form-item>
                   <el-button type="primary" @click="onSearch">查询</el-button>
@@ -48,7 +48,7 @@
          </el-table>
       </template>
       <template slot="footer">
-         <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" layout="prev, pager, next" :total="total" background></el-pagination>
+         <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" :total="total" layout="prev, pager, next, total" background></el-pagination>
       </template>
    </d2-container>
 </template>

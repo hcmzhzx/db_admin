@@ -4,7 +4,7 @@
          <div class="flex br">
             <el-form :inline="true" :model="Search">
                <el-form-item>
-                  <el-select v-model="Search.sid" @change="schoolChange(Search.sid)" placeholder="学校">
+                  <el-select v-model="Search.sid" @change="schoolChange(Search.sid)" placeholder="学校" filterable>
                      <el-option v-for="s in school" :label="s.cname" :value="s.id"></el-option>
                   </el-select>
                </el-form-item>
@@ -50,7 +50,7 @@
                   </el-select>
                </el-form-item>
                <el-form-item>
-                  <el-input v-model="Search.word" placeholder="请输入内容"></el-input>
+                  <el-input v-model="Search.word" placeholder="请输入内容" clearable></el-input>
                </el-form-item>
                <el-form-item>
                   <div class="flex">
@@ -67,14 +67,15 @@
             <el-table-column prop="username" label="用户昵称" min-width="100" align="center"></el-table-column>
             <el-table-column prop="school" label="学校" min-width="120" align="center"></el-table-column>
             <el-table-column prop="title" label="学期" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="grade" label="年级" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="classes" label="班级" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="cname" label="学生姓名" min-width="120" align="center"></el-table-column>
+            <el-table-column prop="grade" label="年级" min-width="90" align="center"></el-table-column>
+            <el-table-column prop="classes" label="班级" min-width="90" align="center"></el-table-column>
+            <el-table-column prop="cname" label="学生姓名" min-width="100" align="center"></el-table-column>
             <el-table-column prop="phone" label="手机号" min-width="110" align="center"></el-table-column>
+            <el-table-column prop="trade" label="订单号" min-width="210" align="center"></el-table-column>
             <el-table-column prop="addtime" label="下单时间" min-width="140" align="center"></el-table-column>
             <el-table-column prop="startat" label="用餐起始时间" min-width="120" align="center"></el-table-column>
             <el-table-column prop="quittime" label="退餐时间" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="unit" label="餐标" min-width="80" align="center"></el-table-column>
+            <el-table-column prop="unit" label="餐标" min-width="60" align="center"></el-table-column>
             <el-table-column prop="total" label="订餐餐次" min-width="80" align="center"></el-table-column>
             <el-table-column prop="fee" label="总金额" min-width="80" align="center"></el-table-column>
             <el-table-column prop="state" label="订单状态" min-width="100" align="center">
@@ -284,6 +285,7 @@ export default {
                {label: '班级', prop: 'classes'},
                {label: '学生姓名', prop: 'cname'},
                {label: '手机号', prop: 'phone'},
+               {label: '订单号', prop: 'trade'},
                {label: '下单时间', prop: 'paytime'},
                {label: '用餐起始时间', prop: 'startat'},
                {label: '餐标', prop: 'unit'},

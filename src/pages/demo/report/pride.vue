@@ -14,10 +14,11 @@
          </el-form>
       </template>
       <template>
-         <el-table :data="listData" v-loading="loading" max-height="500" border>
+         <el-table v-loading="loading" :data="listData" border>
             <el-table-column prop="cname" label="用户名" min-width="120" align="center"></el-table-column>
             <el-table-column prop="phone" label="手机号" min-width="120" align="center"></el-table-column>
             <el-table-column prop="paytime" label="支付时间" min-width="160" align="center"></el-table-column>
+            <!--<el-table-column prop="fee" label="支付金额" min-width="100" align="center"></el-table-column>-->
          </el-table>
       </template>
    </d2-container>
@@ -46,6 +47,7 @@ export default {
             this.parseData(res.lists)
          })
       },
+      // 解析数据
       parseData (list) {
          this.listData = list.map(v => {
             let json = v
@@ -56,6 +58,7 @@ export default {
       },
       // 查询
       handSearch () {
+         this.loading = true
          let posts = { time: this.search.time / 1000 || dayjs().unix() }
          httpGet('pride', posts).then(res => {
             this.parseData(res.lists)
@@ -65,9 +68,9 @@ export default {
       exportExcel () {
          if (this.listData.length) {
             let columns = [
-               {label: '用户名', prop: 'cname'},
-               {label: '手机号', prop: 'phone'},
-               {label: '支付时间', prop: 'paytime'}
+               { label: '用户名', prop: 'cname' },
+               { label: '手机号', prop: 'phone' },
+               { label: '支付时间', prop: 'paytime' }
             ]
             this.$export.excel({ columns, data: this.listData }).then(() => {
                this.$message.success('导出表格成功')

@@ -30,12 +30,12 @@ router.beforeEach((to, from, next) => {
 
    const token = util.cookies.get('token')
    if (to.name != 'login' && to.name != 'refresh' && (!token || menu.indexOf(to.path) == -1)) {
-      next({ name: 'login', query: { redirect: document.URL } })
-      NProgress.done()
       util.cookies.remove('token')
       util.cookies.remove('uuid')
       // 删除菜单
       sessionStorage.removeItem('menus')
+      next({ name: 'login', query: { redirect: to.fullPath } })
+      NProgress.done()
    } else {
       next()
    }

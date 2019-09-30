@@ -88,19 +88,12 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           // 登录
-          // 注意 这里的演示没有传验证码
-          // 具体需要传递的数据请自行修改代码
            this.$loading({ fullscreen: true })
            login(this, this.formLogin.account, this.formLogin.pwd).then(() => {
               // 重定向对象不存在则返回顶层路径
-              //this.$router.replace(this.$route.query.redirect || '/')
-              location.href = this.$route.query.redirect || '/'
+              this.$router.replace(this.$route.query.redirect || '/')
               this.$loading().close()
            })
-          /*this.login({account: this.formLogin.account, pwd: this.formLogin.pwd}).then(() => {
-            // 重定向对象不存在则返回顶层路径
-            this.$router.replace(this.$route.query.redirect || '/')
-          })*/
         } else {
           // 登录表单校验失败
           this.$message.error('表单校验失败')

@@ -3,7 +3,7 @@
       <template slot="header" class="flex between">
          <el-form :inline="true" :model="Search" class="demo-form-inline">
             <el-form-item>
-               <el-select v-model="Search.sid" @change="schoolChange(Search.sid, '')" placeholder="学校">
+               <el-select v-model="Search.sid" @change="schoolChange(Search.sid, '')" placeholder="学校" filterable>
                   <el-option v-for="s in school" :label="s.cname" :value="s.id" :key="s.id"></el-option>
                </el-select>
             </el-form-item>
@@ -23,7 +23,7 @@
                </el-select>
             </el-form-item>
             <el-form-item>
-               <el-input v-model="Search.word" placeholder="请输入内容"></el-input>
+               <el-input v-model="Search.word" placeholder="请输入内容" clearable></el-input>
             </el-form-item>
             <el-form-item>
                <el-button type="primary" @click="onSearch">查询</el-button>
@@ -49,7 +49,7 @@
          </el-table>
       </template>
       <template slot="footer">
-         <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" :total="total" layout="prev, pager, next" background></el-pagination>
+         <el-pagination @current-change="handleCurrent" :current-page.sync="pageNo" :total="total" layout="prev, pager, next, total" background></el-pagination>
       </template>
    </d2-container>
 </template>

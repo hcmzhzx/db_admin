@@ -10,7 +10,7 @@
                </el-select>
             </el-form-item>
             <el-form-item>
-               <el-input v-model="Search.word" placeholder="请输入内容"></el-input>
+               <el-input v-model="Search.word" placeholder="请输入内容" clearable></el-input>
             </el-form-item>
             <el-form-item>
                <el-button type="primary" @click="onSearch">查询</el-button>

@@ -1,5 +1,5 @@
 <template>
-   <d2-container :filename="filename">
+   <d2-container>
       <template slot="header" class="flex between"><div class="title">编辑首页</div></template>
       <template>
          <div class="flexv banners el-table" style="padding:20px;">
@@ -15,6 +15,7 @@
                      <option value="switchTab">底部菜单</option>
                      <option value="redirect">本页跳转</option>
                      <option value="navigate">新开窗口</option>
+                     <option value="weburl">网页链接</option>
                   </select>
                   <input type="text" placeholder="请填写跳转链接" v-model="v.url">
                </div>
@@ -46,13 +47,12 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpPost, httpTrash } from '@api/http'
+import { httpGet, httpPost } from '@api/http'
 
 export default {
    name: 'demo-message',
    data() {
       return {
-         filename: __filename,
          banners: [{image: '', opentype: '', url: ''}],
          title: '',
          content: ''

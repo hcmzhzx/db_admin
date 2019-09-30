@@ -22,6 +22,21 @@ Vue.use(d2Admin)
 Vue.use(D2Crud)
 Vue.component('VueUeditorWrap', VueUeditorWrap)
 
+Vue.mixin({
+   methods: {
+      // 去抖函数
+      _debounce (method, delay) {
+         return function () {
+            let _this = this
+            clearTimeout(method.id)
+            method.id = setTimeout(()=> {
+               method.call(_this, arguments)
+            }, delay)
+         }
+      }
+   }
+})
+
 new Vue({
   router,
   store,

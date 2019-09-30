@@ -54,6 +54,7 @@ import { AccountLogin } from '@api/http'
       children: [
          {path: '/demo/report/index', title: '用餐报表'},
          {path: '/demo/report/pride', title: '支付名单'},
+         {path: '/demo/report/reckoning', title: '农行退款账单'},
          {path: '/demo/report/catering', title: '配餐收入'}
       ]
    },

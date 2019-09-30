@@ -3,12 +3,12 @@
       <template slot="header" class="flex">
          <el-form :inline="true" :model="form" class="br">
             <el-form-item>
-               <el-select v-model="form.did" placeholder="地区" @change="selectChange(form.did, '', '')">
+               <el-select v-model="form.did" placeholder="地区" @change="selectChange(form.did, '', '')" filterable>
                   <el-option v-for="item in form.district" :key="item.id" :label="item.cname" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
             <el-form-item>
-               <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid)">
+               <el-select v-model="form.sid" placeholder="学校" @change="selectChange(form.did, form.sid, form.pid)" filterable>
                   <el-option v-for="item in form.school" :key="item.id" :label="item.cname" :value="item.id"></el-option>
                </el-select>
             </el-form-item>
@@ -29,7 +29,7 @@
          </el-form>
       </template>
       <template>
-         <el-table v-bind="table" show-summary :span-method="SpanMethod" max-height="700" style="width:100%">
+         <el-table v-bind="table" show-summary :span-method="SpanMethod" max-height="500" style="width:100%">
             <el-table-column fixed v-for="(item, index) in table.columns" :key="index" :prop="item.prop" :label="item.label" v-if="index == 0" align="center" min-width="120px"></el-table-column>
             <el-table-column v-for="(item, index) in table.columns" :key="item.prop" :prop="item.prop" :label="item.label" v-if="index > 0" align="center" min-width="120px"></el-table-column>
          </el-table>
