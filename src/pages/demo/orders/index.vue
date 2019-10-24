@@ -64,32 +64,32 @@
       <template>
          <el-table :data="Data" v-loading="loading" border style="width:100%">
             <!--<el-table-column prop="id" label="id" min-width="100" align="center"></el-table-column>-->
-            <el-table-column prop="username" label="用户昵称" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="school" label="学校" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="title" label="学期" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="grade" label="年级" min-width="90" align="center"></el-table-column>
-            <el-table-column prop="classes" label="班级" min-width="90" align="center"></el-table-column>
-            <el-table-column prop="cname" label="学生姓名" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="phone" label="手机号" min-width="110" align="center"></el-table-column>
-            <el-table-column prop="trade" label="订单号" min-width="210" align="center"></el-table-column>
-            <el-table-column prop="addtime" label="下单时间" min-width="140" align="center"></el-table-column>
-            <el-table-column prop="startat" label="用餐起始时间" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="quittime" label="退餐时间" min-width="120" align="center"></el-table-column>
-            <el-table-column prop="unit" label="餐标" min-width="60" align="center"></el-table-column>
-            <el-table-column prop="total" label="订餐餐次" min-width="80" align="center"></el-table-column>
-            <el-table-column prop="fee" label="总金额" min-width="80" align="center"></el-table-column>
-            <el-table-column prop="state" label="订单状态" min-width="100" align="center">
+            <el-table-column prop="username" label="用户昵称" min-width="90" align="center"></el-table-column>
+            <el-table-column prop="school" label="学校" min-width="100" align="center"></el-table-column>
+            <el-table-column prop="title" label="学期" min-width="100" align="center"></el-table-column>
+            <el-table-column prop="grade" label="年级" min-width="70" align="center"></el-table-column>
+            <el-table-column prop="classes" label="班级" min-width="60" align="center"></el-table-column>
+            <el-table-column prop="cname" label="学生姓名" width="78" align="center"></el-table-column>
+            <el-table-column prop="phone" label="手机号" min-width="108" align="center"></el-table-column>
+            <el-table-column prop="trade" label="订单号" min-width="115" align="center"></el-table-column>
+            <el-table-column prop="addtime" label="下单时间" width="96" align="center"></el-table-column>
+            <el-table-column prop="startat" label="用餐起始时间" min-width="106" align="center"></el-table-column>
+            <el-table-column prop="quittime" label="退餐时间" width="96" align="center"></el-table-column>
+            <el-table-column prop="unit" label="餐标" width="60" align="center"></el-table-column>
+            <el-table-column prop="total" label="订餐餐次" width="80" align="center"></el-table-column>
+            <el-table-column prop="fee" label="总金额" width="80" align="center"></el-table-column>
+            <el-table-column prop="state" label="订单状态" width="100" align="center">
                <template slot-scope="scope"><el-tag :type="scope.row.state.type">{{scope.row.state.text}}</el-tag></template>
             </el-table-column>
-            <el-table-column prop="used" label="已消费餐次" min-width="100" align="center"></el-table-column>
-            <el-table-column prop="leave" label="请假餐次" min-width="80" align="center"></el-table-column>
-            <!--<el-table-column prop="paytime" label="支付时间" min-width="120" align="center"></el-table-column>
-            <el-table-column label="操作" width="200" align="center">
+            <el-table-column prop="used" label="已消费餐次" width="94" align="center"></el-table-column>
+            <el-table-column prop="leave" label="请假餐次" width="80" align="center"></el-table-column>
+            <!--<el-table-column prop="paytime" label="支付时间" min-width="120" align="center"></el-table-column>-->
+            <el-table-column label="操作" width="120" align="center">
                <template slot-scope="scope">
-                  <el-button type="primary" icon="el-icon-edit" size="small" @click="$router.push({name: 'demo-admin-addUsers', query: {id: scope.row.id}})">编辑</el-button>
-                  <el-button type="danger" icon="el-icon-delete" size="small" @click="handleRemove(scope.row.id)">删除</el-button>
+                  <el-button type="primary" v-if="scope.row.payState === 0" icon="el-icon-edit" size="small" @click="handOrderopt(scope.row.id)">确认支付</el-button>
+                  <el-button type="info" disabled icon="el-icon-edit" size="small" v-else>支付成功</el-button>
                </template>
-            </el-table-column>-->
+            </el-table-column>
          </el-table>
       </template>
       <template slot="footer">
@@ -131,6 +131,7 @@ export default {
       await this.loadData()
    },
    methods: {
+      // 初始化
       loadData () {
          this.loading = true
          httpGet('order').then(res => {
@@ -144,6 +145,7 @@ export default {
          this.pagesize = 10
          this.Search = { sid: '', pid: '', grade: '', classes: '', state: '', beginat: '', overat: '', startat: '', endat: '', type: '', word: '' }
       },
+      // 数据整理
       mapData (school, list, leave, today) {
          var dates = parseInt(dayjs(today * 1000).format('YYYYMMDD'))
          this.Data = list.map(item => {
@@ -152,6 +154,7 @@ export default {
                if (v.pid == item.id) leaves = leaves.concat(JSON.parse(v.holiday))
             })
             let json = item
+            json.payState = item.state
             json.state = this.state[item.state]
             if (item.state == 1) {
                if (leaves.indexOf(dates) > -1) {
@@ -245,6 +248,24 @@ export default {
          this.Search.classes = ''
          let classname = this.grade.find(val => { return val.name == grade})
          this.classes = classname ? classname.classes : []
+      },
+      // 确认支付
+      handOrderopt (id) {
+         let item = this.Data.find(v => v.id === id)
+         this.$confirm(`确定修改 ${item.cname} 此项?`, '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
+            this.loading = true
+            httpPost('orderopt', { method: 'confirm', id }).then(res => {
+               this.loading = false
+               if (res.code === 0) {
+                  item.state = 1
+                  this.$message.success(res.msg)
+               } else {
+                  this.$message.warning(res.msg)
+               }
+            })
+         }).catch(() => {
+            this.$message.info('已取消')
+         })
       },
       // 查询
       onSearch () {

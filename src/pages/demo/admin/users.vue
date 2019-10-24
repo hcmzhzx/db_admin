@@ -159,8 +159,12 @@ export default {
       handleRemove(id) {
          this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
             httpTrash('adminGroupopt', {id}).then(res => {
-               this.$message({message: '删除成功', type: 'success'})
-               this.Data = this.Data.filter(item => {return item.id != id})
+               if (res.code == 0) {
+                  this.Data = this.Data.filter(item => item.id != id)
+                  this.$message.success(res.msg)
+               } else {
+                  this.$message.warning(res.msg)
+               }
             })
          }).catch(() => {
             this.$message({type: 'info', message: '已取消删除'})

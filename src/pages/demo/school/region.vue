@@ -94,10 +94,13 @@ export default {
          })
       },
       handleRowRemove ({index, row}, done) {
-         let Id = row.id
          this.loading = true
-         httpTrash('districtopt', {id: Id}).then(res => {
-            this.$message.success(res.msg)
+         httpTrash('districtopt', {id: row.id}).then(res => {
+            if (res.code == 0) {
+               this.$message.success(res.msg)
+            } else {
+               this.$message.warning(res.msg)
+            }
             this.loading = false
             done()
          })

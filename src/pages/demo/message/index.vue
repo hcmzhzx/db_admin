@@ -116,7 +116,11 @@ export default {
          }
          this.$loading({fullscreen: true})
          httpPost('homepage', posts).then(res => {
-            this.$message.success(`${res.msg}`)
+            if (res.code == 0) {
+               this.$message.success(res.msg)
+            } else {
+               this.$message.warning(res.msg)
+            }
             this.$loading().close()
          })
       }

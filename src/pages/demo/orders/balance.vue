@@ -53,16 +53,16 @@
          </div>
       </template>
       <template>
-         <el-table :data="Data" v-loading="loading" border style="width: 100%">
+         <el-table :data="Data" v-loading="loading" :summary-method="getSum" show-summary border style="width: 100%">
             <el-table-column prop="uid" label="uid" min-width="80" align="center"></el-table-column>
             <el-table-column prop="cname" label="收款人" min-width="100" align="center"></el-table-column>
             <el-table-column prop="phone" label="手机号" min-width="120" align="center"></el-table-column>
             <el-table-column prop="school" label="学校" min-width="110" align="center"></el-table-column>
             <el-table-column prop="body" label="学期" min-width="110" align="center"></el-table-column>
-            <el-table-column label="年级" min-width="100" align="center">
+            <el-table-column label="年级" min-width="70" align="center">
                <template slot-scope="scope">{{scope.row.grade ? scope.row.grade : '--'}}</template>
             </el-table-column>
-            <el-table-column label="班级" min-width="100" align="center">
+            <el-table-column label="班级" min-width="60" align="center">
                <template slot-scope="scope">{{scope.row.classes ? scope.row.classes : '--'}}</template>
             </el-table-column>
             <el-table-column label="学生姓名" min-width="100" align="center">
@@ -74,7 +74,7 @@
                </template>
             </el-table-column>
             <el-table-column prop="fee" label="金额" min-width="70" align="center"></el-table-column>
-            <el-table-column prop="amount" label="实际到账" min-width="90" align="center"></el-table-column>
+            <el-table-column prop="amount" label="实际到账" min-width="80" align="center"></el-table-column>
             <el-table-column prop="addtime" label="添加时间" min-width="140" align="center"></el-table-column>
             <el-table-column prop="updatetime" label="到账时间" min-width="140" align="center"></el-table-column>
             <el-table-column label="状态" min-width="80" align="center">
@@ -83,7 +83,7 @@
                </template>
             </el-table-column>
             <el-table-column prop="remark" label="备注" min-width="100" align="center"></el-table-column>
-            <el-table-column label="操作" width="200" align="center">
+            <el-table-column label="操作" width="100" align="center">
                <template slot-scope="scope">
                   <el-button v-if="!scope.row.state" type="primary" icon="el-icon-edit" size="small" @click="remittance(scope.row.cname, scope.row.id, Math.abs(scope.row.fee))">打款</el-button>
                   <el-button type="info" disabled size="small" v-else>已打款</el-button>
@@ -196,6 +196,21 @@ export default {
          })
          this.loading = false
       },
+      // 合计
+      getSum (param) {
+         const { columns, data } = param, sums = []
+         columns.forEach((column, index) => {
+            if (index === 0) {
+               sums[index] = '合计'
+               return
+            }
+            const values = data.map(item => item[column.property])
+            if (values.every(value => Number.isFinite(value))) {
+               sums[index] = values.reduce((prev, curr) => prev + curr, 0)
+            }
+         })
+         return sums
+      },
       remittance(name, Id, fee) {
          this.remitTitle = `确定打款给 ${name}?`
          this.dialogVisible = true
@@ -266,8 +281,12 @@ export default {
          this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
             this.loading = true
             httpTrash('balanceopt', { id }).then(res => {
-               this.Data = this.Data.filter(item => { return item.id !== id })
-               this.$message.success(res.msg)
+               if (res.code == 0) {
+                  this.Data = this.Data.filter(item => item.id != id)
+                  this.$message.success(res.msg)
+               } else {
+                  this.$message.warning(res.msg)
+               }
                this.loading = false
             })
          }).catch(() => {

@@ -59,6 +59,7 @@ export default {
       await this.loadData(time, time)
    },
    methods: {
+      // 初始化
       loadData (startat, endat) {
          httpGet('data', { startat: startat, endat: endat + 86399 }).then(res => {
             this.school = res.school
@@ -66,6 +67,7 @@ export default {
             this.mapData(startat, endat, res.school, res.lists, res.leaves, res.product)
          })
       },
+      // 整理数据
       mapData (startat, endat, school, lists, leaves, product) {
          let schools = []
          lists.forEach(item => {
@@ -114,6 +116,7 @@ export default {
          })
          this.loading = false
       },
+      // 生成数据
       create () {
          let posts = { sid: this.Search.sid, startat: this.Search.Time[0] /1000 , endat: this.Search.Time[1] / 1000}
          this.loading = true
@@ -121,9 +124,11 @@ export default {
             this.mapData(posts.startat, posts.endat, this.school, res.lists, res.leaves, res.product)
          })
       },
+      // 删除
       handleRemove (sid) {
          this.Data = this.Data.filter(v => { return v.sid != sid })
       },
+      // 导出 Excel
       exportExcel () {
          if(this.Data.length){
             let columns = [

@@ -52,7 +52,9 @@ export default {
    async created () {
       let { date } = this.search
       await httpGet('reckoning', { date, start: 0, end: 23 }).then(res => {
-         this.parseData(res.data)
+         if (res.code === 0) {
+            this.parseData(res.data)
+         }
       }).catch(err => {
          this.loading = false
       })
@@ -66,7 +68,9 @@ export default {
          if (date && start <= end ) {
             this.loading = true
             httpGet('reckoning', { date, start, end }).then(res => {
-               this.parseData(res.data)
+               if (res.code === 0) {
+                  this.parseData(res.data)
+               }
             }).catch(err => {
                this.loading = false
             })

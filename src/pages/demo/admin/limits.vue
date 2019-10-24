@@ -131,8 +131,12 @@ export default {
          let Id = row.id
          this.loading = true
          httpTrash('adminaccessopt', { id: Id }).then(res => {
-            this.formTemplate.pid.component.options = this.formTemplate.pid.component.options.filter(item => { return item.value != Id })
-            this.$message.success('删除成功')
+            if (res.code == 0) {
+               this.formTemplate.pid.component.options = this.formTemplate.pid.component.options.filter(item => { return item.value != Id })
+               this.$message.success(res.msg)
+            } else {
+               this.$message.warning(res.msg)
+            }
             done()
             this.loading = false
          })

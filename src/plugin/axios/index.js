@@ -1,8 +1,7 @@
 import store from '@/store'
 import axios from 'axios'
-import { Message } from 'element-ui'
+import { Message, Loading } from 'element-ui'
 import util from '@/libs/util'
-import Vue from 'vue'
 import router from '@/router'
 
 // 创建一个错误
@@ -23,7 +22,7 @@ function errorLog (err) {
   }
   // 显示提示
   Message({ message: err.message, type: 'error', duration: 5 * 1000 })
-  Vue.$loading().close()
+  Loading.service({ fullscreen: true }).close()
 }
 
 // 创建一个 axios 实例

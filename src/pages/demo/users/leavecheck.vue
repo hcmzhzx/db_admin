@@ -85,7 +85,7 @@
         this.loading = true
         httpPost('leavecheck', {id, uid, day }).then(res => {
           if(res.code == 0){
-            let list = this.leaves.find(item => { return item.day == day })
+            let list = this.leaves.find(item => item.day == day)
             list.state = true
             this.$message.success(res.msg)
           } else {
