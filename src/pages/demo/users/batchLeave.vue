@@ -186,8 +186,9 @@ export default {
       create () {
          let { did, sid, pid, grade, classes, time } = this.form
          if (did != '' && sid != '' && pid != '' && grade != '', time != '' ) {
+            time = dayjs(time).format('YYYYMMDD')
             this.$loading({ fullscreen: true })
-            httpPost('leavebat', { did, sid, pid, grade, classes }).then(res => {
+            httpPost('leavebat', { did, sid, pid, grade, classes, time }).then(res => {
                let { leaves, students } = res
                this.leaves = leaves
                this.students = students
@@ -317,7 +318,7 @@ export default {
             httpPost('leavebat', { sid, pid, today, time, uid: this.leaveuid }).then(res => {
                this.tableData = this.blocklist = []
                this.curtday = null
-               if (res.fail == 0){
+               if (res.fail == 0) {
                   this.$message.success(res.msg)
                } else {
                   this.$message(`${res.msg}，请假失败${res.fail}条`)

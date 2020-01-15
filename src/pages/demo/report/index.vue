@@ -173,7 +173,7 @@ export default {
          let holidays = JSON.parse(holiday), grades = []
          orders.forEach(item => {
             item.leave = []
-            leaves.forEach(val => { if(item.uid == val.uid) item.leave = item.leave.concat(JSON.parse(val.holiday)) })
+            leaves.forEach(val => { if(item.id == val.oid) item.leave = item.leave.concat(JSON.parse(val.holiday)) })
          })
          JSON.parse(grade).forEach((item, keys) => {
             item.classes.forEach((v, k) => {

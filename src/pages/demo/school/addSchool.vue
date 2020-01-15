@@ -1,7 +1,7 @@
 <template>
-   <d2-container :filename="filename">
+   <d2-container>
       <template>
-         <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+         <el-form ref="form" :model="form" v-loading="loading" :element-loading-text="loadtxt" :rules="rules" label-width="80px" class="addschool">
             <el-form-item label="学校名称" label-width="120px" prop="cname">
                <el-input v-model="form.cname" autocomplete="off" placeholder="请填写学校名"></el-input>
             </el-form-item>
@@ -30,37 +30,20 @@
             <el-form-item label="联系方式" label-width="120px" prop="contact">
                <el-input v-model="form.contact" maxlength="11" autocomplete="off" placeholder="请填写联系方式"></el-input>
             </el-form-item>
-            <el-form-item label="一年级" label-width="120px">
-               <el-input v-model="form.grade1" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item label="二年级" label-width="120px">
-               <el-input v-model="form.grade2" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item label="三年级" label-width="120px">
-               <el-input v-model="form.grade3" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item label="四年级" label-width="120px">
-               <el-input v-model="form.grade4" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item label="五年级" label-width="120px">
-               <el-input v-model="form.grade5" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item label="六年级" label-width="120px">
-               <el-input v-model="form.grade6" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item label="七年级" label-width="120px">
-               <el-input v-model="form.grade7" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item label="八年级" label-width="120px">
-               <el-input v-model="form.grade8" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item label="九年级" label-width="120px">
-               <el-input v-model="form.grade9" autocomplete="off" placeholder="请填写班级"></el-input>
-            </el-form-item>
-            <el-form-item>
-               <el-button type="primary" @click="handleAdd('form')">{{Id ? '立即修改' : '立即添加'}}</el-button>
+            <el-form-item v-for="(v, k) in form.grade" :key="k" label="年级班级" label-width="120px" prop="grades">
+               <el-input v-model="v.name" autocomplete="off" placeholder="请填写年级" class="name"></el-input>：
+               <el-input v-model="v.classes" autocomplete="off" placeholder="请填写班级"></el-input>
             </el-form-item>
          </el-form>
+      </template>
+      <template slot="footer">
+         <div class="flex between">
+            <div class="buttons">
+               <el-button @click="minus" type="primary" icon="el-icon-minus"></el-button>
+               <el-button @click="plus" type="primary" icon="el-icon-plus"></el-button>
+            </div>
+            <el-button type="primary" @click="handleAdd('form')">{{Id ? '立即修改' : '立即添加'}}</el-button>
+         </div>
       </template>
    </d2-container>
 </template>
@@ -72,16 +55,18 @@ export default {
    name: 'addSchool',
    data() {
       return {
-         filename: __filename,
+         loading: true,
+         loadtxt: '拼命加载中',
          Id: 0,
          district: [],
-         form: {cname: '', did: '', contact: '', grade1: '', grade2: '', grade3: '', grade4: '', grade5: '', grade6: '', grade7: '', grade8: '', grade9: ''},
+         form: { cname: '', did: '', contact: '', grade: [{ name: '一年级', classes: '' }] },
          rules: {
             cname: [{ required: true, message: '请输入学校名称', trigger: 'blur' }],
             did: [{ required: true, message: '请选择地区', trigger: 'change' }],
             contact: [{ required: true, message: '请输入联系方式', trigger: 'blur' },
                { min: 11, max: 11, message: '请输入11位联系方式', trigger: 'blur' }
-            ]
+            ],
+            grades: [{ required: true, message: '请输入年级班级', trigger: 'blur' }]
          },
          IsUpload: false,
          UploadFile: null,
@@ -91,7 +76,6 @@ export default {
       }
    },
    async created() {
-      this.$loading({fullscreen: true})
       let posts = '', Id = Number(this.$route.query.id)
       if(Id){
          this.Id = Id
@@ -105,37 +89,34 @@ export default {
          for(let [k, v] of Object.entries(res.district)){
             this.district.push({id: Number(k), cname: v})
          }
-         if(res.data){
-            this.form.cname = res.data.cname
-            this.form.did = this.district.find(item => { return item.id == res.data.did }) ? res.data.did : ''
-            this.fileList = [{name: '', url: res.data.contract}]
-            let arr = JSON.parse(res.data.grade)
-            for (let v of arr) {
-               if (v.name == '一年级') {
-                  this.form.grade1 = v.classes.join(',')
-               } else if (v.name == '二年级') {
-                  this.form.grade2 = v.classes.join(',')
-               } else if (v.name == '三年级') {
-                  this.form.grade3 = v.classes.join(',')
-               } else if (v.name == '四年级') {
-                  this.form.grade4 = v.classes.join(',')
-               } else if (v.name == '五年级') {
-                  this.form.grade5 = v.classes.join(',')
-               } else if (v.name == '六年级') {
-                  this.form.grade6 = v.classes.join(',')
-               } else if (v.name == '七年级') {
-                  this.form.grade7 = v.classes.join(',')
-               } else if (v.name == '八年级') {
-                  this.form.grade8 = v.classes.join(',')
-               } else if (v.name == '九年级') {
-                  this.form.grade9 = v.classes.join(',')
-               }
-            }
+         let data = res.data
+         if(data){
+            this.form.cname = data.cname
+            this.form.did = this.district.find(item => { return item.id == data.did }) ? data.did : ''
+            this.form.contact = data.contact
+            this.fileList = [{name: '', url: data.contract}]
+            this.form.grade = []
+            JSON.parse(data.grade).forEach(v => {
+               let { name, classes } = v
+               this.form.grade.push({ name, classes: classes.join(',') })
+            })
          }
-         this.$loading().close()
+         this.loading = false
       })
    },
    methods: {
+      // 添加年级班级
+      plus () {
+         this.form.grades.push({ name: '', classes: '' })
+      },
+      // 减少年级班级
+      minus () {
+         if (this.form.grades.length === 1) {
+            this.$message.warning(`至少保留一个`)
+         } else {
+            this.form.grades.pop()
+         }
+      },
       // 超出限制
       handleExceed(files, fileList) {
          this.$message.warning(`当前限制选择 1 个文件`)
@@ -164,49 +145,20 @@ export default {
          }
          this.$refs[form].validate((valid) => {
             if(valid){
-               this.$loading({fullscreen: true})
-               let Form = new FormData(), grades = [], cnum = 0
-               for(let [k, v] of Object.entries(this.form)){
-                  let json = {}
-                  if(k == 'grade1' && v != ''){
-                     json.name = '一年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  } else if(k == 'grade2' && v != ''){
-                     json.name = '二年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  } else if(k == 'grade3' && v != ''){
-                     json.name = '三年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  } else if(k == 'grade4' && v != ''){
-                     json.name = '四年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  } else if(k == 'grade5' && v != ''){
-                     json.name = '五年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  } else if(k == 'grade6' && v != ''){
-                     json.name = '六年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  } else if(k == 'grade7' && v != ''){
-                     json.name = '七年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  } else if(k == 'grade8' && v != ''){
-                     json.name = '八年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  } else if(k == 'grade9' && v != ''){
-                     json.name = '九年级'
-                     json.classes = v.split(',')
-                     grades.push(json)
-                  }
+               let Form = new FormData(), cnum = 0
+               let grades = this.form.grade.filter(v => (v.classes && v.name)).map(v => {
+                  let json = {}, { name, classes } = v
+                  json.name = name
+                  json.classes = classes.split(/,|，|\./g)
+                  return json
+               })
+               if (!grades.length) {
+                  this.$message.warning('年级班级信息不全')
+                  return
                }
                grades.forEach((item) => { cnum += item.classes.length })
+               this.loading = true
+               this.loadtxt = '提交中...'
                if(this.Id){
                   Form.append('method', 'edit')
                   Form.append('id', this.Id)
@@ -219,7 +171,7 @@ export default {
                   Form.append('cnum', cnum)
                   httpEditUm('schoolopt', Form).then(res => {
                      this.$message.success('修改成功')
-                     this.$loading().close()
+                     this.loading = false
                      this.$router.go(-1)
                   })
                } else {
@@ -233,7 +185,7 @@ export default {
                   Form.append('cnum', cnum)
                   httpAddUm('schoolopt', Form).then(res => {
                      this.$message.success('添加成功')
-                     this.$loading().close()
+                     this.loading = false
                      this.$router.go(-1)
                   })
                }
@@ -243,3 +195,8 @@ export default {
    }
 }
 </script>
+
+<style>
+.addschool .el-form-item__content{display: -webkit-box; display: flex;}
+.addschool .el-form-item__content .name{width: 160px;}
+</style>

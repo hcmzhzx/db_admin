@@ -65,7 +65,7 @@ export default {
    methods: {
       handleRemove (Id) {
          this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
-            httpTrash('schoolopt', {id: Id}).then(res => {
+            httpTrash('dayshootopt', {id: Id}).then(res => {
                if (res.code == 0) {
                   this.Data = this.Data.filter(item => item.id != Id)
                   this.$message.success(res.msg)
@@ -78,7 +78,7 @@ export default {
          })
       },
       // 生成日历
-      parseDays(begin, end, holidays, shoot) {
+      parseDays (begin, end, holidays, shoot) {
          let daytime = 86400, first = 0, str = [], block = [], blocklist = [], monthes = [], dates = new Date(), total = 0
          let today = parseInt(dates.getFullYear() + String(dates.getMonth() + 1).padStart(2, '0') + String(dates.getDate()).padStart(2, '0'))
          for (let i = begin; i <= end; i += daytime) {
@@ -133,14 +133,14 @@ export default {
          this.today = today
       },
       // 每日实拍
-      everyUpload(bkey, rkey, dkey, $el) {
-         if($el.target.files[0]){
+      everyUpload (bkey, rkey, dkey, $el) {
+         if ($el.target.files[0]) {
             const Form = new FormData()
             Form.append('pid', this.Id)
             Form.append('sid', this.sid)
             Form.append('dates', this.blocklist[bkey][rkey][dkey].keys)
             Form.append('file', $el.target.files[0])
-            httpAddUm('shootOpt', Form).then(res => {
+            httpAddUm('dayshootopt', Form).then(res => {
                this.blocklist[bkey][rkey][dkey].url = res.image
             })
          }

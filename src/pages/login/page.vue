@@ -49,7 +49,7 @@ export default {
     return {
       timeInterval: null,
       time: dayjs().format('HH:mm:ss'),
-      // 快速选择用户
+      // 快速选择用户  debao -> db123456
       dialogVisible: false,
       // 表单
       formLogin: { account: '', pwd: '' },
