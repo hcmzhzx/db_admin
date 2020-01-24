@@ -51,12 +51,12 @@ import dayjs from 'dayjs'
 
 export default {
    name: 'users',
-   data() {
+   data () {
       return {
          dayjs,
          filename: __filename,
          Data: [],
-         Id : 0,
+         Id: 0,
          dialogForm: false,
          active: [],
          collapse: [],
@@ -66,15 +66,15 @@ export default {
          },
 
          rules: {
-            name: [{required: true, message: '角色名不能为空', trigger: 'blur'}]
+            name: [{ required: true, message: '角色名不能为空', trigger: 'blur' }]
          }
       }
    },
-   async created() {
+   async created () {
       await this.loadata()
    },
    methods: {
-      loadata() {
+      loadata () {
          this.$loading({ fullscreen: true })
          httpGet('adminGroup').then(res => {
             if (res) {
@@ -91,7 +91,7 @@ export default {
       parseAccess (lists, pid) { // 菜单重组
          let access = []
          lists.forEach(item => {
-            if (item.pid == pid ) {
+            if (item.pid == pid) {
                let children = this.parseAccess(lists, item.id)
                if (children.length) item.children = children
                access.push(item)
@@ -99,10 +99,10 @@ export default {
          })
          return access
       },
-      dialogSubmit(form) {
+      dialogSubmit (form) {
          this.$refs[form].validate((valid) => {
-            if(valid) {
-               var access = Object.assign([], this.form.admin), menus = Object.assign([], this.collapse), mids = []
+            if (valid) {
+               let access = Object.assign([], this.form.admin), menus = Object.assign([], this.collapse), mids = []
                menus.forEach(item => {
                   item.children.forEach(v => {
                      if (access.indexOf(v.title) > -1) {
@@ -111,22 +111,22 @@ export default {
                      }
                   })
                })
-               if (mids.length == 0) {
+               if (mids.length === 0) {
                   this.$message.warning('至少有一个权限')
                } else {
-                  this.$loading({fullscreen: true})
+                  this.$loading({ fullscreen: true })
                   if (this.Id) {
-                     let posts = {id: this.Id, cname: this.form.name, menus: mids.join(',')}
+                     let posts = { id: this.Id, cname: this.form.name, menus: mids.join(',') }
                      httpEdit('adminGroupopt', posts).then(res => {
                         this.dialogForm = false
-                        this.$message({message: '修改成功', type: 'success'})
+                        this.$message({ message: '修改成功', type: 'success' })
                         this.$loading().close()
                      })
                   } else {
-                     let posts = {cname: this.form.name, menus: mids.join(',')}
+                     let posts = { cname: this.form.name, menus: mids.join(',') }
                      httpAdd('adminGroupopt', posts).then(res => {
                         this.dialogForm = false
-                        this.$message({message: '添加成功', type: 'success'})
+                        this.$message({ message: '添加成功', type: 'success' })
                         this.$loading().close()
                      })
                   }
@@ -134,19 +134,21 @@ export default {
             }
          })
       },
-      handleAdd() {
+      handleAdd () {
          this.Id = 0
          this.form.name = ''
-         this.active = [], this.form.admin = []
+         this.active = []
+         this.form.admin = []
          this.dialogForm = true
       },
-      handleEdit(id, cname, menus) {
+      handleEdit (id, cname, menus) {
          this.Id = Number(id)
          let mids = menus.split(',')
          let access = []
          let menuItems = Object.assign([], this.collapse)
          this.form.name = cname
-         this.active = [], this.form.admin = []
+         this.active = []
+         this.form.admin = []
          menuItems.forEach(item => {
             if (mids.indexOf(String(item.id)) > -1) access.push(item.title)
             item.children.forEach(v => {
@@ -156,10 +158,10 @@ export default {
          this.form.admin = access
          this.dialogForm = true
       },
-      handleRemove(id) {
-         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
-            httpTrash('adminGroupopt', {id}).then(res => {
-               if (res.code == 0) {
+      handleRemove (id) {
+         this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+            httpTrash('adminGroupopt', { id }).then(res => {
+               if (res.code === 0) {
                   this.Data = this.Data.filter(item => item.id != id)
                   this.$message.success(res.msg)
                } else {
@@ -167,7 +169,7 @@ export default {
                }
             })
          }).catch(() => {
-            this.$message({type: 'info', message: '已取消删除'})
+            this.$message({ type: 'info', message: '已取消删除' })
          })
       }
    }

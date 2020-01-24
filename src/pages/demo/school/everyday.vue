@@ -29,12 +29,12 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash, httpAddUm, httpEditUm } from '@api/http'
+import { httpGet, httpTrash, httpAddUm } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'everyday',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -44,29 +44,29 @@ export default {
          loading: true
       }
    },
-   async created() {
+   async created () {
       this.Id = Number(this.$route.query.id) || 0
-      await httpGet('dayshoot', {id: this.Id}).then(res => {
-         for(let [k, v] of Object.entries(res.taocan)){
-            this.combos.push({id: v, cname: k})
+      await httpGet('dayshoot', { id: this.Id }).then(res => {
+         for (let [k, v] of Object.entries(res.taocan)) {
+            this.combos.push({ id: v, cname: k })
          }
-         this.Data = res.lists.map( item => {
+         this.Data = res.lists.map(item => {
             let json = item
             json.dates = `${item.dates.toString().substr(0, 4)}-${item.dates.toString().substr(4, 2)}-${item.dates.toString().substr(6, 2)}, `
-            json.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
-            let tcname = this.combos.find(val => {return val.id == item.tid})
+            json.addtime = dayjs(item.addtime * 1000).format('YYYY-M-D')
+            let tcname = this.combos.find(val => val.id == item.tid)
             json.cname = tcname ? tcname.cname : '未知'
             return json
          })
          this.loading = false
       })
-      //await this.parseDays(begin, end, holidays, shoot)
+      // await this.parseDays(begin, end, holidays, shoot)
    },
    methods: {
       handleRemove (Id) {
-         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
-            httpTrash('dayshootopt', {id: Id}).then(res => {
-               if (res.code == 0) {
+         this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+            httpTrash('dayshootopt', { id: Id }).then(res => {
+               if (res.code === 0) {
                   this.Data = this.Data.filter(item => item.id != Id)
                   this.$message.success(res.msg)
                } else {
@@ -88,13 +88,13 @@ export default {
                day = date.getDate(),
                month = date.getMonth() + 1,
                yearmonth = parseInt(year + String(month).padStart(2, '0'))
-            if (day == 1 || first < yearmonth) {
+            if (day === 1 || first < yearmonth) {
                first = yearmonth
                monthes.push(year + '-' + String(month).padStart(2, '0'))
                if (str.length) {
                   if (str.length < 7) {
                      for (let j = str.length; j < 7; j++) {
-                        str.push({keys: 0, day: '', holiday: -1, url: '' })
+                        str.push({ keys: 0, day: '', holiday: -1, url: '' })
                      }
                   }
                   block.push(str)
@@ -104,14 +104,14 @@ export default {
                str = []
             }
             let keys = parseInt(year + String(month).padStart(2, '0') + String(day).padStart(2, '0'))
-            if(keys >= today) total++
-            if (str.length == 0 && week != 0) {
+            if (keys >= today) total++
+            if (str.length === 0 && week !== 0) {
                for (let j = 0; j < week; j++) {
-                  str.push({keys: 0, day: '', holiday: -1, url: '' })
+                  str.push({ keys: 0, day: '', holiday: -1, url: '' })
                }
             }
-            str.push({keys: keys, day: day, holiday: holidays.indexOf(keys), url: shoot[keys] || '' })
-            if (week == 6) {
+            str.push({ keys: keys, day: day, holiday: holidays.indexOf(keys), url: shoot[keys] || '' })
+            if (week === 6) {
                if (str.length) block.push(str)
                str = []
             }
@@ -119,17 +119,18 @@ export default {
          if (str.length) {
             if (str.length < 7) {
                for (let j = str.length; j < 7; j++) {
-                  str.push({keys: 0, day: '', holiday: -1, url: '' })
+                  str.push({ keys: 0, day: '', holiday: -1, url: '' })
                }
             }
-            block.push(str), blocklist.push(block)
+            block.push(str)
+            blocklist.push(block)
             block = []
          }
          if (block.length) blocklist.push(block)
          let weeks = ['日', '一', '二', '三', '四', '五', '六']
-         this.weeks = weeks,
-         this.monthes = monthes,
-         this.blocklist = blocklist,
+         this.weeks = weeks
+         this.monthes = monthes
+         this.blocklist = blocklist
          this.today = today
       },
       // 每日实拍

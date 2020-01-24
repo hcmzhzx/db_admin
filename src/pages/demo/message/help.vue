@@ -24,12 +24,12 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpTrash } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'demo-message-help',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -37,8 +37,8 @@ export default {
          loading: true
       }
    },
-   async created () {
-      await this.loadData()
+   created () {
+      this.loadData()
    },
    methods: {
       loadData () {
@@ -52,9 +52,9 @@ export default {
          })
       },
       handleRemove (id) {
-         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
-            httpTrash('helpopt', {id}).then(res => {
-               if (res.code == 0) {
+         this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+            httpTrash('helpopt', { id }).then(res => {
+               if (res.code === 0) {
                   this.Data = this.Data.filter(item => item.id != id)
                   this.$message.success(res.msg)
                } else {

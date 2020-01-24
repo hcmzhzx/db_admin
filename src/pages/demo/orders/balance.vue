@@ -5,17 +5,17 @@
             <el-form :inline="true" :model="Search" class="br">
                <el-form-item>
                   <el-select v-model="Search.sid" @change="schoolChange(Search.sid, '')" placeholder="学校" filterable>
-                     <el-option v-for="s in school" :label="s.cname" :value="s.id"></el-option>
+                     <el-option v-for="s in school" :label="s.cname" :value="s.id" :key="s.id"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
                   <el-select v-model="Search.grade" @change="gradeChange(Search.grade)" placeholder="年级">
-                     <el-option v-for="g in grade" :label="g.name" :value="g.name"></el-option>
+                     <el-option v-for="g in grade" :label="g.name" :value="g.name" :key="g.name"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
                   <el-select v-model="Search.classes" placeholder="班级">
-                     <el-option v-for="c in classes" :label="c" :value="c"></el-option>
+                     <el-option v-for="c in classes" :label="c" :value="c" :key="c"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
@@ -29,7 +29,7 @@
                </el-form-item>
                <el-form-item>
                   <el-select v-model="Search.types" placeholder="类型">
-                     <el-option v-for="(v, k) in types" :label="v.text" :value="k"></el-option>
+                     <el-option v-for="(v, k) in types" :label="v.text" :value="k" :key="k"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
@@ -116,14 +116,13 @@
             <el-button type="primary" @click="exportExcel"><d2-icon name="download"/> 导出 Excel</el-button>
          </div>
       </template>
-
       <el-dialog :title="remitTitle" :visible.sync="dialogVisible" width="350px">
          <el-form :model="remitForm">
             <el-form-item>
-               <el-input type="number" v-model="remitForm.fee" placeholder="打款金额"></el-input>
+               <el-input type="number" v-model="remitForm.fee" placeholder="打款金额" @keyup.enter.native="headerRemit"></el-input>
             </el-form-item>
             <el-form-item>
-               <el-input type="text" v-model="remitForm.details" placeholder="备注(选填)"></el-input>
+               <el-input type="text" v-model="remitForm.details" placeholder="备注(选填)" @keyup.enter.native="headerRemit"></el-input>
             </el-form-item>
          </el-form>
          <div slot="footer" class="dialog-footer">
@@ -135,12 +134,12 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash, httpEditUm } from '@api/http'
+import { httpGet, httpTrash, httpEditUm } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'demo-orders-balance',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -166,7 +165,7 @@ export default {
          remitTitle: '',
          remitId: '',
          remitFee: '',
-         remitForm: {fee: '', details: ''}
+         remitForm: { fee: '', details: '' }
       }
    },
    async created () {
@@ -185,13 +184,13 @@ export default {
             this.Search = { sid: '', grade: '', classes: '', state: '', types: '', Time: [], type: '', word: '' }
          })
       },
-      mapData(list, school) {
+      mapData (list, school) {
          this.Data = list.map(item => {
             let json = item
             let sname = school.find(val => { return val.id === item.sid })
             item.school = sname ? sname.cname : '--'
             item.updatetime = item.updatetime ? dayjs(item.updatetime * 1000).format('YYYY-MM-DD HH:mm') : '处理中'
-            item.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD HH:mm")
+            item.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD HH:mm')
             return json
          })
          this.loading = false
@@ -211,20 +210,20 @@ export default {
          })
          return sums
       },
-      remittance(name, Id, fee) {
+      remittance (name, Id, fee) {
          this.remitTitle = `确定打款给 ${name}?`
          this.dialogVisible = true
          this.remitId = Id
          this.remitFee = fee
       },
-      headerRemit() {
+      headerRemit () {
          let fee = this.remitFee, val = this.remitForm.fee, Id = this.remitId
          if (/^[1-9]\d{0,9}?$/.test(val)) {
             if (fee >= val) {
                this.$loading({ fullscreen: true, text: '提交中...' })
                let list = this.Data.find(v => { return v.id === Id })
-               httpEditUm('balanceopt', { method: "refund", id: Id, fee: val, details: this.remitForm.details }).then(res => {
-                  if (res.code == 0) {
+               httpEditUm('balanceopt', { method: 'refund', id: Id, fee: val, details: this.remitForm.details }).then(res => {
+                  if (res.code === 0) {
                      list.updatetime = res.time ? dayjs(res.time * 1000).format('YYYY-MM-DD HH:mm') : dayjs().format('YYYY-MM-DD HH:mm')
                      list.state = res.state || 1
                      list.remark = res.remark
@@ -247,13 +246,13 @@ export default {
       // 打款检测
       check (id) {
          this.loading = true
-         httpEditUm('balanceopt', { method: "check", id }).then(res => {
-            if (res.code === 0){
+         httpEditUm('balanceopt', { method: 'check', id }).then(res => {
+            if (res.code === 0) {
                this.dialogTableShow = true
                this.gridData = res.lists.map(item => {
                   let json = item
-                  json.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD HH:mm")
-                  json.updatetime = item.updatetime ? dayjs(item.updatetime * 1000).format("YYYY-MM-DD HH:mm") : ''
+                  json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD HH:mm')
+                  json.updatetime = item.updatetime ? dayjs(item.updatetime * 1000).format('YYYY-MM-DD HH:mm') : ''
                   return json
                })
             } else {
@@ -265,11 +264,11 @@ export default {
       // 继续打款
       carryOn (id) {
          this.loading = true
-         httpEditUm('balanceopt', { method: "repay", id }).then(res => {
-            if (res.code === 0){
+         httpEditUm('balanceopt', { method: 'repay', id }).then(res => {
+            if (res.code === 0) {
                let list = this.gridData.find(val => { return val.id === id })
                list.remark = res.remark
-               list.updatetime = dayjs(res.updatetime * 1000).format("YYYY-MM-DD HH:mm")
+               list.updatetime = dayjs(res.updatetime * 1000).format('YYYY-MM-DD HH:mm')
                this.$message.success(res.msg)
             } else {
                this.$message.info(res.msg)
@@ -281,7 +280,7 @@ export default {
          this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
             this.loading = true
             httpTrash('balanceopt', { id }).then(res => {
-               if (res.code == 0) {
+               if (res.code === 0) {
                   this.Data = this.Data.filter(item => item.id != id)
                   this.$message.success(res.msg)
                } else {
@@ -297,7 +296,7 @@ export default {
          this.loading = true
          let { sid, grade, classes, state, types, type, word } = this.Search
          let posts = {}
-         if(this.isSearch) {
+         if (this.isSearch) {
             posts = { sid, grade, classes, state, types, type, word }
             posts.beginat = this.Search.Time[0] / 1000 || ''
             posts.overat = this.Search.Time[1] / 1000 || ''
@@ -312,7 +311,7 @@ export default {
          this.loading = true
          let { sid, grade, classes, state, types, type, word } = this.Search
          let posts = {}
-         if(this.isSearch) {
+         if (this.isSearch) {
             posts = { sid, grade, classes, state, types, type, word }
             posts.beginat = this.Search.Time[0] / 1000 || ''
             posts.overat = this.Search.Time[1] / 1000 || ''
@@ -334,11 +333,11 @@ export default {
       },
       gradeChange (grade) {
          this.Search.classes = ''
-         let classesname =  this.grade.find(val => { return val.name == grade})
+         let classesname = this.grade.find(val => { return val.name == grade })
          this.classes = classesname ? classesname.classes : []
       },
       onSearch () {
-         if(this.Search.Time[0] / 1000 > this.Search.Time[1] / 1000){
+         if (this.Search.Time[0] / 1000 > this.Search.Time[1] / 1000) {
             this.$message.warning('开始时间不能大于结束时间')
             return
          }
@@ -356,7 +355,7 @@ export default {
          })
       },
       // 导出 Excel
-      exportExcel() {
+      exportExcel () {
          const data = this.Data.map(item => {
             let json = Object.assign({}, item)
             json.grade = item.grade || '--'
@@ -366,7 +365,7 @@ export default {
             json.state = item.state ? '已到账' : '处理中'
             return json
          })
-         if(data.length){
+         if (data.length) {
             let columns = [
                { label: '收款人', prop: 'cname' },
                { label: '手机号', prop: 'phone' },

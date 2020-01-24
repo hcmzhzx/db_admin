@@ -54,38 +54,34 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'demo-users-pupil',
-   data() {
+   data () {
       return {
          dayjs,
          filename: __filename,
          Data: [],
          school: [],
          total: 0,
-         gender: [
-            { text: '未知', type: 'info' },
-            { text: '男', type: '' },
-            { text: '女', type: 'success' }
-         ],
+         gender: [{ text: '未知', type: 'info' }, { text: '男', type: '' }, { text: '女', type: 'success' }],
          Search: {},
          isSearch: false,
          pageNo: 1,
          loading: true
       }
    },
-   async created() {
-      await this.loadData()
+   created () {
+      this.loadData()
    },
    methods: {
       loadData () {
          this.loading = true
          httpGet('student').then(res => {
-            for(let [v, k] of Object.entries(res.schools)){
-               this.school.push({id: v, cname: k})
+            for (let [v, k] of Object.entries(res.schools)) {
+               this.school.push({ id: v, cname: k })
             }
             this.mapData(res.lists)
             this.total = res.total
@@ -96,7 +92,7 @@ export default {
       mapData (list) {
          this.Data = list.map(item => {
             let json = item
-            let scname = this.school.find(val => {return val.id == item.sid})
+            let scname = this.school.find(val => val.id == item.sid)
             json.school = scname ? scname.cname : '未知'
             json.gradeClasses = `${item.grade}${item.classes}`
             json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')

@@ -74,8 +74,8 @@ import { httpGet, httpPost } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
-   name: "demo-users-batchLeave",
-   data() {
+   name: 'demo-users-batchLeave',
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -86,7 +86,6 @@ export default {
          monthes: [],
          blocklist: [],
          today: '',
-
          curtday: null,
          leaveuid: [],
          leaves: [],
@@ -95,13 +94,13 @@ export default {
          pickerOptions: {}
       }
    },
-   async created () {
-      await httpGet('leavebat').then(res => {
+   created () {
+      httpGet('leavebat').then(res => {
          // 地区
          this.form.district = res.district
          this.form.did = this.form.district.length ? this.form.district[0].cname : ''
          this.headSelect(this.form.sid, res.school, this.form.pid, res.product, this.form.gid)
-         let { startat, endat, holiday} = res.product.find(item => { return item.id == this.form.pid })
+         let { startat, endat, holiday } = res.product.find(item => item.id == this.form.pid)
          this.disabledate(startat, endat, holiday)
       })
    },
@@ -115,7 +114,7 @@ export default {
          startat = parseInt(dayjs(startat * 1000).format('YYYYMMDD'))
          endat = parseInt(dayjs(endat * 1000).format('YYYYMMDD'))
          this.pickerOptions = {
-            disabledDate(time) {
+            disabledDate (time) {
                time = dayjs(time).format('YYYYMMDD')
                if (time < startat || time > endat) return true
                return holiday.includes(time)
@@ -123,43 +122,41 @@ export default {
          }
       },
       // 选择学校
-      selectChange(did, sid, pid, grade, classes) {
+      selectChange (did, sid, pid, grade, classes) {
          this.$loading({ fullscreen: true })
-         did = did ? did : 0
-         sid = sid ? sid : 0
-         pid = pid ? pid : 0
-         grade = grade ? grade : 0
-         classes = classes ? classes : 0
-         httpGet('leavebat', { did, sid, pid, classes, classes }).then(res => {
+         did = did || 0
+         sid = sid || 0
+         pid = pid || 0
+         grade = grade || 0
+         classes = classes || 0
+         httpGet('leavebat', { did, sid, pid, classes }).then(res => {
             this.headSelect(sid, res.school, pid, res.product, grade, classes)
             this.$loading().close()
          })
       },
       // 根据学校联动
-      headSelect(sid, school, pid, product, gid, cid) {
+      headSelect (sid, school, pid, product, gid, cid) {
          // 学校
-         this.form.sid = school.length ? (sid ? sid : school[0].id ) : ''
-         if(school.length>0){
+         this.form.sid = school.length ? (sid || school[0].id) : ''
+         if (school.length > 0) {
             this.form.school = school
-            let grades = school.find(item => { return item.id == this.form.sid })
+            let grades = school.find(item => item.id == this.form.sid)
             this.form.grades = grades ? JSON.parse(grades.grade) : []
             // 年级
-            this.form.grade = this.form.grades.length ? (gid ? gid : this.form.grades[0].name) : ''
+            this.form.grade = this.form.grades.length ? (gid || this.form.grades[0].name) : ''
             // 班级
-            let classes = this.form.grades.find(val => { return val.name == this.form.grade })
+            let classes = this.form.grades.find(val => val.name == this.form.grade)
             this.form.classess = classes ? classes.classes : []
             // this.form.classes = this.form.classess.length ? (cid ? cid : this.form.classess[0]) : ''
-
          } else {
             this.form.school = []
          }
-
          // 学期
-         this.form.pid = product.length ? (pid ? pid : product[0].id) : ''
+         this.form.pid = product.length ? (pid || product[0].id) : ''
          if (product.length > 0) {
             this.form.product = product
             this.form.pid = product[0].id
-            let productList = product.find(item => { return item.id == this.form.pid })
+            let productList = product.find(item => item.id == this.form.pid)
             if (productList) {
                let { startat, endat, holiday } = productList
                this.startat = startat
@@ -178,21 +175,20 @@ export default {
       },
       // 改变学期
       changeProduct (pid) {
-         let { startat, endat, holiday } = this.form.product.find(item => { return item.id === pid })
+         let { startat, endat, holiday } = this.form.product.find(item => item.id === pid)
          this.form.time = ''
-         this.disabledate (startat, endat, holiday)
+         this.disabledate(startat, endat, holiday)
       },
       // 查询
       create () {
          let { did, sid, pid, grade, classes, time } = this.form
-         if (did != '' && sid != '' && pid != '' && grade != '', time != '' ) {
+         if (did !== '' && sid !== '' && pid !== '' && grade !== '' && time !== '') {
             time = dayjs(time).format('YYYYMMDD')
             this.$loading({ fullscreen: true })
             httpPost('leavebat', { did, sid, pid, grade, classes, time }).then(res => {
                let { leaves, students } = res
                this.leaves = leaves
                this.students = students
-
                // this.parseDays(this.startat, this.endat, this.holidays)  // 生成日历
                this.pageDate(leaves, students, classes, time)
                this.$loading().close()
@@ -202,19 +198,19 @@ export default {
          }
       },
       // 生成日历 (暂废)
-      parseDays(begin, end, holidays) {
+      parseDays (begin, end, holidays) {
          let daytime = 86400, first = 0, str = [], block = [], blocklist = [], monthes = [], dates = new Date(), total = 0
          let today = parseInt(dates.getFullYear() + String(dates.getMonth() + 1).padStart(2, '0') + String(dates.getDate()).padStart(2, '0'))
          for (let i = begin; i <= end; i += daytime) {
             let date = new Date(i * 1000)
             let week = date.getDay(), year = date.getFullYear(), day = date.getDate(), month = date.getMonth() + 1, yearmonth = parseInt(year + String(month).padStart(2, '0'))
-            if (day == 1 || first < yearmonth) {
+            if (day === 1 || first < yearmonth) {
                first = yearmonth
                monthes.push(year + '-' + String(month).padStart(2, '0'))
                if (str.length) {
                   if (str.length < 7) {
                      for (let j = str.length; j < 7; j++) {
-                        str.push({keys: 0, day: '', holiday: -1})
+                        str.push({ keys: 0, day: '', holiday: -1 })
                      }
                   }
                   block.push(str)
@@ -224,15 +220,15 @@ export default {
                str = []
             }
             let keys = parseInt(year + String(month).padStart(2, '0') + String(day).padStart(2, '0'))
-            //if(keys >= today) total++
+            // if(keys >= today) total++
             total++
-            if (str.length == 0 && week != 0) {
+            if (str.length === 0 && week !== 0) {
                for (let j = 0; j < week; j++) {
-                  str.push({keys: 0, day: '', holiday: -1})
+                  str.push({ keys: 0, day: '', holiday: -1 })
                }
             }
             str.push({ keys: keys, day: day, holiday: holidays.indexOf(keys), unix: dayjs(date).unix() })
-            if (week == 6) {
+            if (week === 6) {
                if (str.length) block.push(str)
                str = []
             }
@@ -240,38 +236,37 @@ export default {
          if (str.length) {
             if (str.length < 7) {
                for (let j = str.length; j < 7; j++) {
-                  str.push({keys: 0, day: '', holiday: -1})
+                  str.push({ keys: 0, day: '', holiday: -1 })
                }
             }
-            block.push(str), blocklist.push(block)
+            block.push(str)
+            blocklist.push(block)
             block = []
          }
          if (block.length) blocklist.push(block)
          let weeks = ['日', '一', '二', '三', '四', '五', '六']
-         this.weeks = weeks,
-         this.monthes = monthes,
-         this.blocklist = blocklist,
+         this.weeks = weeks
+         this.monthes = monthes
+         this.blocklist = blocklist
          this.today = today
          this.form.total = total
       },
       // 选择假日 (暂废)
-      holiday(bkey, rkey, dkey) {
+      holiday (bkey, rkey, dkey) {
          let day = Object.assign({}, this.blocklist[bkey][rkey][dkey])
-         if (day.keys != 0 && day.holiday == -1) {
+         if (day.keys !== 0 && day.holiday === -1) {
             this.curtday = day.keys
             let { leaves, students } = this, uid = []
             leaves.forEach(item => {
                let days = JSON.parse(item.holiday)
                if (days.includes(day.keys)) uid.push(item.uid)
             })
-            // this.tableData = students.map(val => {
-            let data = students.map(val => {
+            this.tableData = students.map(val => {
                if (day.unix >= val.startat && day.unix <= val.endat) {
                   if (val.grade == this.form.gid) return val
                }
                return {}
-            }).filter(item => { return item.id }).sort(($1, $2) => { return $1.classes.slice(0,1) - $2.classes.slice(0,1) })
-            console.log(data)
+            }).filter(item => item.id).sort(($1, $2) => $1.classes.slice(0, 1) - $2.classes.slice(0, 1))
          } else {
             this.$message.warning(`日期不对!`)
          }
@@ -297,12 +292,14 @@ export default {
             return json
          })
          // 没有班级就排序
-         if (!classes) data = data.sort(($1, $2) => { return $1.classes.slice(0,1) - $2.classes.slice(0,1) })
+         if (!classes) {
+            data = data.sort(($1, $2) => $1.classes.slice(0, 1) - $2.classes.slice(0, 1))
+         }
          this.tableData = data
       },
       // 多选框改变
       selectionChange (val) {
-         this.leaveuid = val.map(item => { return item.uid })
+         this.leaveuid = val.map(item => item.uid)
       },
       // 禁用选项
       selectable (row, index) {
@@ -318,7 +315,7 @@ export default {
             httpPost('leavebat', { sid, pid, today, time, uid: this.leaveuid }).then(res => {
                this.tableData = this.blocklist = []
                this.curtday = null
-               if (res.fail == 0) {
+               if (res.fail === 0) {
                   this.$message.success(res.msg)
                } else {
                   this.$message(`${res.msg}，请假失败${res.fail}条`)

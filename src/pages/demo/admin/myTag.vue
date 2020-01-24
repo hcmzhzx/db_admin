@@ -10,9 +10,6 @@ export default {
       value: { require: true },
       scope: { default: null },
       myProps: { default: null }
-   },
-   mounted() {
-      //console.log(this.value);
    }
 }
 </script>

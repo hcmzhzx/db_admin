@@ -25,7 +25,7 @@
                </el-form-item>
                <el-form-item label="学校名称" label-width="120px" prop="checkList">
                   <el-checkbox-group v-model="form.checkList">
-                     <el-checkbox v-for="item in school" :label="item.name" name="checkList" border></el-checkbox>
+                     <el-checkbox v-for="item in school" :label="item.name" :key="item.name" name="checkList" border></el-checkbox>
                   </el-checkbox-group>
                </el-form-item>
                <el-form-item>
@@ -38,16 +38,16 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpAddUm, httpEditUm } from '@api/http'
+import { httpGet, httpAddUm, httpEditUm } from '@api/http'
 
 export default {
    name: 'addCombo',
-   data() {
+   data () {
       return {
          filename: __filename,
          Id: 0,
          school: [],
-         form: {title: '', checkList: []},
+         form: { title: '', checkList: [] },
          rules: {
             title: [{ required: true, message: '请输入名称', trigger: 'blur' }],
             checkList: [{ type: 'array', required: true, message: '请至少选择一个学校', trigger: 'change' }]
@@ -59,10 +59,10 @@ export default {
          dialog: false
       }
    },
-   async created() {
-      this.$loading({fullscreen: true})
+   async created () {
+      this.$loading({ fullscreen: true })
       let posts = '', Id = Number(this.$route.query.id)
-      if(Id){
+      if (Id) {
          this.Id = Id
          this.$route.meta.title = '修改套餐'
          posts = { id: Id }
@@ -71,55 +71,56 @@ export default {
          this.$route.meta.title = '添加套餐'
       }
       await httpGet('taocanopt', posts).then(res => {
-         for(let [k,v] of Object.entries(res.school)){
-            this.school.push({id: k, name: v})
+         for (let [k, v] of Object.entries(res.school)) {
+            this.school.push({ id: k, name: v })
          }
          if (res.data) {
             JSON.parse(res.data.schools).forEach(i => {
-               let school = this.school.find(v => { return v.id == i })
+               let school = this.school.find(v => v.id == i)
                school && this.form.checkList.push(school.name)
             })
             this.form.title = res.data.title
-            this.fileList = [{name: '', url: res.data.image}]
+            this.fileList = [{ name: '', url: res.data.image }]
          }
          this.$loading().close()
       })
    },
    methods: {
       // 超出限制
-      handleExceed(files, fileList) {
+      handleExceed (files, fileList) {
          this.$message.warning(`当前限制选择 1 个文件`)
       },
       // 删除图片前
-      beforeRemove(file, fileList) {
+      beforeRemove (file, fileList) {
          return this.$confirm(`确定移除此图片？`)
       },
       // 删除上传图片
-      handleRemove(file, fileList) {
+      handleRemove (file, fileList) {
          this.IsUpload = false
-         // console.log(file, fileList)
       },
       // 预览图片
-      handlePreview(file) {
-         this.imageUrl = file.url, this.dialog = true
+      handlePreview (file) {
+         this.imageUrl = file.url
+         this.dialog = true
       },
       // 自定义上传
-      handleUpload(file) {
-         this.UploadFile = file.file, this.IsUpload = true
+      handleUpload (file) {
+         this.UploadFile = file.file
+         this.IsUpload = true
       },
-      handleAdd(form) {
-         if(!this.IsUpload){
+      handleAdd (form) {
+         if (!this.IsUpload) {
             this.$message.warning(`上传图片不能为空!`)
             return
          }
          this.$refs[form].validate((valid) => {
-            if(valid){
+            if (valid) {
                let form = new FormData(), school = []
                this.form.checkList.find(v => {
-                  let Id = this.school.find(i => {return i.name == v}).id
+                  let Id = this.school.find(i => i.name == v).id
                   school.push(Id)
                })
-               if(this.Id){
+               if (this.Id) {
                   form.append('method', 'edit')
                   form.append('id', this.Id)
                   form.append('title', this.form.title)

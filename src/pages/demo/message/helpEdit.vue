@@ -22,11 +22,11 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpAdd, httpEdit } from '@api/http'
 
 export default {
    name: 'demo-message-helpEdit',
-   data() {
+   data () {
       return {
          filename: __filename,
          Id: 0,
@@ -39,13 +39,13 @@ export default {
    },
    created () {
       this.Id = Number(this.$route.query.id)
-      this.$loading({fullscreen: true})
-      if(this.Id){
+      this.$loading({ fullscreen: true })
+      if (this.Id) {
          this.$route.meta.title = '编辑操作指南'
-         httpGet('helpopt', {id: this.Id}).then(res => {
+         httpGet('helpopt', { id: this.Id }).then(res => {
             this.dialog = true
-            let {title, description, content} = res.data
-            this.form = {title, description, content}
+            let { title, description, content } = res.data
+            this.form = { title, description, content }
             this.$loading().close()
          })
       } else {
@@ -55,32 +55,32 @@ export default {
    },
    methods: {
       Submit () {
-         if(!this.form.title){
+         if (!this.form.title) {
             this.$message.warning(`请输入标题!`)
             return
          }
-         if(!this.form.description){
+         if (!this.form.description) {
             this.$message.warning(`请输入副标题!`)
             return
          }
-         if(!this.form.content){
+         if (!this.form.content) {
             this.$message.warning(`请输入内容!`)
             return
          }
-         this.$loading({fullscreen: true})
-         if(this.Id){
-            let posts = {id: this.Id, title: this.form.title, description: this.form.description, content: this.form.content}
+         this.$loading({ fullscreen: true })
+         if (this.Id) {
+            let posts = { id: this.Id, title: this.form.title, description: this.form.description, content: this.form.content }
             httpEdit('helpopt', posts).then(res => {
                this.$message.success(`${res.msg}`)
                this.$loading().close()
-               this.$router.go(-1);
+               this.$router.go(-1)
             })
          } else {
-            let posts = {title: this.form.title, description: this.form.description, content: this.form.content}
+            let posts = { title: this.form.title, description: this.form.description, content: this.form.content }
             httpAdd('helpopt', posts).then(res => {
                this.$message.success(`${res.msg}`)
                this.$loading().close()
-               this.$router.go(-1);
+               this.$router.go(-1)
             })
          }
       }

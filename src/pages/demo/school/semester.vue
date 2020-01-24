@@ -46,12 +46,12 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash, httpPost } from '@api/http'
+import { httpGet, httpTrash, httpPost } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'demo-school-semester',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -64,7 +64,7 @@ export default {
          loading: true
       }
    },
-   async created() {
+   async created () {
       await this.loadData()
    },
    methods: {
@@ -81,10 +81,10 @@ export default {
       mapData (list) {
          this.Data = list.map(item => {
             let json = item
-            json.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
-            json.startat = dayjs(item.startat * 1000).format("YYYY-MM-DD")
-            json.endat = dayjs(item.endat * 1000).format("YYYY-MM-DD")
-            let scname = this.school.find(v => {return v.id == item.sid})
+            json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
+            json.startat = dayjs(item.startat * 1000).format('YYYY-MM-DD')
+            json.endat = dayjs(item.endat * 1000).format('YYYY-MM-DD')
+            let scname = this.school.find(v => v.id == item.sid)
             json.sid = scname ? scname.cname : '未知'
             return json
          })
@@ -107,9 +107,9 @@ export default {
          })
       },
       handleRemove (Id) {
-         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
-            httpTrash('termopt', {id: Id}).then(res => {
-               if (res.code == 0) {
+         this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+            httpTrash('termopt', { id: Id }).then(res => {
+               if (res.code === 0) {
                   this.Data = this.Data.filter(item => item.id != Id)
                   this.$message.success(res.msg)
                } else {
@@ -121,7 +121,7 @@ export default {
          })
       },
       swiper (id, states) {
-         let state = this.Data.find(item => { return item.id == id }).state = states ? 0 : 1
+         let state = this.Data.find(item => item.id == id).state = states ? 0 : 1
          let posts = { method: 'status', id, state }
          httpPost('termopt', posts).then(res => {
             this.$message.success(res.msg)

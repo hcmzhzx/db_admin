@@ -39,7 +39,7 @@ import dayjs from 'dayjs'
 
 export default {
    name: 'combo',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -48,13 +48,13 @@ export default {
          loading: true
       }
    },
-   async created() {
+   async created () {
       await httpGet('taocan').then(res => {
          this.school = res.school
          this.Data = res.lists.map(item => {
             let json = { school: '' }
-            json.addtime = dayjs(item.addtime * 1000).format("YYYY-MM-DD")
-            JSON.parse(item.schools).find(i => {
+            json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
+            JSON.parse(item.schools).forEach(i => {
                json.school += res.school[i] ? `${res.school[i]},` : '未知,'
             })
             json.id = item.id
@@ -67,9 +67,9 @@ export default {
    },
    methods: {
       handleRemove (Id) {
-         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
-            httpTrash('taocanopt', {id: Id}).then(res => {
-               if (res.code == 0) {
+         this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+            httpTrash('taocanopt', { id: Id }).then(res => {
+               if (res.code === 0) {
                   this.Data = this.Data.filter(item => item.id != Id)
                   this.$message.success(res.msg)
                } else {

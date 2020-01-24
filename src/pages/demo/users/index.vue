@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
@@ -63,8 +63,8 @@ export default {
          loading: true
       }
    },
-   async created () {
-      await this.loadData()
+   created () {
+      this.loadData()
    },
    methods: {
       loadData () {

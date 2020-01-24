@@ -35,12 +35,12 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpTrash } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'users',
-   data() {
+   data () {
       return {
          dayjs,
          filename: __filename,
@@ -49,17 +49,17 @@ export default {
          loading: true
       }
    },
-   created() {
+   created () {
       httpGet('admin').then(res => {
-         for(let [v, k] of Object.entries(res.groups)){
-            this.groups.push({id: v, label: k})
+         for (let [v, k] of Object.entries(res.groups)) {
+            this.groups.push({ id: v, label: k })
          }
          this.Data = res.lists.map(item => {
             let json = item, arr = []
             json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
             json.logintime = item.logintime ? dayjs(item.logintime * 1000).format('YYYY-MM-DD') : ''
             item.groups.split(',').forEach(item => {
-               var result = this.groups.find(val => { return item == val.id })
+               var result = this.groups.find(val => item == val.id)
                arr.push(result ? result.label : '')
             })
             json.groups = arr.join(',')
@@ -69,9 +69,9 @@ export default {
       })
    },
    methods: {
-      handleRemove(id) {
-         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
-            httpTrash('adminopt', {id}).then(res => {
+      handleRemove (id) {
+         this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+            httpTrash('adminopt', { id }).then(res => {
                if (res.code == 0) {
                   this.Data = this.Data.filter(item => item.id != id)
                   this.$message.success(res.msg)

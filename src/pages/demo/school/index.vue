@@ -53,12 +53,12 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpTrash } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'demo-school-school',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -71,7 +71,7 @@ export default {
          total: 0
       }
    },
-   async created() {
+   async created () {
       await this.loadData()
    },
    methods: {
@@ -98,7 +98,7 @@ export default {
       onSearch () {
          this.loading = true
          let { did, type, word } = this.Search
-         httpGet('school',{did, type, word}).then(res => {
+         httpGet('school', { did, type, word }).then(res => {
             this.mapData(res.lists, this.district)
             this.total = res.total
             this.pageNo = 1
@@ -114,10 +114,10 @@ export default {
          })
       },
       handleRemove (Id) {
-         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
+         this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
             this.loading = true
-            httpTrash('schoolopt', {id: Id}).then(res => {
-               if (res.code == 0) {
+            httpTrash('schoolopt', { id: Id }).then(res => {
+               if (res.code === 0) {
                   this.Data = this.Data.filter(item => item.id != Id)
                   this.$message.success(res.msg)
                } else {

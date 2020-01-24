@@ -55,12 +55,12 @@
 </template>
 
 <script>
-import {httpGet, httpAdd, httpEdit, httpTrash} from '@api/http'
+import { httpGet } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'demo-users-leave',
-   data() {
+   data () {
       return {
          dayjs,
          filename: __filename,
@@ -75,8 +75,8 @@ export default {
          loading: true
       }
    },
-   async created() {
-      await this.loadData()
+   created () {
+      this.loadData()
    },
    methods: {
       loadData () {
@@ -90,16 +90,18 @@ export default {
          this.isSearch = false
          this.pageNo = 1
       },
-      mapData(list) {
-         //let reg = /(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})/
+      mapData (list) {
+         // let reg = /(?<year>\d{4})(?<month>\d{2})(?<day>\d{2})/
          this.Data = list.map(item => {
             let json = item, holiday = JSON.parse(item.holiday)
-            let scname = this.school.find(val => {return val.id == item.sid})
+            let scname = this.school.find(val => {
+               return val.id == item.sid
+            })
             json.school = scname ? scname.cname : '未知'
             json.gradeClasses = `${item.grade}${item.classes}`
             json.holiday = holiday.length ? holiday.map(val => {
                val = val.toString()
-               //return val.toString().replace(reg, '$<year>-$<month>-$<day>, ')
+               // return val.toString().replace(reg, '$<year>-$<month>-$<day>, ')
                return `${val.substr(0, 4)}-${val.substr(4, 2)}-${val.substr(6, 2)}, `
             }) : ''
             json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD')
@@ -108,7 +110,7 @@ export default {
          this.loading = false
       },
       schoolChange (sid) {
-         let scname = this.school.find(val => { return val.id == sid })
+         let scname = this.school.find(val => val.id == sid)
          this.grade = JSON.parse(scname ? scname.grade : '[]')
          this.Search.grade = ''
          this.Search.classes = ''
@@ -116,7 +118,7 @@ export default {
       },
       gradeChange (grade) {
          this.Search.classes = ''
-         let classname = this.grade.find(val => { return val.name == grade})
+         let classname = this.grade.find(val => val.name == grade)
          this.classes = classname ? classname.classes : []
       },
       onSearch () {
@@ -131,7 +133,7 @@ export default {
          })
       },
       // 分页
-      handleCurrent(num) {
+      handleCurrent (num) {
          this.loading = true
          let { sid, grade, classes, type, word } = this.Search
          let url = this.isSearch ? `leave?sid=${sid}&grade=${grade}&classes=${classes}&type=${type}&word=${word}&page=${num}` : `leave?page=${num}`

@@ -13,7 +13,6 @@
             </el-table-column>
          </el-table>
       </template>
-
       <template>
          <el-dialog title="调查结果" :visible.sync="dialog" width="60%">
             <template>
@@ -37,12 +36,12 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpTrash } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'everyday',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -51,36 +50,36 @@ export default {
          result: []
       }
    },
-   created() {
-      this.$loading({fullscreen: true})
+   created () {
+      this.$loading({ fullscreen: true })
       httpGet('investigatelist').then(res => {
          this.Data = res.lists.map(item => {
             let json = item
-            json.addtime = dayjs(item.addtime * 1000).format("YYYY-M-D")
+            json.addtime = dayjs(item.addtime * 1000).format('YYYY-M-D')
             return json
          })
          this.$loading().close()
       })
    },
    methods: {
-      handleCheck(Id) {
-         this.$loading({fullscreen: true})
-         httpGet('investigateopt', {id: Id}).then(res => {
+      handleCheck (Id) {
+         this.$loading({ fullscreen: true })
+         httpGet('investigateopt', { id: Id }).then(res => {
             this.result = JSON.parse(res.data.result)
             this.dialog = true
             this.$loading().close()
          })
       },
-      handleRemove(Id) {
-         this.$confirm('确定删除此项?', '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
-            httpTrash('investigateopt', {id: Id}).then(res => {
+      handleRemove (Id) {
+         this.$confirm('确定删除此项?', '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
+            httpTrash('investigateopt', { id: Id }).then(res => {
                this.Data = this.Data.filter(item => {
                   return item.id != Id
                })
                this.$message.success('删除成功!')
             })
          }).catch(() => {
-            this.$message,info('已取消删除')
+            this.$message.info('已取消删除')
          })
       }
    }

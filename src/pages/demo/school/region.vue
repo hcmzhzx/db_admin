@@ -27,25 +27,25 @@ import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
 
 export default {
    name: 'region',
-   data() {
+   data () {
       return {
          filename: __filename,
          columns: [
-            {title: 'id', key: 'id', align: 'center', width: '120px'},
-            {title: '地址', key: 'cname', align: 'center'},
-            {title: '排序', key: 'sortid', align: 'center', width: '120px'}
+            { title: 'id', key: 'id', align: 'center', width: '120px' },
+            { title: '地址', key: 'cname', align: 'center' },
+            { title: '排序', key: 'sortid', align: 'center', width: '120px' }
          ],
-         options: {border: true},
+         options: { border: true },
          loading: true,
          Data: [],
          rowHandle: {
             columnHeader: '编辑表格',
             width: '240px',
-            align: "center",
-            edit: { icon: 'el-icon-edit', text: '编辑', size: 'small'},
+            align: 'center',
+            edit: { icon: 'el-icon-edit', text: '编辑', size: 'small' },
             remove: { confirmText: '地区与学校关联, 确定删除吗?', size: 'small', fixed: 'right', icon: 'el-icon-delete' }
          },
-         addButton: {icon: 'el-icon-plus', size: 'small' },
+         addButton: { icon: 'el-icon-plus', size: 'small' },
          formTemplate: {
             cname: { title: '地址', value: '' },
             sortid: { title: '排序', value: '100' }
@@ -53,17 +53,17 @@ export default {
          formOptions: { labelWidth: '80px', labelPosition: 'left', saveLoading: false }
       }
    },
-   created() {
+   created () {
       httpGet('district').then(res => {
          this.Data = res.lists
          this.loading = false
       })
    },
    methods: {
-      handleRowAdd(row, done) {
+      handleRowAdd (row, done) {
          this.formOptions.saveLoading = true
-         for(let v of Object.values(row)){
-            if(v == ''){
+         for (let v of Object.values(row)) {
+            if (v === '') {
                this.$message.warning('值不能为空')
                this.formOptions.saveLoading = false
                return
@@ -77,10 +77,10 @@ export default {
             this.loading = false
          })
       },
-      handleRowEdit ({index, row}, done) {
+      handleRowEdit ({ index, row }, done) {
          this.formOptions.saveLoading = true
-         for(let v of Object.values(row)){
-            if(v == ''){
+         for (let v of Object.values(row)) {
+            if (v === '') {
                this.$message.warning('值不能为空')
                return
             }
@@ -93,10 +93,10 @@ export default {
             this.loading = false
          })
       },
-      handleRowRemove ({index, row}, done) {
+      handleRowRemove ({ index, row }, done) {
          this.loading = true
-         httpTrash('districtopt', {id: row.id}).then(res => {
-            if (res.code == 0) {
+         httpTrash('districtopt', { id: row.id }).then(res => {
+            if (res.code === 0) {
                this.$message.success(res.msg)
             } else {
                this.$message.warning(res.msg)
@@ -105,7 +105,7 @@ export default {
             done()
          })
       },
-      handleDialogCancel(done) {
+      handleDialogCancel (done) {
          this.$message.warning('取消保存')
          done()
       }

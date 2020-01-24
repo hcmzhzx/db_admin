@@ -5,22 +5,22 @@
             <el-form :inline="true" :model="Search">
                <el-form-item>
                   <el-select v-model="Search.sid" @change="schoolChange(Search.sid)" placeholder="学校" filterable>
-                     <el-option v-for="s in school" :label="s.cname" :value="s.id"></el-option>
+                     <el-option v-for="s in school" :label="s.cname" :value="s.id" :key="s.id"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
                   <el-select v-model="Search.pid" @change="termChange(Search.pid)" placeholder="学期">
-                     <el-option v-for="t in term" :label="t.title" :value="t.id"></el-option>
+                     <el-option v-for="t in term" :label="t.title" :value="t.id" :key="t.id"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
                   <el-select v-model="Search.grade" @change="gradeChange(Search.grade)" placeholder="年级">
-                     <el-option v-for="g in grade" :label="g.name" :value="g.name"></el-option>
+                     <el-option v-for="g in grade" :label="g.name" :value="g.name" :key="g.name"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
                   <el-select v-model="Search.classes" placeholder="班级">
-                     <el-option v-for="c in classes" :label="c" :value="c"></el-option>
+                     <el-option v-for="c in classes" :label="c" :value="c" :key="c"></el-option>
                   </el-select>
                </el-form-item>
                <el-form-item>
@@ -107,7 +107,7 @@ import dayjs from 'dayjs'
 
 export default {
    name: 'demo-orders',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -127,8 +127,8 @@ export default {
          loading: true
       }
    },
-   async created() {
-      await this.loadData()
+   created () {
+      this.loadData()
    },
    methods: {
       // 初始化
@@ -166,16 +166,16 @@ export default {
                }
             }
             json.used = 0
-            if (item.state.type != 'danger') {
+            if (item.state.type !== 'danger') {
                json.leave = leaves.length
                for (var i = item.startat; i <= today; i += 86400) {
-                  var day = parseInt(dayjs(i * 1000).format("YYYYMMDD"))
-                  if (leaves.indexOf(day) < 0 && holidays.indexOf(day) < 0 && (item.quittime == 0 || item.quittime > day)) {
+                  var day = parseInt(dayjs(i * 1000).format('YYYYMMDD'))
+                  if (leaves.indexOf(day) < 0 && holidays.indexOf(day) < 0 && (item.quittime === 0 || item.quittime > day)) {
                      json.used++
                   }
                }
             }
-            let sname = school.find(val => {return val.id == item.sid})
+            let sname = school.find(val => val.id == item.sid)
             json.school = sname ? sname.cname : '未知'
             json.paytime = item.paytime ? dayjs(item.paytime * 1000).format('YYYY-MM-DD') : ''
             json.addtime = dayjs(item.addtime * 1000).format('YYYY-MM-DD HH:mm')
@@ -208,10 +208,10 @@ export default {
       // 每页显示条数
       handleSize (pagesize) {
          this.loading = true
-         let {sid, pid, grade, classes, state, beginat, overat, startat, endat, type, word} = this.Search
+         let { sid, pid, grade, classes, state, beginat, overat, startat, endat, type, word } = this.Search
          let posts = {}
          if (this.isSearch) {
-            posts = {sid, pid, grade, classes, state, type, word}
+            posts = { sid, pid, grade, classes, state, type, word }
             posts.beginat = beginat / 1000
             posts.overat = overat / 1000
             posts.startat = startat / 1000
@@ -228,13 +228,13 @@ export default {
       },
       // 切换学校
       schoolChange (sid) {
-         this.$loading({fullscreen: true, text: '搜索中...'})
-         let sname = this.school.find(val => { return val.id == sid })
+         this.$loading({ fullscreen: true, text: '搜索中...' })
+         let sname = this.school.find(val => val.id == sid)
          this.grade = JSON.parse(sname ? sname.grade : '[]')
          this.Search.grade = ''
          this.Search.classes = ''
          this.classes = []
-         httpPost('order', {sid}).then(res => {
+         httpPost('order', { sid }).then(res => {
             this.term = res.lists
             this.$loading().close()
          })
@@ -246,13 +246,13 @@ export default {
       // 切换年级
       gradeChange (grade) {
          this.Search.classes = ''
-         let classname = this.grade.find(val => { return val.name == grade})
+         let classname = this.grade.find(val => val.name == grade)
          this.classes = classname ? classname.classes : []
       },
       // 确认支付
       handOrderopt (id) {
          let item = this.Data.find(v => v.id === id)
-         this.$confirm(`确定修改 ${item.cname} 此项?`, '提示', {confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'}).then(() => {
+         this.$confirm(`确定修改 ${item.cname} 此项?`, '提示', { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }).then(() => {
             this.loading = true
             httpPost('orderopt', { method: 'confirm', id }).then(res => {
                this.loading = false
@@ -293,28 +293,28 @@ export default {
          })
       },
       // 导出 Excel
-      exportExcel() {
+      exportExcel () {
          const data = this.Data.map(item => {
             let json = Object.assign({}, item)
             json.state = item.state.text
             return json
          })
-         if(data.length){
+         if (data.length) {
             let columns = [
-               {label: '学校', prop: 'school'},
-               {label: '年级', prop: 'grade'},
-               {label: '班级', prop: 'classes'},
-               {label: '学生姓名', prop: 'cname'},
-               {label: '手机号', prop: 'phone'},
-               {label: '订单号', prop: 'trade'},
-               {label: '下单时间', prop: 'paytime'},
-               {label: '用餐起始时间', prop: 'startat'},
-               {label: '餐标', prop: 'unit'},
-               {label: '订餐餐次', prop: 'total'},
-               {label: '总金额', prop: 'fee'},
-               {label: '订单状态', prop: 'state'},
-               {label: '已消费餐次', prop: 'used'},
-               {label: '请假餐次', prop: 'leave'}
+               { label: '学校', prop: 'school' },
+               { label: '年级', prop: 'grade' },
+               { label: '班级', prop: 'classes' },
+               { label: '学生姓名', prop: 'cname' },
+               { label: '手机号', prop: 'phone' },
+               { label: '订单号', prop: 'trade' },
+               { label: '下单时间', prop: 'paytime' },
+               { label: '用餐起始时间', prop: 'startat' },
+               { label: '餐标', prop: 'unit' },
+               { label: '订餐餐次', prop: 'total' },
+               { label: '总金额', prop: 'fee' },
+               { label: '订单状态', prop: 'state' },
+               { label: '已消费餐次', prop: 'used' },
+               { label: '请假餐次', prop: 'leave' }
             ]
             this.$export.excel({ columns: columns, data: data }).then(() => {
                this.$message.success('导出表格成功')

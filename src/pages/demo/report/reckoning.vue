@@ -22,7 +22,7 @@
          </el-form>
       </template>
       <template>
-         <el-table v-loading="loading" :data="listData" :max-height="maxHeight" :summary-method="getSummaries" show-summary border>
+         <el-table v-loading="loading" :data="listData" :max-height="maxheight" :summary-method="getSummaries" show-summary border>
             <el-table-column prop="orderID" label="订单号" min-width="140" align="center"></el-table-column>
             <el-table-column prop="paytime" label="时间" min-width="90" align="center"></el-table-column>
             <el-table-column prop="fee" label="金额" min-width="50" align="center"></el-table-column>
@@ -36,8 +36,8 @@ import { httpGet } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
-   name: "demo-report-reckoning",
-   data() {
+   name: 'demo-report-reckoning',
+   data () {
       return {
          dayjs,
          observer: null,
@@ -45,19 +45,21 @@ export default {
          listData: [],
          ments: '',
          sumAmount: '',
-         maxHeight: 'auto',
          loading: true
       }
    },
-   async created () {
+   created () {
       let { date } = this.search
-      await httpGet('reckoning', { date, start: 0, end: 23 }).then(res => {
+      httpGet('reckoning', { date, start: 0, end: 23 }).then(res => {
          if (res.code === 0) {
             this.parseData(res.data)
          }
-      }).catch(err => {
-         this.loading = false
-      })
+      }).catch(() => { this.loading = false })
+   },
+   computed: {
+      maxheight () {
+         return this.Data.length ? getComputedStyle(document.querySelector('.d2-container-full__body'))['height'] : 500
+      }
    },
    methods: {
       // 查询
@@ -65,15 +67,13 @@ export default {
          let { date, start, end } = this.search
          start = start ? Number(start.substring(0, 2)) : 0
          end = end ? Number(end.substring(0, 2)) : 23
-         if (date && start <= end ) {
+         if (date && start <= end) {
             this.loading = true
             httpGet('reckoning', { date, start, end }).then(res => {
                if (res.code === 0) {
                   this.parseData(res.data)
                }
-            }).catch(err => {
-               this.loading = false
-            })
+            }).catch(() => { this.loading = false })
          } else {
             this.$message('日期时间不对!')
          }
@@ -106,22 +106,7 @@ export default {
             sums[2] = `${this.sumAmount} 元`
          })
          return sums
-      },
-      // 计算高度
-      sizeEle () {
-         this.maxHeight = document.querySelector('.d2-container-full__body').clientHeight - 40
       }
-   },
-   // 进入路由注册 resize 事件
-   beforeRouteEnter  (to, from, next) {
-      next(vm => {
-         window.onresize = vm._debounce(() => { vm.sizeEle() }, 500)
-      })
-   },
-   // 离开路由注销 resize 事件
-   beforeRouteLeave (to, from, next) {
-      window.onresize = null
-      next()
    }
 }
 </script>

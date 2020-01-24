@@ -40,12 +40,12 @@
 </template>
 
 <script>
-import { httpGet, httpPost } from '@api/http'
+import { httpGet } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
    name: 'admin',
-   data() {
+   data () {
       return {
          dayjs,
          school: [],
@@ -80,18 +80,18 @@ export default {
             if (item.addtime >= startat && item.addtime <= endat) items.ordernum = 1
             for (var i = startat; i <= endat; i += 86400) {
                let day = parseInt(dayjs(i * 1000).format('YYYYMMDD'))
-               if (item.holiday.indexOf(day) == -1 && (i >= item.startat && i <= item.endat)) {
+               if (item.holiday.indexOf(day) === -1 && (i >= item.startat && i <= item.endat)) {
                   if (item.quittime == 0 || item.quittime > i) {
-                     if(item.leave.includes(day)){
-                        items.leavenum ++
+                     if (item.leave.includes(day)) {
+                        items.leavenum++
                         items.leavefee += item.unit
                      } else {
-                        items.usenum ++
+                        items.usenum++
                         items.usefee += item.unit
                      }
                   } else {
                      if (item.quittime == i) {
-                        items.quitnum ++
+                        items.quitnum++
                         items.quitfee += item.refund
                      }
                   }
@@ -107,18 +107,18 @@ export default {
                schools[item.sid].usenum += items.usenum
                schools[item.sid].usefee += items.usefee
             } else {
-               let School = school.find(val => { return val.id == item.sid })
+               let School = school.find(val => val.id == item.sid)
                schools[item.sid] = Object.assign({ school: School ? School.cname : '', unit: item.unit }, items)
             }
          })
          schools.forEach(v => {
-            !this.Data.some(i => { return i.sid == v.sid }) && this.Data.push(v)
+            !this.Data.some(i => i.sid == v.sid) && this.Data.push(v)
          })
          this.loading = false
       },
       // 生成数据
       create () {
-         let posts = { sid: this.Search.sid, startat: this.Search.Time[0] /1000 , endat: this.Search.Time[1] / 1000}
+         let posts = { sid: this.Search.sid, startat: this.Search.Time[0] / 1000, endat: this.Search.Time[1] / 1000 }
          this.loading = true
          httpGet('data', posts).then(res => {
             this.mapData(posts.startat, posts.endat, this.school, res.lists, res.leaves, res.product)
@@ -126,21 +126,21 @@ export default {
       },
       // 删除
       handleRemove (sid) {
-         this.Data = this.Data.filter(v => { return v.sid != sid })
+         this.Data = this.Data.filter(v => v.sid != sid)
       },
       // 导出 Excel
       exportExcel () {
-         if(this.Data.length){
+         if (this.Data.length) {
             let columns = [
-               {label: '学校', prop: 'school'},
-               {label: '订单数量', prop: 'ordernum'},
-               {label: '餐标', prop: 'unit'},
-               {label: '退餐数量', prop: 'quitnum'},
-               {label: '退餐金额', prop: 'quitfee'},
-               {label: '请假数量', prop: 'leavenum'},
-               {label: '请假金额', prop: 'leavefee'},
-               {label: '实际供餐餐次', prop: 'usenum'},
-               {label: '配餐收入', prop: 'usefee'}
+               { label: '学校', prop: 'school' },
+               { label: '订单数量', prop: 'ordernum' },
+               { label: '餐标', prop: 'unit' },
+               { label: '退餐数量', prop: 'quitnum' },
+               { label: '退餐金额', prop: 'quitfee' },
+               { label: '请假数量', prop: 'leavenum' },
+               { label: '请假金额', prop: 'leavefee' },
+               { label: '实际供餐餐次', prop: 'usenum' },
+               { label: '配餐收入', prop: 'usefee' }
             ]
             this.$export.excel({ columns: columns, data: this.Data }).then(() => {
                this.$message.success('导出表格成功')

@@ -59,7 +59,7 @@ import dayjs from 'dayjs'
 
 export default {
    name: 'admin',
-   data() {
+   data () {
       return {
          filename: __filename,
          dayjs,
@@ -70,12 +70,12 @@ export default {
          orders: '',
          table: {
             columns: [
-               {label: '学校', prop: 'school'},
-               {label: '年级', prop: 'grade'},
-               {label: '班级', prop: 'classes'},
-               {label: '用餐人数', prop: 'total'},
-               {label: '请假人数', prop: 'leave'},
-               {label: '退餐人数', prop: 'quit'}
+               { label: '学校', prop: 'school' },
+               { label: '年级', prop: 'grade' },
+               { label: '班级', prop: 'classes' },
+               { label: '用餐人数', prop: 'total' },
+               { label: '请假人数', prop: 'leave' },
+               { label: '退餐人数', prop: 'quit' }
             ],
             data: [],
             stripe: true,
@@ -86,46 +86,47 @@ export default {
 
       }
    },
-   created() {
+   created () {
       httpGet('meals').then(res => {
          // 地区
          this.form.district = res.district
          this.form.did = this.form.district.length ? this.form.district[0].id : ''
-
          this.headSelect(this.form.sid, res.school, this.form.pid, res.product)
       })
    },
    methods: {
-      selectChange(did, sid, pid) {
-         this.$loading({fullscreen: true})
-         did = did ? did : 0; sid = sid ? sid : 0; pid = pid ? pid : 0
-         httpGet('meals', {did, sid, pid}).then(res => {
+      selectChange (did, sid, pid) {
+         this.$loading({ fullscreen: true })
+         did = did || 0
+         sid = sid || 0
+         pid = pid || 0
+         httpGet('meals', { did, sid, pid }).then(res => {
             this.headSelect(sid, res.school, pid, res.product)
             this.$loading().close()
          })
       },
 
-      headSelect(sid, school, pid, product) {
+      headSelect (sid, school, pid, product) {
          // 学校
-         this.form.sid = school.length ? (sid ? sid : school[0].id ) : ''
-         if(school.length>0){
+         this.form.sid = school.length ? (sid || school[0].id) : ''
+         if (school.length > 0) {
             this.form.school = school
-            let grades = school.find(item => { return item.id == this.form.sid })
+            let grades = school.find(item => item.id == this.form.sid)
             this.grade = grades ? grades.grade : []
          } else {
             this.form.school = []
          }
 
          // 学期
-         this.form.pid = product.length ? (pid ? pid : product[0].id ) : ''
-         if(product.length>0){
+         this.form.pid = product.length ? (pid || product[0].id) : ''
+         if (product.length > 0) {
             this.form.product = product
             this.form.pid = product[0].id
-            let productList = product.find(item => {return item.id == this.form.pid})
-            if(productList){
+            let productList = product.find(item => item.id == this.form.pid)
+            if (productList) {
                this.startat = productList.startat
                this.endat = productList.endat
-               this.form.Time = [ productList.startat * 1000, productList.startat * 1000 ]
+               this.form.Time = [productList.startat * 1000, productList.startat * 1000]
                this.holiday = productList.holiday
             }
          } else {
@@ -137,24 +138,24 @@ export default {
       },
       // 切换学期
       productChange (pid) {
-         let productList = this.form.product.find(item => { return item.id == pid })
-         if(productList){
+         let productList = this.form.product.find(item => item.id == pid)
+         if (productList) {
             this.startat = productList.startat
             this.endat = productList.endat
-            this.form.Time = [ productList.startat * 1000, productList.startat * 1000 ]
+            this.form.Time = [productList.startat * 1000, productList.startat * 1000]
             this.holiday = productList.holiday
          }
       },
       // 生成
-      create() {
+      create () {
          let { did, sid, pid } = this.form
-         if (did != '' && sid != '' && pid != '') {
-            if (this.form.Time.length == 2) {
+         if (did !== '' && sid !== '' && pid !== '') {
+            if (this.form.Time.length === 2) {
                if (this.form.Time[0] / 1000 >= this.startat && this.form.Time[1] / 1000 <= this.endat) {
                   this.$loading({ fullscreen: true })
-                  let slabel = this.form.school.find(val => { return val.id == sid })
+                  let slabel = this.form.school.find(val => val.id == sid)
                   let school = slabel ? slabel.cname : '未知'
-                  httpPost('meals',{did, sid, pid}).then(res => {
+                  httpPost('meals', { did, sid, pid }).then(res => {
                      this.parseData(this.form.Time[0] / 1000, this.form.Time[1] / 1000, school, this.grade, this.holiday, res.leave, res.order)
                      this.$loading().close()
                   })
@@ -173,7 +174,9 @@ export default {
          let holidays = JSON.parse(holiday), grades = []
          orders.forEach(item => {
             item.leave = []
-            leaves.forEach(val => { if(item.id == val.oid) item.leave = item.leave.concat(JSON.parse(val.holiday)) })
+            leaves.forEach(val => {
+               if (item.id == val.oid) item.leave = item.leave.concat(JSON.parse(val.holiday))
+            })
          })
          JSON.parse(grade).forEach((item, keys) => {
             item.classes.forEach((v, k) => {
@@ -221,7 +224,7 @@ export default {
          this.quit = []
          let quitSum = new Set()
          grades.forEach(item => {
-            if(item.leave.users.length){
+            if (item.leave.users.length) {
                let json = Object.assign({}, item)
                json.grade = item.grade
                json.classes = `${item.classes}`
@@ -229,7 +232,7 @@ export default {
                item.leave.users.forEach(v => { leaveSum.add(v) })
                if (json) this.leaves.push(json)
             }
-            if(item.quit.users.length){
+            if (item.quit.users.length) {
                let json = Object.assign({}, item)
                json.grade = item.grade
                json.classes = `${item.classes}`
@@ -238,12 +241,12 @@ export default {
                if (json) this.quit.push(json)
             }
          })
-         this.leaves.unshift({grade: `请假: ${[...leaveSum].length}人`, classes: '', cname: ''})
+         this.leaves.unshift({ grade: `请假: ${[...leaveSum].length}人`, classes: '', cname: '' })
          this.quit.unshift({ grade: `退餐: ${[...quitSum].length}人`, classes: '', cname: '' })
       },
       SpanMethod ({ row, column, rowIndex, columnIndex }) {
          if (columnIndex === 0) {
-            if (rowIndex  === 0) {
+            if (rowIndex === 0) {
                return { rowspan: this.table.data.length, colspan: 1 }
             } else {
                return { rowspan: 0, colspan: 0 }
@@ -252,7 +255,7 @@ export default {
       },
 
       // 开始时间 结束时间 班级 假日
-      /*parseData (startat, endat, grade, holiday, leaves, orders) {
+      /* parseData (startat, endat, grade, holiday, leaves, orders) {
          let holidays = JSON.parse(holiday), grades = [], dates = []
          JSON.parse(grade).forEach((item, keys) => {
             item.classes.forEach((v, k) => {
@@ -304,20 +307,20 @@ export default {
             }
          })
          return nums
-      },*/
+      }, */
 
       // 导出 Excel
-      exportExcel() {
-         if(this.table.data.length){
+      exportExcel () {
+         if (this.table.data.length) {
             let length = this.table.columns.length
             let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-            var first = Math.floor(length / chars.length), second = length % chars.length
+            let first = Math.floor(length / chars.length), second = length % chars.length
             var merges = chars[0] + '1,' + (first > 0 ? chars[first - 1] : '') + chars[second - 1] + 1
             this.$export.excel({
                columns: this.table.columns,
                data: this.table.data,
                header: '用餐详情',
-               merges: [merges.split(','), `A2, A${this.table.data.length+2}`.split(',')]
+               merges: [merges.split(','), `A2, A${this.table.data.length + 2}`.split(',')]
             }).then(() => { this.$message.success('导出表格成功') })
          } else {
             this.$message.warning(`请先生成数据再导出!`)

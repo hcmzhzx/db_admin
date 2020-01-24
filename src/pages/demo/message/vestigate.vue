@@ -30,19 +30,19 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpAdd } from '@api/http'
 
 export default {
    name: 'demo-orders',
-   data() {
+   data () {
       return {
          filename: __filename,
-         type: [{label: '单选', value:'radio'},{label: '多选', value:'checkbox'}],
+         type: [{ label: '单选', value: 'radio' }, { label: '多选', value: 'checkbox' }],
          vestigateList: []
       }
    },
    created () {
-      this.$loading({fullscreen: true})
+      this.$loading({ fullscreen: true })
       httpGet('investigate').then(res => {
          res.data.forEach(item => {
             let Json = {}
@@ -61,7 +61,7 @@ export default {
    },
    methods: {
       addList () {
-         this.vestigateList.push({ title:'', answer:'', type: 'radio', max: 1})
+         this.vestigateList.push({ title: '', answer: '', type: 'radio', max: 1 })
       },
       removeList (k) {
          this.vestigateList.splice(k, 1)
@@ -74,9 +74,9 @@ export default {
             Json.answer = item.answer.split(',').map(val => { return { text: val } })
             Json.type = item.type
             Json.max = item.max
-            data.push(Json);
+            data.push(Json)
          })
-         this.$loading({fullscreen: true})
+         this.$loading({ fullscreen: true })
          httpAdd('investigate', { data: JSON.stringify(data) }).then(res => {
             this.$message.success(`${res.msg}`)
             this.$loading().close()

@@ -37,7 +37,7 @@
                   <el-input type="number" v-model="form.unit" autocomplete="off" placeholder="请填写餐标"></el-input>
                </el-form-item>
                <el-form-item label="总共餐次" label-width="120px">
-                  <el-input type="number" v-model="form.total - holidays.length" :disabled="true" placeholder="请填写总共餐次"></el-input>
+                  <el-input type="number" v-model="totals" :disabled="true" placeholder="请填写总共餐次"></el-input>
                </el-form-item>
                <el-form-item>
                   <el-button type="primary" @click="handleAdd('form')">{{Id ? '立即修改' : '立即添加'}}</el-button>
@@ -49,11 +49,11 @@
 </template>
 
 <script>
-import { httpGet, httpAdd, httpEdit, httpTrash } from '@api/http'
+import { httpGet, httpAdd, httpEdit } from '@api/http'
 
 export default {
    name: 'addSemester',
-   data() {
+   data () {
       return {
          filename: __filename,
          Id: 0,
@@ -73,21 +73,21 @@ export default {
          today: ''
       }
    },
-   async created() {
-      this.$loading({fullscreen: true})
+   created () {
+      this.$loading({ fullscreen: true })
       let posts = '', Id = Number(this.$route.query.id)
-      if(Id){
+      if (Id) {
          this.Id = Id
          this.$route.meta.title = '修改学期'
          posts = { id: Id }
       } else {
          this.$route.meta.title = '添加学期'
       }
-      await httpGet('termopt', posts).then(res => {
-         for(let [k, v] of Object.entries(res.school)){
-            this.school.push({ id: k, cname: v})
+      httpGet('termopt', posts).then(res => {
+         for (let [k, v] of Object.entries(res.school)) {
+            this.school.push({ id: k, cname: v })
          }
-         if(res.data){
+         if (res.data) {
             let { sid, title, startat, endat, unit, total, holiday } = res.data
             this.form.sid = String(sid)
             this.form.title = title
@@ -101,12 +101,18 @@ export default {
          this.$loading().close()
       })
    },
+   computed: {
+      totals () {
+         return this.form.total - this.holidays.length
+      }
+   },
    methods: {
       // 开始时间
-      startat() {
-         if(this.form.startat && this.form.endat){
-            this.form.startat = this.form.startat, this.form.endat = this.form.endat
-            if(this.form.startat < this.form.endat){
+      startat () {
+         if (this.form.startat && this.form.endat) {
+            this.form.startat = this.form.startat
+            this.form.endat = this.form.endat
+            if (this.form.startat < this.form.endat) {
                this.holidays = []
                this.parseDays(this.form.startat / 1000, this.form.endat / 1000, this.holidays)
             } else {
@@ -115,10 +121,11 @@ export default {
          }
       },
       // 结束时间
-      endat() {
-         if(this.form.startat && this.form.endat){
-            this.form.startat = this.form.startat, this.form.endat = this.form.endat
-            if(this.form.startat < this.form.endat){
+      endat () {
+         if (this.form.startat && this.form.endat) {
+            this.form.startat = this.form.startat
+            this.form.endat = this.form.endat
+            if (this.form.startat < this.form.endat) {
                this.holidays = []
                this.parseDays(this.form.startat / 1000, this.form.endat / 1000, this.holidays)
             } else {
@@ -127,7 +134,7 @@ export default {
          }
       },
       // 生成日历
-      parseDays(begin, end, holidays) {
+      parseDays (begin, end, holidays) {
          let daytime = 86400, first = 0, str = [], block = [], blocklist = [], monthes = [], dates = new Date(), total = 0
          let today = parseInt(dates.getFullYear() + String(dates.getMonth() + 1).padStart(2, '0') + String(dates.getDate()).padStart(2, '0'))
          for (let i = begin; i <= end; i += daytime) {
@@ -137,13 +144,13 @@ export default {
                day = date.getDate(),
                month = date.getMonth() + 1,
                yearmonth = parseInt(year + String(month).padStart(2, '0'))
-            if (day == 1 || first < yearmonth) {
+            if (day === 1 || first < yearmonth) {
                first = yearmonth
                monthes.push(year + '-' + String(month).padStart(2, '0'))
                if (str.length) {
                   if (str.length < 7) {
                      for (let j = str.length; j < 7; j++) {
-                        str.push({keys: 0, day: '', holiday: -1})
+                        str.push({ keys: 0, day: '', holiday: -1 })
                      }
                   }
                   block.push(str)
@@ -153,15 +160,15 @@ export default {
                str = []
             }
             let keys = parseInt(year + String(month).padStart(2, '0') + String(day).padStart(2, '0'))
-            //if(keys >= today) total++
+            // if(keys >= today) total++
             total++
-            if (str.length == 0 && week != 0) {
+            if (str.length === 0 && week !== 0) {
                for (let j = 0; j < week; j++) {
-                  str.push({keys: 0, day: '', holiday: -1})
+                  str.push({ keys: 0, day: '', holiday: -1 })
                }
             }
-            str.push({keys: keys, day: day, holiday: holidays.indexOf(keys)})
-            if (week == 6) {
+            str.push({ keys: keys, day: day, holiday: holidays.indexOf(keys) })
+            if (week === 6) {
                if (str.length) block.push(str)
                str = []
             }
@@ -169,48 +176,47 @@ export default {
          if (str.length) {
             if (str.length < 7) {
                for (let j = str.length; j < 7; j++) {
-                  str.push({keys: 0, day: '', holiday: -1})
+                  str.push({ keys: 0, day: '', holiday: -1 })
                }
             }
-            block.push(str), blocklist.push(block)
+            block.push(str)
+            blocklist.push(block)
             block = []
          }
          if (block.length) blocklist.push(block)
          let weeks = ['日', '一', '二', '三', '四', '五', '六']
-         this.weeks = weeks,
-         this.monthes = monthes,
-         this.blocklist = blocklist,
+         this.weeks = weeks
+         this.monthes = monthes
+         this.blocklist = blocklist
          this.today = today
          this.form.total = total
       },
       // 选择假日
-      holiday(bkey, rkey, dkey) {
+      holiday (bkey, rkey, dkey) {
          let days = Object.assign({}, this.blocklist[bkey][rkey][dkey])
          if (days.keys < this.today) return
          if (days.holiday > -1) {
             this.blocklist[bkey][rkey][dkey].holiday = -1
-            this.holidays = this.holidays.filter(item => {
-               return item != days.keys
-            })
+            this.holidays = this.holidays.filter(item => item != days.keys)
          } else {
             this.blocklist[bkey][rkey][dkey].holiday = 1
             this.holidays.push(days.keys)
          }
       },
       // 添加学期
-      handleAdd(form) {
+      handleAdd (form) {
          this.$refs[form].validate((valid) => {
-            if(valid){
-               this.$loading({fullscreen: true})
-               if(this.Id){
-                  let posts = {id: this.Id, sid: this.form.sid, title: this.form.title, startat: this.form.startat / 1000, endat: this.form.endat / 1000, unit: Number(this.form.unit), total: this.form.total - this.holidays.length, holiday: JSON.stringify(this.holidays) }
+            if (valid) {
+               this.$loading({ fullscreen: true })
+               if (this.Id) {
+                  let posts = { id: this.Id, sid: this.form.sid, title: this.form.title, startat: this.form.startat / 1000, endat: this.form.endat / 1000, unit: Number(this.form.unit), total: this.form.total - this.holidays.length, holiday: JSON.stringify(this.holidays) }
                   httpEdit('termopt', posts).then(res => {
                      this.$message.success('修改成功')
                      this.$loading().close()
                      this.$router.go(-1)
                   })
                } else {
-                  let posts = {sid: this.form.sid, title: this.form.title, startat: this.form.startat / 1000, endat: this.form.endat / 1000, unit: Number(this.form.unit), total: this.form.total - this.holidays.length, holiday: JSON.stringify(this.holidays) }
+                  let posts = { sid: this.form.sid, title: this.form.title, startat: this.form.startat / 1000, endat: this.form.endat / 1000, unit: Number(this.form.unit), total: this.form.total - this.holidays.length, holiday: JSON.stringify(this.holidays) }
                   httpAdd('termopt', posts).then(res => {
                      this.$message.success('添加成功')
                      this.$loading().close()

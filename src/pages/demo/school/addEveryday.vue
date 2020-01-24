@@ -36,11 +36,11 @@
 </template>
 
 <script>
-import {httpGet, httpAddUm, httpEditUm} from '@api/http'
+import { httpGet, httpAddUm } from '@api/http'
 
 export default {
    name: 'addEveryday',
-   data() {
+   data () {
       return {
          filename: __filename,
          Id: 0,
@@ -51,15 +51,15 @@ export default {
          fileList: [],
          imageUrl: '',
          rules: {
-            date: [{required: true, message: '请选择日期', trigger: 'change'}],
-            cname: [{required: true, message: '请选择套餐名', trigger: 'change'}]
-         },
+            date: [{ required: true, message: '请选择日期', trigger: 'change' }],
+            cname: [{ required: true, message: '请选择套餐名', trigger: 'change' }]
+         }
       }
    },
-   async created() {
-      this.$loading({fullscreen: true})
+   async created () {
+      this.$loading({ fullscreen: true })
       let posts = '', Id = Number(this.$route.query.id)
-      if(Id){
+      if (Id) {
          this.Id = Id
          this.$route.meta.title = '修改每日实拍'
          posts = { id: Id }
@@ -69,45 +69,46 @@ export default {
       }
       await httpGet('dayshootopt', posts).then(res => {
          for (let [k, v] of Object.entries(res.taocan)) {
-            this.combo.push({id: k, cname: v})
+            this.combo.push({ id: k, cname: v })
          }
          if (res.data) {
             this.form.date = res.data.addtime * 1000
             this.form.cname = res.taocan[res.data.tid]
-            this.fileList = [{name: '', url: res.data.image}]
+            this.fileList = [{ name: '', url: res.data.image }]
          }
          this.$loading().close()
       })
    },
    methods: {
       // 超出限制
-      handleExceed(files, fileList) {
+      handleExceed (files, fileList) {
          this.$message.warning(`当前限制选择 1 个文件`)
       },
       // 删除图片前
-      beforeRemove(file, fileList) {
+      beforeRemove (file, fileList) {
          return this.$confirm(`确定移除此图片？`)
       },
       // 删除上传图片
-      handleRemove(file, fileList) {
+      handleRemove (file, fileList) {
          this.UploadFile = null
       },
       // 预览图片
-      handlePreview(file) {
-         this.imageUrl = file.url, this.dialog = true
+      handlePreview (file) {
+         this.imageUrl = file.url
+         this.dialog = true
       },
       // 自定义上传
-      handleUpload(file) {
+      handleUpload (file) {
          this.UploadFile = file.file
       },
-      handleAdd(form) {
+      handleAdd (form) {
          if (!this.UploadFile) {
             this.$message.warning(`上传图片不能为空!`)
             return
          }
          this.$refs[form].validate((valid) => {
             if (valid) {
-               this.$loading({fullscreen: true})
+               this.$loading({ fullscreen: true })
                let Form = new FormData()
                if (this.Id) {
                   Form.append('method', 'edit')

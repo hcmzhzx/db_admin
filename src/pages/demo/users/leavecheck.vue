@@ -44,56 +44,56 @@
 </template>
 
 <script>
-  import {httpGet, httpPost} from '@api/http'
-  import dayjs from 'dayjs'
+import { httpGet, httpPost } from '@api/http'
+import dayjs from 'dayjs'
 
-  export default {
-    name: "demo-users-leavecheck",
-    data() {
+export default {
+   name: 'demo-users-leavecheck',
+   data () {
       return {
-        filename: __filename,
-        dayjs,
-        Search: { type: '', word: '' },
-        balance: [],
-        leaves:[],
-        student: [],
-        loading: false
+         filename: __filename,
+         dayjs,
+         Search: { type: '', word: '' },
+         balance: [],
+         leaves: [],
+         student: [],
+         loading: false
       }
-    },
-    methods: {
-      onSearch() {
-        this.loading = true
-        let { type, word } = this.Search
-        httpGet('leavecheck', { type, word }).then(res => {
-          var leaves = []
-          res.leaves.forEach(item => {
-            JSON.parse(item.holiday).forEach(val => {
-              leaves.push({ id: item.id, day: val, uid: item.uid, state: res.balance.includes(val.toString()) })
+   },
+   methods: {
+      onSearch () {
+         this.loading = true
+         let { type, word } = this.Search
+         httpGet('leavecheck', { type, word }).then(res => {
+            var leaves = []
+            res.leaves.forEach(item => {
+               JSON.parse(item.holiday).forEach(val => {
+                  leaves.push({ id: item.id, day: val, uid: item.uid, state: res.balance.includes(val.toString()) })
+               })
             })
-          })
-          this.leaves = leaves
-          if(!res.student) return
-          this.student = [res.student].map(item => {
-            let json = item
-            json.gradeClasses = `${item.grade}${item.classes}`
-            return json
-          })
-        })
-        this.loading = false
+            this.leaves = leaves
+            if (!res.student) return
+            this.student = [res.student].map(item => {
+               let json = item
+               json.gradeClasses = `${item.grade}${item.classes}`
+               return json
+            })
+         })
+         this.loading = false
       },
-      refund(id, uid, day) {
-        this.loading = true
-        httpPost('leavecheck', {id, uid, day }).then(res => {
-          if(res.code == 0){
-            let list = this.leaves.find(item => item.day == day)
-            list.state = true
-            this.$message.success(res.msg)
-          } else {
-            this.$message.error(res.msg)
-          }
-          this.loading = false
-        })
+      refund (id, uid, day) {
+         this.loading = true
+         httpPost('leavecheck', { id, uid, day }).then(res => {
+            if (res.code === 0) {
+               let list = this.leaves.find(item => item.day == day)
+               list.state = true
+               this.$message.success(res.msg)
+            } else {
+               this.$message.error(res.msg)
+            }
+            this.loading = false
+         })
       }
-    }
-  }
+   }
+}
 </script>

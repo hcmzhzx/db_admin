@@ -29,7 +29,7 @@ import { httpGet } from '@api/http'
 import dayjs from 'dayjs'
 
 export default {
-   name: "demo-report-pride",
+   name: 'demo-report-pride',
    data () {
       return {
          dayjs,
@@ -41,7 +41,7 @@ export default {
    async created () {
       await this.loadData()
    },
-   methods:{
+   methods: {
       loadData () {
          httpGet('pride').then(res => {
             this.parseData(res.lists)

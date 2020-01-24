@@ -51,18 +51,18 @@ import { httpGet, httpPost } from '@api/http'
 
 export default {
    name: 'demo-message',
-   data() {
+   data () {
       return {
-         banners: [{image: '', opentype: '', url: ''}],
+         banners: [{ image: '', opentype: '', url: '' }],
          title: '',
          content: ''
       }
    },
-   created() {
-      this.$loading({fullscreen: true})
+   created () {
+      this.$loading({ fullscreen: true })
       httpGet('homepage').then(res => {
          this.banners = res.data.banner
-         let {title, content} = res.data.notice
+         let { title, content } = res.data.notice
          this.title = title
          this.content = content
          this.$loading().close()
@@ -70,18 +70,18 @@ export default {
    },
    methods: {
       addnew () {
-         this.banners.push({image: '', opentype: '', url: ''})
+         this.banners.push({ image: '', opentype: '', url: '' })
       },
       itemsave (k) {
          let items = Object.assign({}, this.banners[k])
-         if (items.image == '' && !items.file) {
+         if (items.image === '' && !items.file) {
             this.$message.warning(`请选择上传文件!`)
-         } else if(items.opentype == ''){
+         } else if (items.opentype === '') {
             this.$message.warning(`请选择跳转方式!`)
-         } else if(items.url == ''){
+         } else if (items.url === '') {
             this.$message.warning(`请填写跳转链接!`)
          } else {
-            this.$loading({fullscreen: true})
+            this.$loading({ fullscreen: true })
             let posts = new FormData()
             items.file ? posts.append('file', items.file) : posts.append('image', items.image)
             posts.append('opentype', items.opentype)
@@ -105,18 +105,18 @@ export default {
          this.banners[k].image = ''
       },
       Submit () {
-         let posts = {title: this.title, content: this.content}
-         if(!posts.title) {
+         let posts = { title: this.title, content: this.content }
+         if (!posts.title) {
             this.$message.warning(`请输入公告标题!`)
             return
          }
-         if(!posts.content) {
+         if (!posts.content) {
             this.$message.warning(`请输入内容!`)
             return
          }
-         this.$loading({fullscreen: true})
+         this.$loading({ fullscreen: true })
          httpPost('homepage', posts).then(res => {
-            if (res.code == 0) {
+            if (res.code === 0) {
                this.$message.success(res.msg)
             } else {
                this.$message.warning(res.msg)

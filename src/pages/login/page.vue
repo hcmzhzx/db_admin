@@ -41,7 +41,6 @@
 
 <script>
 import dayjs from 'dayjs'
-import { mapActions } from 'vuex'
 import { login } from '@/menu'
 
 export default {
@@ -49,18 +48,12 @@ export default {
     return {
       timeInterval: null,
       time: dayjs().format('HH:mm:ss'),
-      // 快速选择用户  debao -> db123456
-      dialogVisible: false,
-      // 表单
+      // 表单 debao -> db123456
       formLogin: { account: '', pwd: '' },
       // 校验
       rules: {
-        account: [
-          { required: true, message: '请输入用户名', trigger: 'blur' }
-        ],
-        pwd: [
-          { required: true, message: '请输入密码', trigger: 'blur' }
-        ]
+        account: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+        pwd: [{ required: true, message: '请输入密码', trigger: 'blur' }]
       }
     }
   },
@@ -74,9 +67,6 @@ export default {
     clearInterval(this.timeInterval)
   },
   methods: {
-    // ...mapActions('d2admin/account', [
-    //   'login'
-    // ]),
     refreshTime () {
       this.time = dayjs().format('HH:mm:ss')
     },
